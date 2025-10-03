@@ -5,9 +5,23 @@
 
 import * as path from 'path';
 import * as fs from 'fs';
-import { parseTemplate, TmplAstElement, TmplAstBoundAttribute, TmplAstBoundEvent, TmplAstReference } from '@angular/compiler';
 import type { TemplateAnalysis, BindingMetadata } from '../types';
 import { generateSourceUrl, type GitRepository, makeRelative } from './git-helpers';
+
+// Dynamic import for @angular/compiler to avoid ESM/CommonJS issues
+let angularCompiler: any = null;
+
+async function loadAngularCompiler() {
+  if (!angularCompiler) {
+    angularCompiler = await import('@angular/compiler');
+  }
+  return angularCompiler;
+}
+
+// Pre-load Angular compiler to make it available synchronously
+loadAngularCompiler().catch(err => {
+  console.warn('⚠️  Failed to load @angular/compiler:', err.message);
+});
 
 /**
  * Resolve template file path from component file
@@ -22,14 +36,27 @@ export function resolveTemplatePath(componentPath: string, templateUrl: string):
  */
 export function analyzeTemplate(templateContent: string, filePath?: string): TemplateAnalysis {
   try {
+    // Check if Angular compiler is loaded
+    if (!angularCompiler) {
+      console.warn('⚠️  @angular/compiler not loaded yet, skipping template analysis');
+      return {
+        usedComponents: [],
+        usedDirectives: [],
+        usedPipes: [],
+        bindings: [],
+        templateRefs: [],
+        complexity: 0,
+      };
+    }
+
     // Parse template with Angular compiler
-    const parsed = parseTemplate(templateContent, filePath || 'inline-template.html', {
+    const parsed = angularCompiler.parseTemplate(templateContent, filePath || 'inline-template.html', {
       preserveWhitespaces: false,
       interpolationConfig: undefined,
     });
 
     if (parsed.errors && parsed.errors.length > 0) {
-      console.warn(`⚠️  Template parsing errors in ${filePath}:`, parsed.errors.map(e => e.msg).join(', '));
+      console.warn(`⚠️  Template parsing errors in ${filePath}:`, parsed.errors.map((e: any) => e.msg).join(', '));
     }
 
     const usedComponents = new Set<string>();
@@ -59,7 +86,7 @@ export function analyzeTemplate(templateContent: string, filePath?: string): Tem
 
         // Attribute directives
         if (node.inputs) {
-          node.inputs.forEach((input: TmplAstBoundAttribute) => {
+          node.inputs.forEach((input: any) => {
             // Detect directives like [ngClass], [ngStyle]
             if (input.name.startsWith('ng')) {
               usedDirectives.add(input.name);
@@ -76,7 +103,7 @@ export function analyzeTemplate(templateContent: string, filePath?: string): Tem
 
         // Event bindings
         if (node.outputs) {
-          node.outputs.forEach((output: TmplAstBoundEvent) => {
+          node.outputs.forEach((output: any) => {
             bindings.push({
               type: 'event',
               name: output.name,
@@ -88,7 +115,7 @@ export function analyzeTemplate(templateContent: string, filePath?: string): Tem
 
         // Template references
         if (node.references) {
-          node.references.forEach((ref: TmplAstReference) => {
+          node.references.forEach((ref: any) => {
             templateRefs.push(ref.name);
           });
         }

@@ -5,6 +5,19 @@ All notable changes to ng-parser will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2025-10-03
+
+### 🐛 Bug Fixes
+- Fixed ERR_REQUIRE_ESM error when loading @angular/compiler
+  - Converted static ESM import to dynamic import()
+  - Added async loader with pre-loading strategy
+  - Template parsing now gracefully handles unloaded compiler
+  - Note: May show ExperimentalWarning in Node.js (non-breaking)
+
+### 🔧 Changes
+- Template helpers now use dynamic import for @angular/compiler
+- Added fallback when compiler not yet loaded
+
 ## [1.2.0] - 2025-10-03
 
 ### ✨ Features

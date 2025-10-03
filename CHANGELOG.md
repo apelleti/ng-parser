@@ -5,25 +5,6 @@ All notable changes to ng-parser will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
-### Added
-- **CLI (Command-Line Interface)** - Simple, efficient CLI for parsing Angular projects
-  - `ng-parser parse <directory>` - Core parsing only by default (fastest)
-  - `--visitors <list>` - Enable specific visitors (rxjs, security, performance)
-  - `--all-visitors` - Enable all built-in visitors
-  - `-o, --output <file>` - Export to file
-  - `-f, --format <format>` - Export format: full, simple, markdown, graph, all
-  - Clean terminal output with entity counts and visitor results
-
-### Changed
-- **Output filenames** - More descriptive naming convention:
-  - `ng-parser.full.json` (complete data)
-  - `ng-parser.simple.json` (entities only)
-  - `ng-parser.rag.md` (RAG-optimized markdown)
-  - `ng-parser.graph.json` (knowledge graph)
-- **Documentation** - Updated GETTING_STARTED.md with CLI-first approach
-
 ## [1.0.0] - 2025-10-03
 
 ### 🎉 Initial Release
@@ -31,6 +12,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ng-parser is an advanced Angular parser with RAG/GraphRAG optimized output and extensible visitor architecture.
 
 ### ✨ Features
+
+#### CLI (Command-Line Interface)
+- `ng-parser parse <directory>` - Core parsing only by default (fastest)
+- `--visitors <list>` - Enable specific visitors (rxjs, security, performance)
+- `--all-visitors` - Enable all built-in visitors
+- `-o, --output <file>` - Export to file
+- `-f, --format <format>` - Export formats: full, simple, markdown, graph, all
+- Clean terminal output with entity counts and visitor results
 
 #### Two-Layer Architecture
 - **Layer 1: Core Angular Parsers (Built-in)**
@@ -52,10 +41,10 @@ ng-parser is an advanced Angular parser with RAG/GraphRAG optimized output and e
 - ✅ Angular 18, 19, 20 compatibility
 
 #### Export Formats
-- **JSON**: Complete data export with all entities, relationships, and custom analysis
-- **Markdown**: RAG/LLM-optimized with YAML frontmatter and semantic chunking
-- **GraphRAG**: JSON-LD knowledge graph for graph databases
-- **SimpleJSON**: Simplified format compatible with ng-analyzer
+- **JSON** (`ng-parser.full.json`): Complete data export with all entities, relationships, and custom analysis
+- **Markdown** (`ng-parser.rag.md`): RAG/LLM-optimized with YAML frontmatter and semantic chunking
+- **GraphRAG** (`ng-parser.graph.json`): JSON-LD knowledge graph for graph databases
+- **SimpleJSON** (`ng-parser.simple.json`): Simplified format compatible with ng-analyzer
 
 #### Pattern Extraction
 - **RxJSPatternVisitor**: Extracts Observable/Subject usage and lifecycle patterns
@@ -70,11 +59,18 @@ ng-parser is an advanced Angular parser with RAG/GraphRAG optimized output and e
 - Extensible visitor pattern for custom analysis
 
 ### 📚 Documentation
+- CLI documentation (CLI.md)
 - Comprehensive API reference (API_REFERENCE.md)
 - Architecture guide (ARCHITECTURE.md)
-- Code review standards (CODE_REVIEW.md)
 - Getting started guide (GETTING_STARTED.md)
+- Publishing guide (PUBLISHING.md)
 - Complete examples with sample Angular app
+
+### 🔄 CI/CD
+- GitHub Actions workflow for CI (tests on Node.js 18, 20, 22)
+- Automated NPM publishing on releases
+- Code coverage with Codecov
+- Issue and PR templates
 
 ### 🔧 Technical Details
 
@@ -95,19 +91,7 @@ npm install ng-parser
 npm install @angular/compiler @angular/compiler-cli @angular/core
 ```
 
-### 🚀 Quick Start
 
-```typescript
-import { NgParser, RxJSPatternVisitor } from 'ng-parser';
-
-const parser = new NgParser({ rootDir: './src' });
-parser.registerVisitor(new RxJSPatternVisitor());
-
-const result = await parser.parse();
-console.log(`Found ${result.metadata.totalEntities} entities`);
-```
-
----
 
 ## Versioning Strategy
 

@@ -6,7 +6,13 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import type { TemplateAnalysis, BindingMetadata } from '../types/index.js';
-import { generateSourceUrl, type GitRepository, makeRelative } from './git-helpers.js';
+import {
+  generateSourceUrl,
+  type GitRepository,
+  makeRelative,
+  getBaseDir,
+  generateLocationMetadata,
+} from './git-helpers.js';
 
 // Dynamic import for @angular/compiler to avoid ESM/CommonJS issues
 let angularCompiler: any = null;
@@ -220,13 +226,10 @@ export function generateTemplateLocation(
 ): { filePath: string; sourceUrl?: string; exists: boolean } {
   const templatePath = resolveTemplatePath(componentFilePath, templateUrl, rootDir);
   const exists = fs.existsSync(templatePath);
-
-  // Use git root for relative paths if available (consistent with entity locations)
-  const baseDir = gitInfo?.rootDir || rootDir;
+  const location = generateLocationMetadata(templatePath, rootDir, gitInfo, exists);
 
   return {
-    filePath: makeRelative(templatePath, baseDir),
-    sourceUrl: gitInfo ? generateSourceUrl(templatePath, gitInfo) : undefined,
-    exists,
+    ...location,
+    exists, // Ensure exists is always present (not optional)
   };
 }

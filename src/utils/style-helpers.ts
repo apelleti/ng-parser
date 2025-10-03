@@ -6,7 +6,13 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import type { StyleLocation, StyleFileMetadata, ScssImportMetadata, ScssUseMetadata } from '../types/index.js';
-import { generateSourceUrl, type GitRepository, makeRelative } from './git-helpers.js';
+import {
+  generateSourceUrl,
+  type GitRepository,
+  makeRelative,
+  getBaseDir,
+  generateLocationMetadata,
+} from './git-helpers.js';
 
 /**
  * Resolve style file path from component file
@@ -51,13 +57,11 @@ export function parseScssFile(filePath: string, rootDir: string, gitInfo?: GitRe
 
   const imports = parseScssImports(content, filePath);
   const uses = parseScssUses(content, filePath);
-
-  // Use git root for relative paths if available (consistent with entity locations)
-  const baseDir = gitInfo?.rootDir || rootDir;
+  const location = generateLocationMetadata(filePath, rootDir, gitInfo);
 
   return {
-    filePath: makeRelative(filePath, baseDir),
-    sourceUrl: gitInfo ? generateSourceUrl(filePath, gitInfo) : undefined,
+    filePath: location.filePath,
+    sourceUrl: location.sourceUrl,
     imports,
     uses,
   };
@@ -170,15 +174,12 @@ export function generateStyleLocation(
 ): StyleLocation {
   const stylePath = resolveStylePath(componentFilePath, styleUrl, rootDir);
   const exists = fs.existsSync(stylePath);
-
-  // Use git root for relative paths if available (consistent with entity locations)
-  const baseDir = gitInfo?.rootDir || rootDir;
+  const location = generateLocationMetadata(stylePath, rootDir, gitInfo, exists);
 
   return {
     originalPath: styleUrl,
-    filePath: makeRelative(stylePath, baseDir),
-    sourceUrl: gitInfo ? generateSourceUrl(stylePath, gitInfo) : undefined,
-    exists,
+    ...location,
+    exists, // Ensure exists is always present (not optional)
   };
 }
 

@@ -211,3 +211,42 @@ export function resolveFilePath(rootDir: string, relativePath: string): string {
 export function makeRelative(absolutePath: string, rootDir: string): string {
   return path.relative(rootDir, absolutePath).replace(/\\/g, '/');
 }
+
+/**
+ * Get base directory for path resolution
+ * Prefers git root over parsing root for consistency
+ */
+export function getBaseDir(rootDir: string, gitInfo?: GitRepository): string {
+  return gitInfo?.rootDir || rootDir;
+}
+
+/**
+ * Resolve entity file path to absolute path
+ * Entity filePath is relative to git root (if git detected) or parsing root
+ */
+export function resolveEntityPath(
+  entityRelativePath: string,
+  rootDir: string,
+  gitInfo?: GitRepository
+): string {
+  const baseDir = getBaseDir(rootDir, gitInfo);
+  return path.resolve(baseDir, entityRelativePath);
+}
+
+/**
+ * Generate location metadata with consistent path and sourceUrl
+ */
+export function generateLocationMetadata(
+  absolutePath: string,
+  rootDir: string,
+  gitInfo?: GitRepository,
+  exists?: boolean
+): { filePath: string; sourceUrl?: string; exists?: boolean } {
+  const baseDir = getBaseDir(rootDir, gitInfo);
+
+  return {
+    filePath: makeRelative(absolutePath, baseDir),
+    sourceUrl: gitInfo ? generateSourceUrl(absolutePath, gitInfo) : undefined,
+    ...(exists !== undefined && { exists }),
+  };
+}

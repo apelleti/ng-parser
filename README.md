@@ -18,7 +18,7 @@ Advanced Angular parser with RAG/GraphRAG optimized output and extensible visito
 ## Installation
 
 ```bash
-npm install ng-parser
+npm install @ttwtf/ng-parser
 ```
 
 **Peer Dependencies** (automatically uses your project's Angular version):
@@ -51,7 +51,7 @@ See [CLI Documentation](./CLI.md) for complete CLI reference.
 ### Programmatic API
 
 ```typescript
-import { NgParser } from 'ng-parser';
+import { NgParser } from '@ttwtf/ng-parser';
 
 const parser = new NgParser({ rootDir: './src' });
 const result = await parser.parse();
@@ -73,7 +73,7 @@ import {
   RxJSPatternVisitor,
   SecurityVisitor,
   PerformanceVisitor
-} from 'ng-parser';
+} from '@ttwtf/ng-parser';
 
 const parser = new NgParser({ rootDir: './src' });
 
@@ -219,7 +219,7 @@ console.log(`By pattern:`, perfResults.byPattern);
 Extend ng-parser with your own pattern extraction:
 
 ```typescript
-import { BaseVisitor, type VisitorContext, type Entity } from 'ng-parser';
+import { BaseVisitor, type VisitorContext, type Entity } from '@ttwtf/ng-parser';
 import * as ts from 'typescript';
 
 interface MyPattern {

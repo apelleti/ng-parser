@@ -10,6 +10,9 @@ Advanced Angular parser with RAG/GraphRAG optimized output and extensible visito
 - 🧩 **Two-Layer Architecture** - Core parsing + Extensible custom visitors
 - 🎯 **Modern Angular Support** - Standalone components, Signals (Angular 18-20)
 - 📊 **Knowledge Graph** - Entities, relationships, hierarchical clustering
+- 🎨 **Template & Style Analysis** - Parse HTML templates and SCSS files with full dependency tracking
+- 🌐 **Git Integration** - Automatic source URLs for GitHub, GitLab, Bitbucket, Azure DevOps
+- 🎯 **Global Styles** - Auto-detect and parse global SCSS files (styles.scss, theme.scss, etc.)
 - 🤖 **RAG Optimized** - Markdown & JSON-LD outputs for LLM consumption
 - ⚡ **Maintainable** - Built on official @angular/compiler-cli
 - 🔌 **Extensible** - Create custom visitors for your analysis needs
@@ -123,6 +126,9 @@ ng-parser uses a **strict two-layer separation** between parsing and analysis:
 - ✅ **ModuleParser** - Declarations, imports, exports, providers
 - ✅ **DirectiveParser** - Inputs, outputs, standalone
 - ✅ **PipeParser** - Pure/impure, standalone
+- ✅ **TemplateParser** - HTML template analysis (inline & external)
+- ✅ **StyleParser** - SCSS `@import` and `@use` extraction
+- ✅ **GitRemoteParser** - Git repository detection and source URL generation
 
 **Role:** Transform source code → structured data (AST, entities, relationships)
 
@@ -213,6 +219,171 @@ console.log(`By pattern:`, perfResults.byPattern);
 - Large library imports (lodash, moment, rxjs)
 - Array operation chains
 - Storage operations in loops
+
+## Advanced Features
+
+### Template Analysis
+
+Parse both inline and external HTML templates automatically:
+
+```typescript
+// Component with external template
+@Component({
+  templateUrl: './my-component.html',
+  // ...
+})
+
+// Parser automatically extracts:
+const component = result.entities.get('component:...:MyComponent');
+console.log(component.templateLocation);  // File path + Git URL
+console.log(component.templateAnalysis);  // Analysis results
+```
+
+**Extracted data:**
+- **Used components**: Custom component selectors found in template
+- **Used directives**: Structural (`*ngIf`, `*ngFor`) and attribute directives
+- **Used pipes**: All pipes with names (`| date`, `| async`, custom pipes)
+- **Bindings**: Property `[prop]`, event `(click)`, two-way `[(ngModel)]`, etc.
+- **Template refs**: `#myRef` references
+- **Complexity score**: Based on nesting depth and structural directives
+
+```json
+{
+  "templateAnalysis": {
+    "usedComponents": ["app-child", "app-card"],
+    "usedDirectives": ["*ngIf", "*ngFor", "appHighlight"],
+    "usedPipes": ["date", "async", "customPipe"],
+    "bindings": [
+      {"type": "property", "name": "disabled", "expression": "!isValid"},
+      {"type": "event", "name": "click", "expression": "onSave()"}
+    ],
+    "templateRefs": ["form", "input"],
+    "complexity": 85
+  }
+}
+```
+
+### Style Analysis
+
+Parse SCSS files and extract dependencies:
+
+```typescript
+// Component with styles
+@Component({
+  styleUrls: [
+    './my-component.scss',
+    './my-component-responsive.scss'
+  ]
+})
+
+// Parser extracts all @import and @use statements
+const component = result.entities.get('component:...:MyComponent');
+console.log(component.styleAnalysis);
+```
+
+**Extracted data:**
+- **@import statements**: Path, full statement, line number, resolved path
+- **@use statements**: Path, namespace, statement, line number, resolved path
+- **File locations**: All style files with Git URLs
+
+```json
+{
+  "styleAnalysis": {
+    "files": [
+      {
+        "filePath": "src/app/components/my-component.scss",
+        "sourceUrl": "https://github.com/.../my-component.scss",
+        "imports": [
+          {
+            "path": "../styles/mixins",
+            "statement": "@import '../styles/mixins'",
+            "line": 3
+          }
+        ],
+        "uses": [
+          {
+            "path": "../styles/variables",
+            "statement": "@use '../styles/variables' as vars",
+            "namespace": "vars",
+            "line": 1
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Global Styles
+
+Automatically detects and parses global SCSS files:
+
+**Auto-detected files** (no configuration needed):
+- `styles.scss`, `style.scss`
+- `theme.scss`
+- `variables.scss`, `_variables.scss`
+
+**Searched locations:**
+- Project root
+- `src/` directory
+
+```typescript
+const result = await parser.parse();
+console.log(result.metadata.globalStyles);
+```
+
+```json
+{
+  "metadata": {
+    "globalStyles": [
+      {
+        "filePath": "src/styles.scss",
+        "sourceUrl": "https://github.com/.../src/styles.scss",
+        "imports": [
+          {"path": "./theme", "statement": "@import './theme'", "line": 2}
+        ],
+        "uses": [
+          {"path": "sass:color", "statement": "@use 'sass:color'", "line": 1}
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Git Integration
+
+Automatic Git repository detection with source URLs:
+
+**Supported providers:**
+- GitHub
+- GitLab
+- Bitbucket
+- Azure DevOps
+
+**Features:**
+- Auto-detects repository from `.git` directory
+- Generates source URLs for all files
+- Line-specific URLs for entities (e.g., `#L42`)
+- Branch-aware URLs
+- Works with SSH and HTTPS remotes
+
+```typescript
+const result = await parser.parse();
+
+console.log(result.metadata.repository);
+// {
+//   provider: 'github',
+//   url: 'https://github.com/user/repo',
+//   branch: 'main',
+//   rootDir: '/path/to/project'
+// }
+
+// All entities include source URLs
+const entity = result.entities.get('component:...:MyComponent');
+console.log(entity.location.sourceUrl);
+// "https://github.com/user/repo/blob/main/src/app/my-component.ts#L15"
+```
 
 ## Creating Custom Visitors
 

@@ -5,6 +5,41 @@ All notable changes to ng-parser will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2025-10-03
+
+### ✨ Features
+
+#### Global SCSS File Parsing
+- **Auto-detection**: Automatically scans for global SCSS files at common locations
+- **Search locations**: Project root and `src/` directory
+- **Detected files**: `styles.scss`, `style.scss`, `theme.scss`, `variables.scss`, `_variables.scss`
+- **Enabled by default**: No configuration required
+- **Full parsing**: Extracts all `@import` and `@use` statements with line numbers
+- **Git integration**: Includes source URLs for all global style files
+
+#### Enhanced Component Analysis
+- Template and style analysis now fully integrated into component entities
+- All component style files include Git source URLs
+- Multiple style files per component fully supported
+
+### 🐛 Bug Fixes
+- Fixed CLI not passing `rootDir` argument to `parser.parse()`
+  - CLI was incorrectly using `process.cwd()` instead of the provided directory
+  - Now correctly parses the specified directory path
+
+### 📚 Documentation
+- Added comprehensive "Advanced Features" section in README
+- Documented template analysis with examples
+- Documented style analysis with SCSS parsing
+- Documented global styles auto-detection
+- Documented Git integration features
+- Added examples for all new features
+
+### 🔧 Changes
+- `AngularProject` metadata now includes optional `globalStyles` array
+- Global styles are added to project metadata automatically when detected
+- CLI console output shows count of detected global style files
+
 ## [1.1.0] - 2025-10-03
 
 ### ✨ Features

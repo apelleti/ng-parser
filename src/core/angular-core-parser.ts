@@ -6,7 +6,7 @@
 import * as ts from 'typescript';
 import * as fs from 'fs';
 import * as path from 'path';
-import type { Entity, Relationship, ParserConfig } from '../types';
+import type { Entity, Relationship, ParserConfig, StyleFileMetadata } from '../types';
 import { ComponentParser, ServiceParser, ModuleParser, DirectiveParser, PipeParser, TemplateParser, StyleParser } from './parsers';
 import { VisitorContextImpl as OldVisitorContextImpl } from './visitor-context';
 import { findTypeScriptFiles, findTsConfig, resolvePath } from '../utils/file-helpers';
@@ -14,6 +14,7 @@ import { EntityResolver } from './entity-resolver';
 import { GitRemoteParser } from './parsers/git-remote-parser';
 import type { GitRepository } from '../utils/git-helpers';
 import type { ComponentEntity } from '../types';
+import { parseScssFile } from '../utils/style-helpers';
 
 export interface AngularProject {
   entities: Map<string, Entity>;
@@ -24,6 +25,7 @@ export interface AngularProject {
     timestamp: string;
     angularVersion?: string;
     repository?: GitRepository;
+    globalStyles?: StyleFileMetadata[];
   };
 }
 
@@ -172,6 +174,12 @@ export class AngularCoreParser {
       }
     }
 
+    // Scan for global SCSS files
+    const globalStyles = this.scanGlobalStyles(rootDir, gitInfo);
+    if (globalStyles.length > 0) {
+      console.log(`📦 Found ${globalStyles.length} global style file(s)`);
+    }
+
     return {
       entities: allEntities,
       relationships: resolvedRelationships,
@@ -181,6 +189,7 @@ export class AngularCoreParser {
         timestamp: new Date().toISOString(),
         angularVersion: this.detectAngularVersion(rootDir),
         repository: gitInfo,
+        globalStyles: globalStyles.length > 0 ? globalStyles : undefined,
       },
     };
   }
@@ -326,5 +335,46 @@ export class AngularCoreParser {
 
   getProgram(): ts.Program | undefined {
     return this.program;
+  }
+
+  /**
+   * Scan for global SCSS files at common locations
+   */
+  private scanGlobalStyles(rootDir: string, gitInfo?: GitRepository): StyleFileMetadata[] {
+    const globalStyles: StyleFileMetadata[] = [];
+    const absoluteRootDir = path.resolve(rootDir);
+
+    // Common locations for global styles (check both root and src/)
+    const searchDirs = [
+      absoluteRootDir,
+      path.join(absoluteRootDir, 'src'),
+    ];
+
+    const commonStyleNames = [
+      'styles.scss',
+      'style.scss',
+      'theme.scss',
+      'variables.scss',
+      '_variables.scss',
+    ];
+
+    for (const dir of searchDirs) {
+      if (!fs.existsSync(dir)) continue;
+
+      for (const styleName of commonStyleNames) {
+        const stylePath = path.join(dir, styleName);
+
+        if (fs.existsSync(stylePath)) {
+          try {
+            const styleFile = parseScssFile(stylePath, absoluteRootDir, gitInfo);
+            globalStyles.push(styleFile);
+          } catch (error) {
+            console.warn(`⚠️  Failed to parse global style file ${stylePath}:`, (error as Error).message);
+          }
+        }
+      }
+    }
+
+    return globalStyles;
   }
 }

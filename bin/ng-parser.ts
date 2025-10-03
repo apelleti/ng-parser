@@ -85,7 +85,7 @@ program
 
       // Parse
       const startTime = Date.now();
-      const result = await parser.parse();
+      const result = await parser.parse(directory);
       const duration = Date.now() - startTime;
 
       console.log(`✅ Parsed in ${duration}ms\n`);

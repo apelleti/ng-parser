@@ -55,11 +55,11 @@ export class ModuleParser {
       documentation: getDocumentation(node),
       decorators: getDecorators(node, context.sourceFile),
       modifiers: getModifiers(node),
-      declarations: args.declarations,
-      imports: args.imports,
-      exports: args.exports,
-      providers: args.providers,
-      bootstrap: args.bootstrap,
+      declarations: Array.isArray(args.declarations) ? args.declarations : undefined,
+      imports: Array.isArray(args.imports) ? args.imports : undefined,
+      exports: Array.isArray(args.exports) ? args.exports : undefined,
+      providers: Array.isArray(args.providers) ? args.providers : undefined,
+      bootstrap: Array.isArray(args.bootstrap) ? args.bootstrap : undefined,
     };
 
     context.addEntity(entity);

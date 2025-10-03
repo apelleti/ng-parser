@@ -66,7 +66,7 @@ export class DirectiveParser {
       standalone: args.standalone ?? false,
       inputs: this.extractInputs(node, context),
       outputs: this.extractOutputs(node, context),
-      providers: args.providers,
+      providers: Array.isArray(args.providers) ? args.providers : undefined,
     };
 
     context.addEntity(entity);

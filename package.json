@@ -50,12 +50,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/ng-parser.git"
+    "url": "https://github.com/apelleti/ng-parser.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/ng-parser/issues"
+    "url": "https://github.com/apelleti/ng-parser/issues"
   },
-  "homepage": "https://github.com/yourusername/ng-parser#readme",
+  "homepage": "https://github.com/apelleti/ng-parser#readme",
   "dependencies": {
     "commander": "^14.0.1",
     "reflect-metadata": "^0.2.2",

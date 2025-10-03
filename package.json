@@ -1,5 +1,5 @@
 {
-  "name": "ng-parser",
+  "name": "@ttwtf/ng-parser",
   "version": "1.0.0",
   "description": "Advanced Angular parser with RAG/GraphRAG optimized output and extensible visitor architecture",
   "main": "dist/index.js",

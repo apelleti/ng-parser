@@ -79,35 +79,47 @@ export class GraphRAGFormatter {
   }
 
   private formatRelationships(): any[] {
-    return this.graph.relationships.map((rel) => ({
-      '@type': 'Relationship',
-      '@id': rel.id,
-      relationshipType: rel.type,
-      source: {
-        '@id': rel.source,
-      },
-      target: {
-        '@id': rel.target,
-      },
-      metadata: rel.metadata,
-    }));
+    return this.graph.relationships
+      .filter((rel) => typeof rel.source === 'string' && typeof rel.target === 'string')
+      .map((rel) => ({
+        '@type': 'Relationship',
+        '@id': rel.id,
+        relationshipType: rel.type,
+        source: {
+          '@id': rel.source,
+        },
+        target: {
+          '@id': rel.target,
+        },
+        metadata: rel.metadata,
+      }));
   }
 
   private formatCommunities(): any[] {
     const communities: any[] = [];
 
+    if (!this.graph.hierarchy) {
+      return communities;
+    }
+
     const traverse = (node: any, level: number) => {
+      if (!node) return;
+
       const community = {
         '@type': 'Organization',
-        '@id': node.id,
-        name: node.name,
-        communityType: node.type,
+        '@id': node.id || `community-${level}`,
+        name: node.name || 'Unknown',
+        communityType: node.type || 'module',
         level,
-        members: node.entities.map((id: string) => ({ '@id': id })),
-        subCommunities: node.children?.map((child: any) => {
-          traverse(child, level + 1);
-          return { '@id': child.id };
-        }) || [],
+        members: Array.isArray(node.entities)
+          ? node.entities.map((id: string) => ({ '@id': id }))
+          : [],
+        subCommunities: Array.isArray(node.children)
+          ? node.children.map((child: any) => {
+              traverse(child, level + 1);
+              return { '@id': child.id || `child-${level}` };
+            })
+          : [],
       };
 
       communities.push(community);

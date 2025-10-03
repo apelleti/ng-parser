@@ -263,6 +263,10 @@ ${modules.map((m) => this.formatModule(m)).join('\n---\n\n')}`;
   }
 
   private formatHierarchy(): string {
+    if (!this.graph.hierarchy) {
+      return '';
+    }
+
     return `
 ## Project Hierarchy
 
@@ -270,14 +274,19 @@ ${this.formatHierarchyNode(this.graph.hierarchy, 0)}`;
   }
 
   private formatHierarchyNode(node: any, depth: number): string {
+    if (!node) return '';
+
     const indent = '  '.repeat(depth);
     const parts: string[] = [];
 
-    parts.push(`${indent}- **${node.name}** (${node.type})`);
+    parts.push(`${indent}- **${node.name || 'Unknown'}** (${node.type || 'unknown'})`);
 
-    if (node.children && node.children.length > 0) {
+    if (Array.isArray(node.children) && node.children.length > 0) {
       node.children.forEach((child: any) => {
-        parts.push(this.formatHierarchyNode(child, depth + 1));
+        const childNode = this.formatHierarchyNode(child, depth + 1);
+        if (childNode) {
+          parts.push(childNode);
+        }
       });
     }
 

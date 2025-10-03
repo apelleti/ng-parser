@@ -281,6 +281,7 @@ export interface VisitorContext {
   entities: Map<string, Entity>;
   relationships: Relationship[];
   rootDir?: string;
+  gitInfo?: any; // GitRepository type from git-helpers
   addEntity(entity: Entity): void;
   addRelationship(relationship: Relationship): void;
 }

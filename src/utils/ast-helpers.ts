@@ -8,14 +8,26 @@ import type { SourceLocation, DecoratorMetadata } from '../types/index.js';
 
 /**
  * Get source location from a node
- * If rootDir is provided, filePath will be relative to it
+ * If gitInfo is provided, filePath will be relative to git root (preferred)
+ * Otherwise, if rootDir is provided, filePath will be relative to rootDir
  */
-export function getSourceLocation(node: ts.Node, sourceFile: ts.SourceFile, rootDir?: string): SourceLocation {
+export function getSourceLocation(
+  node: ts.Node,
+  sourceFile: ts.SourceFile,
+  rootDir?: string,
+  gitInfo?: any
+): SourceLocation {
   const { line, character } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
 
-  // Make path relative to rootDir if provided
+  // Make path relative
   let filePath = sourceFile.fileName;
-  if (rootDir) {
+
+  // Prefer git root if available (no "../" paths!)
+  if (gitInfo?.rootDir) {
+    filePath = path.relative(gitInfo.rootDir, sourceFile.fileName).replace(/\\/g, '/');
+  }
+  // Fallback to parsing root
+  else if (rootDir) {
     filePath = path.relative(rootDir, sourceFile.fileName).replace(/\\/g, '/');
   }
 
@@ -69,7 +81,8 @@ export function isExported(node: ts.Node): boolean {
 export function getDecorators(
   node: ts.Node,
   sourceFile: ts.SourceFile,
-  rootDir?: string
+  rootDir?: string,
+  gitInfo?: any
 ): DecoratorMetadata[] | undefined {
   if (!ts.canHaveDecorators(node)) return undefined;
 
@@ -97,7 +110,7 @@ export function getDecorators(
     return {
       name,
       arguments: args,
-      location: getSourceLocation(decorator, sourceFile, rootDir),
+      location: getSourceLocation(decorator, sourceFile, rootDir, gitInfo),
     };
   });
 }

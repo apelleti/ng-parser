@@ -22,7 +22,17 @@ export function resolveStylePath(componentPath: string, styleUrl: string, rootDi
   }
 
   const componentDir = path.dirname(absoluteComponentPath);
-  return path.resolve(componentDir, styleUrl);
+  const resolvedPath = path.resolve(componentDir, styleUrl);
+
+  // If .css file doesn't exist, try .scss (Angular Material uses styleUrl: 'file.css' but has file.scss)
+  if (styleUrl.endsWith('.css') && !fs.existsSync(resolvedPath)) {
+    const scssPath = resolvedPath.replace(/\.css$/, '.scss');
+    if (fs.existsSync(scssPath)) {
+      return scssPath;
+    }
+  }
+
+  return resolvedPath;
 }
 
 /**
@@ -42,8 +52,11 @@ export function parseScssFile(filePath: string, rootDir: string, gitInfo?: GitRe
   const imports = parseScssImports(content, filePath);
   const uses = parseScssUses(content, filePath);
 
+  // Use git root for relative paths if available (consistent with entity locations)
+  const baseDir = gitInfo?.rootDir || rootDir;
+
   return {
-    filePath: makeRelative(filePath, rootDir),
+    filePath: makeRelative(filePath, baseDir),
     sourceUrl: gitInfo ? generateSourceUrl(filePath, gitInfo) : undefined,
     imports,
     uses,
@@ -158,9 +171,12 @@ export function generateStyleLocation(
   const stylePath = resolveStylePath(componentFilePath, styleUrl, rootDir);
   const exists = fs.existsSync(stylePath);
 
+  // Use git root for relative paths if available (consistent with entity locations)
+  const baseDir = gitInfo?.rootDir || rootDir;
+
   return {
     originalPath: styleUrl,
-    filePath: makeRelative(stylePath, rootDir),
+    filePath: makeRelative(stylePath, baseDir),
     sourceUrl: gitInfo ? generateSourceUrl(stylePath, gitInfo) : undefined,
     exists,
   };

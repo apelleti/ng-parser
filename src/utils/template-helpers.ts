@@ -221,8 +221,11 @@ export function generateTemplateLocation(
   const templatePath = resolveTemplatePath(componentFilePath, templateUrl, rootDir);
   const exists = fs.existsSync(templatePath);
 
+  // Use git root for relative paths if available (consistent with entity locations)
+  const baseDir = gitInfo?.rootDir || rootDir;
+
   return {
-    filePath: makeRelative(templatePath, rootDir),
+    filePath: makeRelative(templatePath, baseDir),
     sourceUrl: gitInfo ? generateSourceUrl(templatePath, gitInfo) : undefined,
     exists,
   };

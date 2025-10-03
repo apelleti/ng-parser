@@ -5,6 +5,90 @@ All notable changes to ng-parser will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2025-10-03
+
+### 🐛 Bug Fixes
+
+- **Fixed `styleUrl` (singular) support**
+  - Angular 15.1+ supports both `styleUrl` (string) and `styleUrls` (array)
+  - Previously only `styleUrls` (plural) was parsed, missing 75+ components in Angular Material
+  - Added `extractStyleUrls()` method to merge both formats
+  - All components using `styleUrl` now have complete style metadata
+
+- **Fixed `.css` → `.scss` normalization (Angular Material pattern)**
+  - Angular Material components declare `styleUrl: 'file.css'` but actual file is `file.scss`
+  - Parser now auto-detects and normalizes extension if `.scss` exists and `.css` doesn't
+  - Component entities now show correct `styleUrls: ["file.scss"]` instead of non-existent `.css`
+  - All style files now correctly marked as `exists: true`
+
+- **Fixed broken file paths with "../" (219 occurrences)**
+  - File paths like `"../cdk/layout/layout.ts"` now properly resolved
+  - Root cause: `path.relative()` created "../" when files outside parsing directory
+  - Solution: All paths now relative to Git repository root instead of parsing directory
+  - Impact: Entity IDs (276), relationships (355), decorator locations all fixed
+
+- **Fixed broken source URLs (372 occurrences)**
+  - URLs like `https://github.com/.../blob/main/../cdk/file.ts` now correct
+  - Root cause: `generateSourceUrl()` expected absolute path but received relative path
+  - Solution: `enrichEntities()` now reconstructs absolute paths before URL generation
+  - All GitHub/GitLab/Bitbucket links now valid
+
+- **Fixed missing source URLs on entities**
+  - All entities now have `sourceUrl` populated (was `undefined`)
+  - Root cause: `enrichEntities()` created new parser instance without gitInfo
+  - Solution: Pass `gitInfo` parameter to `enrichEntities()`
+
+- **Fixed duplicate paths in style sourceUrls**
+  - Style URLs had duplicate path segments: `blob/main/src/material/src/material/file.scss`
+  - Root cause: `generateStyleLocation()` used parsing rootDir instead of git rootDir
+  - Solution: Use `gitInfo.rootDir` as base for relative paths in style helpers
+  - StyleParser now constructs absolute component path from git root
+
+- **Fixed template analysis not working (26/104 → 93/104 components)**
+  - Template analysis failed for components with external templateUrl
+  - Root cause: Same path resolution issue as styles (relative vs absolute)
+  - Solution: TemplateParser constructs absolute component path from git root
+  - generateTemplateLocation() uses gitInfo.rootDir for relative paths
+
+- **Fixed Angular version detection with npm workspace catalogs**
+  - Angular Material uses `"@angular/core": "catalog:"` which was returned as version
+  - Added regex check to ignore `catalog:`, `workspace:`, `link:`, `file:` formats
+  - Version detection now returns actual version or undefined
+
+### 🔧 Technical Changes
+
+- **VisitorContext interface**: Added `gitInfo?: GitRepository` field
+- **VisitorContextImpl**: Now accepts and propagates `gitInfo` parameter
+- **getSourceLocation()**: Prefers `gitInfo.rootDir` over `context.rootDir` for consistent paths
+- **getDecorators()**: Accepts `gitInfo` parameter and passes to `getSourceLocation()`
+- **angular-core-parser.ts**:
+  - Git detection moved BEFORE parsing (was after)
+  - All 5 parsers updated to pass `context.gitInfo` (19 function calls)
+- **git-remote-parser.ts**:
+  - `enrichEntities()` accepts `gitInfo` parameter
+  - Reconstructs absolute paths from relative paths before URL generation
+- **style-helpers.ts**:
+  - `resolveStylePath()` tries `.scss` if `.css` doesn't exist
+  - `generateStyleLocation()` uses `gitInfo.rootDir` for relative paths
+  - `parseScssFile()` uses `gitInfo.rootDir` for relative paths
+- **style-parser.ts**: Constructs absolute component path from `gitInfo.rootDir`
+- **template-parser.ts**: Constructs absolute component path from `gitInfo.rootDir`
+- **template-helpers.ts**: `generateTemplateLocation()` uses `gitInfo.rootDir` for relative paths
+- **component-parser.ts**:
+  - `extractStyleUrls()` normalizes `.css` → `.scss` if file exists
+  - Added fs and path imports
+
+### ✅ Validation
+
+- ✅ 0 paths with "../" in sample-angular-app output
+- ✅ 0 paths with "../" in Angular Material output (was 219)
+- ✅ MatAutocomplete has `styleUrls: ["autocomplete.scss"]` (was `.css`)
+- ✅ All 370 entities have sourceUrl populated
+- ✅ 73/104 components have existing style files (was ~0 before)
+- ✅ 93/104 components have template analysis (was 26/104)
+- ✅ All source URLs valid (was 372 broken)
+- ✅ No duplicate path segments in style URLs
+
 ## [1.3.0] - 2025-10-03
 
 ### ⚠️ BREAKING CHANGES

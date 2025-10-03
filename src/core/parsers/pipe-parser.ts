@@ -29,7 +29,7 @@ export class PipeParser {
   parse(node: ts.Node, context: OldVisitorContext): void {
     if (!ts.isClassDeclaration(node)) return;
 
-    const decorators = getDecorators(node, context.sourceFile, context.rootDir);
+    const decorators = getDecorators(node, context.sourceFile, context.rootDir, context.gitInfo);
     if (!decorators) return;
 
     const pipeDecorator = decorators.find((d) => d.name === 'Pipe');
@@ -47,7 +47,7 @@ export class PipeParser {
     if (!className) return;
 
     const args = decorator.arguments;
-    const location = getSourceLocation(node, context.sourceFile, context.rootDir);
+    const location = getSourceLocation(node, context.sourceFile, context.rootDir, context.gitInfo);
 
     const entity: PipeEntity = {
       id: generateEntityId(location.filePath, className, EntityType.Pipe, context.rootDir),
@@ -55,7 +55,7 @@ export class PipeParser {
       name: className,
       location,
       documentation: getDocumentation(node),
-      decorators: getDecorators(node, context.sourceFile, context.rootDir),
+      decorators: getDecorators(node, context.sourceFile, context.rootDir, context.gitInfo),
       modifiers: getModifiers(node),
       pipeName: args.name,
       pure: args.pure ?? true, // Pipes are pure by default

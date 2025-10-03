@@ -3,6 +3,8 @@
  */
 
 import * as ts from 'typescript';
+import * as fs from 'fs';
+import * as path from 'path';
 import type {
   ComponentEntity,
   InputMetadata,
@@ -39,7 +41,7 @@ export class ComponentParser {
   parse(node: ts.Node, context: OldVisitorContext): void {
     if (!ts.isClassDeclaration(node)) return;
 
-    const decorators = getDecorators(node, context.sourceFile, context.rootDir);
+    const decorators = getDecorators(node, context.sourceFile, context.rootDir, context.gitInfo);
     if (!decorators) return;
 
     const componentDecorator = decorators.find((d) => d.name === 'Component');
@@ -57,7 +59,7 @@ export class ComponentParser {
     if (!className) return;
 
     const args = decorator.arguments;
-    const location = getSourceLocation(node, context.sourceFile, context.rootDir);
+    const location = getSourceLocation(node, context.sourceFile, context.rootDir, context.gitInfo);
 
     const entity: ComponentEntity = {
       id: generateEntityId(location.filePath, className, EntityType.Component, context.rootDir),
@@ -65,13 +67,13 @@ export class ComponentParser {
       name: className,
       location,
       documentation: getDocumentation(node),
-      decorators: getDecorators(node, context.sourceFile, context.rootDir),
+      decorators: getDecorators(node, context.sourceFile, context.rootDir, context.gitInfo),
       modifiers: getModifiers(node),
       selector: args.selector,
       template: args.template,
       templateUrl: args.templateUrl,
       styles: Array.isArray(args.styles) ? args.styles : undefined,
-      styleUrls: Array.isArray(args.styleUrls) ? args.styleUrls : undefined,
+      styleUrls: this.extractStyleUrls(args, context),
       standalone: args.standalone ?? false,
       imports: Array.isArray(args.imports) ? args.imports : undefined,
       exports: Array.isArray(args.exports) ? args.exports : undefined,
@@ -98,7 +100,7 @@ export class ComponentParser {
     node.members.forEach((member) => {
       if (!ts.isPropertyDeclaration(member)) return;
 
-      const decorators = getDecorators(member, context.sourceFile, context.rootDir);
+      const decorators = getDecorators(member, context.sourceFile, context.rootDir, context.gitInfo);
       const inputDecorator = decorators?.find((d) => d.name === 'Input');
 
       if (inputDecorator) {
@@ -137,7 +139,7 @@ export class ComponentParser {
     node.members.forEach((member) => {
       if (!ts.isPropertyDeclaration(member)) return;
 
-      const decorators = getDecorators(member, context.sourceFile, context.rootDir);
+      const decorators = getDecorators(member, context.sourceFile, context.rootDir, context.gitInfo);
       const outputDecorator = decorators?.find((d) => d.name === 'Output');
 
       if (outputDecorator) {
@@ -264,5 +266,40 @@ export class ComponentParser {
    */
   reset(): void {
     this.results = [];
+  }
+
+  /**
+   * Extract styleUrls from component decorator arguments
+   * Supports both styleUrls (array) and styleUrl (string) - Angular 15.1+
+   * Normalizes .css → .scss if the .scss file exists
+   */
+  private extractStyleUrls(args: Record<string, any>, context: OldVisitorContext): string[] | undefined {
+    const styleUrls: string[] = [];
+
+    // Support styleUrls (array)
+    if (Array.isArray(args.styleUrls)) {
+      styleUrls.push(...args.styleUrls);
+    }
+
+    // Support styleUrl (string) - Angular 15.1+
+    if (typeof args.styleUrl === 'string') {
+      styleUrls.push(args.styleUrl);
+    }
+
+    // Normalize .css → .scss if .scss exists (Angular Material pattern)
+    const normalizedUrls = styleUrls.map(url => {
+      if (url.endsWith('.css')) {
+        const componentDir = path.dirname(context.sourceFile.fileName);
+        const cssPath = path.resolve(componentDir, url);
+        const scssPath = cssPath.replace(/\.css$/, '.scss');
+
+        if (!fs.existsSync(cssPath) && fs.existsSync(scssPath)) {
+          return url.replace(/\.css$/, '.scss');
+        }
+      }
+      return url;
+    });
+
+    return normalizedUrls.length > 0 ? normalizedUrls : undefined;
   }
 }

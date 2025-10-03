@@ -3,6 +3,7 @@
  * Parses SCSS files for @import and @use statements
  */
 
+import * as path from 'path';
 import type { ComponentEntity, StyleLocation, StyleAnalysis, StyleFileMetadata } from '../../types/index.js';
 import type { GitRepository } from '../../utils/git-helpers.js';
 import {
@@ -29,11 +30,16 @@ export class StyleParser {
       return {};
     }
 
+    // entity.location.filePath is relative to git root (if git detected)
+    // We need to construct absolute path for resolveStylePath()
+    const baseDir = gitInfo?.rootDir || rootDir;
+    const absoluteComponentPath = path.resolve(baseDir, entity.location.filePath);
+
     // Generate style locations metadata
     const styleLocations = generateStyleLocations(
-      entity.location.filePath,
+      absoluteComponentPath,
       entity.styleUrls,
-      rootDir,
+      baseDir,
       gitInfo
     );
 
@@ -41,8 +47,8 @@ export class StyleParser {
     const files: StyleFileMetadata[] = [];
 
     for (const styleUrl of entity.styleUrls) {
-      const stylePath = resolveStylePath(entity.location.filePath, styleUrl, rootDir);
-      const fileMetadata = parseScssFile(stylePath, rootDir, gitInfo);
+      const stylePath = resolveStylePath(absoluteComponentPath, styleUrl, baseDir);
+      const fileMetadata = parseScssFile(stylePath, baseDir, gitInfo);
       files.push(fileMetadata);
     }
 

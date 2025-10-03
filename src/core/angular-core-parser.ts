@@ -75,6 +75,17 @@ export class AngularCoreParser {
     this.program = await this.createProgram(files, rootDir);
     const typeChecker = this.program.getTypeChecker();
 
+    // Detect Git repository FIRST (needed for paths)
+    let gitInfo: GitRepository | undefined;
+    if (this.config.git?.enabled !== false) {
+      const gitParser = new GitRemoteParser();
+      gitInfo = await gitParser.detectRepository(rootDir);
+
+      if (gitInfo) {
+        console.log(`📦 Git repository detected: ${gitInfo.provider} (${gitInfo.branch})`);
+      }
+    }
+
     // Reset parsers
     this.componentParser.reset();
     this.serviceParser.reset();
@@ -90,7 +101,13 @@ export class AngularCoreParser {
     for (const sourceFile of this.program.getSourceFiles()) {
       if (this.shouldSkipFile(sourceFile)) continue;
 
-      const context = new OldVisitorContextImpl(sourceFile, typeChecker, this.program, path.resolve(rootDir));
+      const context = new OldVisitorContextImpl(
+        sourceFile,
+        typeChecker,
+        this.program,
+        path.resolve(rootDir),
+        gitInfo
+      );
 
       // Traverse AST with all parsers
       this.traverseNode(sourceFile, context);
@@ -135,16 +152,10 @@ export class AngularCoreParser {
       );
     }
 
-    // Detect Git repository and enrich with source URLs
-    let gitInfo: GitRepository | undefined;
-    if (this.config.git?.enabled !== false) {
+    // Enrich entities with Git source URLs (gitInfo already detected earlier)
+    if (gitInfo) {
       const gitParser = new GitRemoteParser();
-      gitInfo = await gitParser.detectRepository(rootDir);
-
-      if (gitInfo) {
-        gitParser.enrichEntities(allEntities);
-        console.log(`📦 Git repository detected: ${gitInfo.provider} (${gitInfo.branch})`);
-      }
+      gitParser.enrichEntities(allEntities, gitInfo);
     }
 
     // Load Angular compiler before parsing templates
@@ -280,8 +291,11 @@ export class AngularCoreParser {
 
           const angularCore = deps['@angular/core'] || devDeps['@angular/core'];
           if (angularCore) {
-            // Remove ^ or ~ prefix
-            return angularCore.replace(/^[\^~]/, '');
+            // Ignore workspace/catalog/link formats (npm workspace catalogs)
+            if (!angularCore.match(/^(catalog:|workspace:|link:|file:)/)) {
+              // Remove ^ or ~ prefix
+              return angularCore.replace(/^[\^~]/, '');
+            }
           }
         }
 

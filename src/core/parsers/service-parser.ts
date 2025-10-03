@@ -28,7 +28,7 @@ export class ServiceParser {
   parse(node: ts.Node, context: OldVisitorContext): void {
     if (!ts.isClassDeclaration(node)) return;
 
-    const decorators = getDecorators(node, context.sourceFile, context.rootDir);
+    const decorators = getDecorators(node, context.sourceFile, context.rootDir, context.gitInfo);
     if (!decorators) return;
 
     const injectableDecorator = decorators.find((d) => d.name === 'Injectable');
@@ -46,7 +46,7 @@ export class ServiceParser {
     if (!className) return;
 
     const args = decorator.arguments;
-    const location = getSourceLocation(node, context.sourceFile, context.rootDir);
+    const location = getSourceLocation(node, context.sourceFile, context.rootDir, context.gitInfo);
 
     const entity: ServiceEntity = {
       id: generateEntityId(location.filePath, className, EntityType.Service, context.rootDir),
@@ -54,7 +54,7 @@ export class ServiceParser {
       name: className,
       location,
       documentation: getDocumentation(node),
-      decorators: getDecorators(node, context.sourceFile, context.rootDir),
+      decorators: getDecorators(node, context.sourceFile, context.rootDir, context.gitInfo),
       modifiers: getModifiers(node),
       providedIn: args.providedIn,
       dependencies: this.extractDependencies(node, context),

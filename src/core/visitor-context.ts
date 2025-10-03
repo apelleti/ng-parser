@@ -12,16 +12,19 @@ export class VisitorContextImpl implements VisitorContext {
   public entities: Map<string, Entity>;
   public relationships: Relationship[];
   public rootDir?: string;
+  public gitInfo?: any;
 
   constructor(
     public sourceFile: ts.SourceFile,
     public typeChecker: ts.TypeChecker,
     public program: ts.Program,
-    rootDir?: string
+    rootDir?: string,
+    gitInfo?: any
   ) {
     this.entities = new Map();
     this.relationships = [];
     this.rootDir = rootDir;
+    this.gitInfo = gitInfo;
   }
 
   /**

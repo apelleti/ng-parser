@@ -34,7 +34,7 @@ export class DirectiveParser {
   parse(node: ts.Node, context: OldVisitorContext): void {
     if (!ts.isClassDeclaration(node)) return;
 
-    const decorators = getDecorators(node, context.sourceFile, context.rootDir);
+    const decorators = getDecorators(node, context.sourceFile, context.rootDir, context.gitInfo);
     if (!decorators) return;
 
     const directiveDecorator = decorators.find((d) => d.name === 'Directive');
@@ -52,7 +52,7 @@ export class DirectiveParser {
     if (!className) return;
 
     const args = decorator.arguments;
-    const location = getSourceLocation(node, context.sourceFile, context.rootDir);
+    const location = getSourceLocation(node, context.sourceFile, context.rootDir, context.gitInfo);
 
     const entity: DirectiveEntity = {
       id: generateEntityId(location.filePath, className, EntityType.Directive, context.rootDir),
@@ -60,7 +60,7 @@ export class DirectiveParser {
       name: className,
       location,
       documentation: getDocumentation(node),
-      decorators: getDecorators(node, context.sourceFile, context.rootDir),
+      decorators: getDecorators(node, context.sourceFile, context.rootDir, context.gitInfo),
       modifiers: getModifiers(node),
       selector: args.selector,
       standalone: args.standalone ?? false,
@@ -82,7 +82,7 @@ export class DirectiveParser {
     node.members.forEach((member) => {
       if (!ts.isPropertyDeclaration(member) && !ts.isSetAccessor(member)) return;
 
-      const decorators = getDecorators(member, context.sourceFile, context.rootDir);
+      const decorators = getDecorators(member, context.sourceFile, context.rootDir, context.gitInfo);
       const inputDecorator = decorators?.find((d) => d.name === 'Input');
 
       if (inputDecorator) {
@@ -127,7 +127,7 @@ export class DirectiveParser {
     node.members.forEach((member) => {
       if (!ts.isPropertyDeclaration(member)) return;
 
-      const decorators = getDecorators(member, context.sourceFile, context.rootDir);
+      const decorators = getDecorators(member, context.sourceFile, context.rootDir, context.gitInfo);
       const outputDecorator = decorators?.find((d) => d.name === 'Output');
 
       if (outputDecorator) {

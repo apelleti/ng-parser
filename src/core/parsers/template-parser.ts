@@ -3,6 +3,7 @@
  * Parses Angular HTML templates (inline and external)
  */
 
+import * as path from 'path';
 import type { ComponentEntity, TemplateLocation, TemplateAnalysis } from '../../types/index.js';
 import type { GitRepository } from '../../utils/git-helpers.js';
 import {
@@ -28,6 +29,11 @@ export class TemplateParser {
     let templateContent: string | undefined;
     let templateLocation: TemplateLocation | undefined;
 
+    // entity.location.filePath is relative to git root (if git detected)
+    // We need to construct absolute path for resolveTemplatePath()
+    const baseDir = gitInfo?.rootDir || rootDir;
+    const absoluteComponentPath = path.resolve(baseDir, entity.location.filePath);
+
     // Case 1: Inline template
     if (entity.template) {
       templateContent = entity.template;
@@ -37,15 +43,15 @@ export class TemplateParser {
     else if (entity.templateUrl) {
       // Generate template location metadata
       templateLocation = generateTemplateLocation(
-        entity.location.filePath,
+        absoluteComponentPath,
         entity.templateUrl,
-        rootDir,
+        baseDir,
         gitInfo
       );
 
       // Read template content if file exists
       if (templateLocation.exists) {
-        const templatePath = resolveTemplatePath(entity.location.filePath, entity.templateUrl, rootDir);
+        const templatePath = resolveTemplatePath(absoluteComponentPath, entity.templateUrl, baseDir);
         templateContent = readTemplateFile(templatePath);
       }
     }
@@ -54,8 +60,8 @@ export class TemplateParser {
     let templateAnalysis: TemplateAnalysis | undefined;
     if (templateContent) {
       const filePath = entity.templateUrl
-        ? resolveTemplatePath(entity.location.filePath, entity.templateUrl, rootDir)
-        : entity.location.filePath;
+        ? resolveTemplatePath(absoluteComponentPath, entity.templateUrl, baseDir)
+        : absoluteComponentPath;
 
       templateAnalysis = analyzeTemplate(templateContent, filePath);
     }

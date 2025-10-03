@@ -5,11 +5,16 @@ Working examples demonstrating ng-parser features.
 ## Quick Start
 
 ```bash
-# Run examples
+# Build the project first
+npm run build
+
+# Run examples (using npx ts-node for on-the-fly compilation)
 npx ts-node examples/01-quick-start.ts
 npx ts-node examples/02-custom-visitors.ts
 npx ts-node examples/03-complete-analysis.ts
 ```
+
+**Note**: Examples use `npx ts-node` for on-the-fly TypeScript compilation.
 
 ## Examples
 

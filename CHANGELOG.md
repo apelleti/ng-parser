@@ -78,6 +78,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `extractStyleUrls()` normalizes `.css` → `.scss` if file exists
   - Added fs and path imports
 
+### 🔄 Refactoring
+
+- **Centralized path resolution helpers** in `git-helpers.ts`:
+  - `getBaseDir()`: Prefers git root over parsing root for consistency
+  - `resolveEntityPath()`: Resolves entity relative path to absolute path
+  - `generateLocationMetadata()`: Generates consistent filePath + sourceUrl + exists
+- **Refactored all path resolution code** to use new helpers:
+  - Eliminates 5 instances of duplicated `baseDir = gitInfo?.rootDir || rootDir` pattern
+  - Simplifies `parseScssFile()`, `generateStyleLocation()`, `generateTemplateLocation()`
+  - Reduces code duplication in `style-parser.ts` and `template-parser.ts`
+
 ### ✅ Validation
 
 - ✅ 0 paths with "../" in sample-angular-app output

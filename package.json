@@ -1,17 +1,34 @@
 {
   "name": "ng-parser",
   "version": "1.0.0",
-  "description": "Advanced Angular parser with RAG/GraphRAG optimized output",
+  "description": "Advanced Angular parser with RAG/GraphRAG optimized output and extensible visitor architecture",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
     "ng-parser": "dist/bin/ng-parser.js"
   },
+  "files": [
+    "dist/**/*.js",
+    "dist/**/*.d.ts",
+    "dist/**/*.js.map",
+    "!dist/**/*.test.*",
+    "!dist/**/*.spec.*",
+    "!dist/**/__tests__/**",
+    "!dist/src/__tests__/**",
+    "README.md",
+    "CHANGELOG.md",
+    "CLI.md",
+    "API_REFERENCE.md",
+    "GETTING_STARTED.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsc",
     "build:cli": "tsc && chmod +x dist/bin/ng-parser.js",
+    "prepublishOnly": "npm run build:cli && npm test",
     "dev": "tsc --watch",
     "test": "jest",
+    "test:coverage": "jest --coverage",
     "lint": "eslint src --ext .ts",
     "format": "prettier --write \"src/**/*.ts\""
   },
@@ -19,13 +36,26 @@
     "angular",
     "parser",
     "ast",
+    "cli",
     "rag",
     "graphrag",
+    "llm",
     "knowledge-graph",
-    "code-analysis"
+    "code-analysis",
+    "visitor-pattern",
+    "typescript",
+    "static-analysis"
   ],
-  "author": "",
+  "author": "Antoine Aire <antoine.aire@gmail.com>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/ng-parser.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/ng-parser/issues"
+  },
+  "homepage": "https://github.com/yourusername/ng-parser#readme",
   "dependencies": {
     "commander": "^14.0.1",
     "reflect-metadata": "^0.2.2",

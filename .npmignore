@@ -1,0 +1,54 @@
+# Source files (only publish dist/)
+src/
+bin/*.ts
+bin/*.map
+
+# Tests (exclude from dist too)
+**/__tests__/
+**/*.test.ts
+**/*.test.js
+**/*.test.d.ts
+**/*.test.js.map
+**/*.spec.ts
+**/*.spec.js
+**/*.spec.d.ts
+**/*.spec.js.map
+coverage/
+jest.config.js
+dist/__tests__/
+dist/**/*.test.*
+dist/**/*.spec.*
+
+# Examples
+examples/
+
+# Development files
+.github/
+.vscode/
+tsconfig.json
+.prettierrc
+.eslintrc.*
+*.tsbuildinfo
+
+# Documentation (keep only essentials in package)
+ARCHITECTURE.md
+CODE_REVIEW.md
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Misc
+.DS_Store
+*.swp
+*.swo
+*~
+.env
+.env.local

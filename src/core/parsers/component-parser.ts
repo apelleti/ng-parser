@@ -203,27 +203,31 @@ export class ComponentParser {
     // Extract imports relationships (for standalone components)
     if (entity.imports) {
       entity.imports.forEach((imp) => {
-        const relationship: Relationship = {
-          id: `${entity.id}:imports:${imp}`,
-          type: RelationType.Imports,
-          source: entity.id,
-          target: imp,
-          metadata: { standalone: true },
-        };
-        context.addRelationship(relationship);
+        if (typeof imp === 'string') {
+          const relationship: Relationship = {
+            id: `${entity.id}:imports:${imp}`,
+            type: RelationType.Imports,
+            source: entity.id,
+            target: imp,
+            metadata: { standalone: true },
+          };
+          context.addRelationship(relationship);
+        }
       });
     }
 
     // Extract provider relationships
     if (entity.providers) {
       entity.providers.forEach((provider) => {
-        const relationship: Relationship = {
-          id: `${entity.id}:provides:${provider}`,
-          type: RelationType.Provides,
-          source: entity.id,
-          target: provider,
-        };
-        context.addRelationship(relationship);
+        if (typeof provider === 'string') {
+          const relationship: Relationship = {
+            id: `${entity.id}:provides:${provider}`,
+            type: RelationType.Provides,
+            source: entity.id,
+            target: provider,
+          };
+          context.addRelationship(relationship);
+        }
       });
     }
 

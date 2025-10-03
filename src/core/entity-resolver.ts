@@ -79,6 +79,12 @@ export class EntityResolver {
     const warnings: string[] = [];
 
     for (const rel of relationships) {
+      // Skip if target is not a string
+      if (typeof rel.target !== 'string') {
+        console.warn(`⚠️  Skipping relationship with non-string target:`, rel);
+        continue;
+      }
+
       // If target is already an ID (contains ':'), skip resolution
       if (rel.target.includes(':')) {
         resolved.push(rel);

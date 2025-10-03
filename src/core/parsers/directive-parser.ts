@@ -167,13 +167,15 @@ export class DirectiveParser {
     // Extract provider relationships
     if (entity.providers) {
       entity.providers.forEach((provider) => {
-        const relationship: Relationship = {
-          id: `${entity.id}:provides:${provider}`,
-          type: RelationType.Provides,
-          source: entity.id,
-          target: provider,
-        };
-        context.addRelationship(relationship);
+        if (typeof provider === 'string') {
+          const relationship: Relationship = {
+            id: `${entity.id}:provides:${provider}`,
+            type: RelationType.Provides,
+            source: entity.id,
+            target: provider,
+          };
+          context.addRelationship(relationship);
+        }
       });
     }
 

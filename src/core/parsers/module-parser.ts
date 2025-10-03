@@ -72,46 +72,54 @@ export class ModuleParser {
   private extractRelationships(entity: ModuleEntity, context: OldVisitorContext): void {
     // Extract declaration relationships
     entity.declarations?.forEach((declaration) => {
-      const relationship: Relationship = {
-        id: `${entity.id}:declares:${declaration}`,
-        type: RelationType.Declares,
-        source: entity.id,
-        target: declaration,
-      };
-      context.addRelationship(relationship);
+      if (typeof declaration === 'string') {
+        const relationship: Relationship = {
+          id: `${entity.id}:declares:${declaration}`,
+          type: RelationType.Declares,
+          source: entity.id,
+          target: declaration,
+        };
+        context.addRelationship(relationship);
+      }
     });
 
     // Extract import relationships
     entity.imports?.forEach((imp) => {
-      const relationship: Relationship = {
-        id: `${entity.id}:imports:${imp}`,
-        type: RelationType.Imports,
-        source: entity.id,
-        target: imp,
-      };
-      context.addRelationship(relationship);
+      if (typeof imp === 'string') {
+        const relationship: Relationship = {
+          id: `${entity.id}:imports:${imp}`,
+          type: RelationType.Imports,
+          source: entity.id,
+          target: imp,
+        };
+        context.addRelationship(relationship);
+      }
     });
 
     // Extract export relationships
     entity.exports?.forEach((exp) => {
-      const relationship: Relationship = {
-        id: `${entity.id}:exports:${exp}`,
-        type: RelationType.Exports,
-        source: entity.id,
-        target: exp,
-      };
-      context.addRelationship(relationship);
+      if (typeof exp === 'string') {
+        const relationship: Relationship = {
+          id: `${entity.id}:exports:${exp}`,
+          type: RelationType.Exports,
+          source: entity.id,
+          target: exp,
+        };
+        context.addRelationship(relationship);
+      }
     });
 
     // Extract provider relationships
     entity.providers?.forEach((provider) => {
-      const relationship: Relationship = {
-        id: `${entity.id}:provides:${provider}`,
-        type: RelationType.Provides,
-        source: entity.id,
-        target: provider,
-      };
-      context.addRelationship(relationship);
+      if (typeof provider === 'string') {
+        const relationship: Relationship = {
+          id: `${entity.id}:provides:${provider}`,
+          type: RelationType.Provides,
+          source: entity.id,
+          target: provider,
+        };
+        context.addRelationship(relationship);
+      }
     });
   }
 

@@ -2,14 +2,42 @@
 
 Complete API documentation for ng-parser.
 
+> **Note**: For command-line usage, see [CLI Documentation](./CLI.md). This document covers the programmatic API only.
+
 ## Table of Contents
 
+- [CLI vs API](#cli-vs-api)
 - [NgParser](#ngparser)
 - [NgParseResult](#ngparseresult)
 - [Custom Visitors](#custom-visitors)
 - [Built-in Visitors](#built-in-visitors)
 - [Types](#types)
 - [Formatters](#formatters)
+
+---
+
+## CLI vs API
+
+ng-parser can be used in two ways:
+
+### Command-Line Interface (Recommended for most users)
+
+```bash
+ng-parser parse ./src
+ng-parser parse ./src --visitors rxjs -o output.json
+```
+
+See [CLI.md](./CLI.md) for complete CLI documentation.
+
+### Programmatic API (For tool developers)
+
+```typescript
+import { NgParser } from 'ng-parser';
+const parser = new NgParser({ rootDir: './src' });
+const result = await parser.parse();
+```
+
+Continue reading for detailed API documentation.
 
 ---
 

@@ -5,6 +5,25 @@ All notable changes to ng-parser will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **CLI (Command-Line Interface)** - Simple, efficient CLI for parsing Angular projects
+  - `ng-parser parse <directory>` - Core parsing only by default (fastest)
+  - `--visitors <list>` - Enable specific visitors (rxjs, security, performance)
+  - `--all-visitors` - Enable all built-in visitors
+  - `-o, --output <file>` - Export to file
+  - `-f, --format <format>` - Export format: full, simple, markdown, graph, all
+  - Clean terminal output with entity counts and visitor results
+
+### Changed
+- **Output filenames** - More descriptive naming convention:
+  - `ng-parser.full.json` (complete data)
+  - `ng-parser.simple.json` (entities only)
+  - `ng-parser.rag.md` (RAG-optimized markdown)
+  - `ng-parser.graph.json` (knowledge graph)
+- **Documentation** - Updated GETTING_STARTED.md with CLI-first approach
+
 ## [1.0.0] - 2025-10-03
 
 ### 🎉 Initial Release

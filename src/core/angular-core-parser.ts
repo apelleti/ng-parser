@@ -11,6 +11,8 @@ import { ComponentParser, ServiceParser, ModuleParser, DirectiveParser, PipePars
 import { VisitorContextImpl as OldVisitorContextImpl } from './visitor-context';
 import { findTypeScriptFiles, findTsConfig, resolvePath } from '../utils/file-helpers';
 import { EntityResolver } from './entity-resolver';
+import { GitRemoteParser } from './parsers/git-remote-parser';
+import type { GitRepository } from '../utils/git-helpers';
 
 export interface AngularProject {
   entities: Map<string, Entity>;
@@ -20,6 +22,7 @@ export interface AngularProject {
     totalRelationships: number;
     timestamp: string;
     angularVersion?: string;
+    repository?: GitRepository;
   };
 }
 
@@ -128,6 +131,18 @@ export class AngularCoreParser {
       );
     }
 
+    // Detect Git repository and enrich with source URLs
+    let gitInfo: GitRepository | undefined;
+    if (this.config.git?.enabled !== false) {
+      const gitParser = new GitRemoteParser();
+      gitInfo = await gitParser.detectRepository(rootDir);
+
+      if (gitInfo) {
+        gitParser.enrichEntities(allEntities);
+        console.log(`📦 Git repository detected: ${gitInfo.provider} (${gitInfo.branch})`);
+      }
+    }
+
     return {
       entities: allEntities,
       relationships: resolvedRelationships,
@@ -136,6 +151,7 @@ export class AngularCoreParser {
         totalRelationships: resolvedRelationships.length,
         timestamp: new Date().toISOString(),
         angularVersion: this.detectAngularVersion(rootDir),
+        repository: gitInfo,
       },
     };
   }

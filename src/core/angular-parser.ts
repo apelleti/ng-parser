@@ -32,6 +32,7 @@ export class AngularParser {
       detectPatterns: config.detectPatterns ?? true,
       maxDepth: config.maxDepth ?? Infinity,
       strictMode: config.strictMode ?? false,
+      git: config.git ?? { enabled: true },
     };
 
     this.registry = new VisitorRegistry();

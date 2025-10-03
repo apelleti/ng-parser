@@ -13,6 +13,7 @@ export interface SourceLocation {
   end: number;
   line: number;
   column: number;
+  sourceUrl?: string;  // URL to source file in GitHub/GitLab/Bitbucket/Azure
 }
 
 /**
@@ -249,6 +250,10 @@ export interface ParserConfig {
   detectPatterns?: boolean;
   maxDepth?: number;
   strictMode?: boolean; // Throw on entity ID collisions
+  git?: {
+    enabled?: boolean; // Default: true
+    branch?: string;   // Auto-detected if not specified
+  };
 }
 
 /**

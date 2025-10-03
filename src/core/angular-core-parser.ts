@@ -83,7 +83,7 @@ export class AngularCoreParser {
     for (const sourceFile of this.program.getSourceFiles()) {
       if (this.shouldSkipFile(sourceFile)) continue;
 
-      const context = new OldVisitorContextImpl(sourceFile, typeChecker, this.program);
+      const context = new OldVisitorContextImpl(sourceFile, typeChecker, this.program, path.resolve(rootDir));
 
       // Traverse AST with all parsers
       this.traverseNode(sourceFile, context);
@@ -135,6 +135,7 @@ export class AngularCoreParser {
         totalEntities: allEntities.size,
         totalRelationships: resolvedRelationships.length,
         timestamp: new Date().toISOString(),
+        angularVersion: this.detectAngularVersion(rootDir),
       },
     };
   }
@@ -198,6 +199,41 @@ export class AngularCoreParser {
     if (sourceFile.fileName.includes('node_modules')) return true;
     if (!this.config.includeTests && /\.(spec|test)\.ts$/.test(sourceFile.fileName)) return true;
     return false;
+  }
+
+  /**
+   * Detect Angular version from package.json
+   */
+  private detectAngularVersion(rootDir: string): string | undefined {
+    try {
+      // Look for package.json in rootDir and parent directories
+      let currentDir = path.resolve(rootDir);
+      const root = path.parse(currentDir).root;
+
+      while (currentDir !== root) {
+        const packageJsonPath = path.join(currentDir, 'package.json');
+        if (fs.existsSync(packageJsonPath)) {
+          const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
+
+          // Check dependencies and devDependencies for @angular/core
+          const deps = packageJson.dependencies || {};
+          const devDeps = packageJson.devDependencies || {};
+
+          const angularCore = deps['@angular/core'] || devDeps['@angular/core'];
+          if (angularCore) {
+            // Remove ^ or ~ prefix
+            return angularCore.replace(/^[\^~]/, '');
+          }
+        }
+
+        // Move up one directory
+        currentDir = path.dirname(currentDir);
+      }
+    } catch (error) {
+      // Silently fail - version is optional
+    }
+
+    return undefined;
   }
 
   /**

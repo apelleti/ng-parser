@@ -60,7 +60,7 @@ export class ComponentParser {
     const location = getSourceLocation(node, context.sourceFile);
 
     const entity: ComponentEntity = {
-      id: generateEntityId(location.filePath, className, EntityType.Component),
+      id: generateEntityId(location.filePath, className, EntityType.Component, context.rootDir),
       type: EntityType.Component,
       name: className,
       location,

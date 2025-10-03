@@ -55,7 +55,7 @@ export class DirectiveParser {
     const location = getSourceLocation(node, context.sourceFile);
 
     const entity: DirectiveEntity = {
-      id: generateEntityId(location.filePath, className, EntityType.Directive),
+      id: generateEntityId(location.filePath, className, EntityType.Directive, context.rootDir),
       type: EntityType.Directive,
       name: className,
       location,

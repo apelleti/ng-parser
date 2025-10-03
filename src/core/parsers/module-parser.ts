@@ -48,7 +48,7 @@ export class ModuleParser {
     const location = getSourceLocation(node, context.sourceFile);
 
     const entity: ModuleEntity = {
-      id: generateEntityId(location.filePath, className, EntityType.Module),
+      id: generateEntityId(location.filePath, className, EntityType.Module, context.rootDir),
       type: EntityType.Module,
       name: className,
       location,

@@ -270,6 +270,7 @@ export interface VisitorContext {
   program: ts.Program;
   entities: Map<string, Entity>;
   relationships: Relationship[];
+  rootDir?: string;
   addEntity(entity: Entity): void;
   addRelationship(relationship: Relationship): void;
 }

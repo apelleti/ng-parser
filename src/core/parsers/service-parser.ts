@@ -49,7 +49,7 @@ export class ServiceParser {
     const location = getSourceLocation(node, context.sourceFile);
 
     const entity: ServiceEntity = {
-      id: generateEntityId(location.filePath, className, EntityType.Service),
+      id: generateEntityId(location.filePath, className, EntityType.Service, context.rootDir),
       type: EntityType.Service,
       name: className,
       location,

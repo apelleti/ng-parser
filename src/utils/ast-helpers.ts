@@ -165,8 +165,21 @@ export function getTypeName(
 /**
  * Generate unique ID for an entity
  */
-export function generateEntityId(filePath: string, name: string, type: string): string {
-  const normalized = filePath.replace(/\\/g, '/');
+export function generateEntityId(filePath: string, name: string, type: string, rootDir?: string): string {
+  let normalized = filePath.replace(/\\/g, '/');
+
+  // Make path relative to rootDir if provided
+  if (rootDir) {
+    const normalizedRoot = rootDir.replace(/\\/g, '/');
+    if (normalized.startsWith(normalizedRoot)) {
+      normalized = normalized.substring(normalizedRoot.length);
+      // Remove leading slash
+      if (normalized.startsWith('/')) {
+        normalized = normalized.substring(1);
+      }
+    }
+  }
+
   return `${type}:${normalized}:${name}`;
 }
 

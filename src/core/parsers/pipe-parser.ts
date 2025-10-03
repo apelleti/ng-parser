@@ -50,7 +50,7 @@ export class PipeParser {
     const location = getSourceLocation(node, context.sourceFile);
 
     const entity: PipeEntity = {
-      id: generateEntityId(location.filePath, className, EntityType.Pipe),
+      id: generateEntityId(location.filePath, className, EntityType.Pipe, context.rootDir),
       type: EntityType.Pipe,
       name: className,
       location,

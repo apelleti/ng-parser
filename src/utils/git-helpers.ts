@@ -68,10 +68,17 @@ export async function detectGitRepository(dir: string): Promise<GitRepository | 
 
 /**
  * Parse remote URL and detect provider
+ * Converts SSH URLs to HTTPS format
  */
 function parseRemoteUrl(remoteUrl: string): { provider: GitRepository['provider']; url: string } {
   // Normalize SSH URLs to HTTPS
   let url = remoteUrl;
+
+  // SSH protocol format: ssh://git@github.com/user/repo.git
+  if (url.startsWith('ssh://')) {
+    url = url.replace(/^ssh:\/\/git@/, 'https://');
+    url = url.replace(/\.git$/, '');
+  }
 
   // GitHub SSH: git@github.com:user/repo.git
   if (url.startsWith('git@github.com:')) {
@@ -87,11 +94,34 @@ function parseRemoteUrl(remoteUrl: string): { provider: GitRepository['provider'
     return { provider: 'gitlab', url };
   }
 
-  // Bitbucket SSH: git@bitbucket.org:user/repo.git
+  // Bitbucket Cloud SSH: git@bitbucket.org:user/repo.git
   if (url.startsWith('git@bitbucket.org:')) {
     url = url.replace('git@bitbucket.org:', 'https://bitbucket.org/');
     url = url.replace(/\.git$/, '');
     return { provider: 'bitbucket', url };
+  }
+
+  // Bitbucket Server SSH: ssh://git@bitbucket.company.com:7999/project/repo.git
+  // or git@bitbucket.company.com:project/repo.git
+  // Convert to: https://bitbucket.company.com/projects/PROJECT/repos/repo/browse
+  if (url.includes('bitbucket') && !url.includes('bitbucket.org')) {
+    // Remove SSH protocol if present
+    url = url.replace(/^ssh:\/\//, '');
+
+    // Handle format: git@host:port/project/repo.git or git@host/scm/project/repo.git
+    const serverMatch = url.match(/git@([^:\/]+)(?::\d+)?\/(?:scm\/)?([^\/]+)\/([^\/]+?)(?:\.git)?$/);
+    if (serverMatch) {
+      const [, host, project, repo] = serverMatch;
+      // Bitbucket Server format
+      url = `https://${host}/projects/${project.toUpperCase()}/repos/${repo}/browse`;
+      return { provider: 'bitbucket', url };
+    }
+  }
+
+  // Generic git@ format: git@host:path/repo.git → https://host/path/repo
+  if (url.startsWith('git@') && url.includes(':')) {
+    url = url.replace(/^git@([^:]+):/, 'https://$1/');
+    url = url.replace(/\.git$/, '');
   }
 
   // Azure DevOps SSH: git@ssh.dev.azure.com:v3/org/project/repo
@@ -147,9 +177,16 @@ export function generateSourceUrl(
       return `${gitInfo.url}/-/blob/${gitInfo.branch}/${relativePath}${lineFragment}`;
 
     case 'bitbucket':
-      // Bitbucket uses #lines-N format
-      const bitbucketLine = line ? `#lines-${line}` : '';
-      return `${gitInfo.url}/src/${gitInfo.branch}/${relativePath}${bitbucketLine}`;
+      // Check if it's Bitbucket Server (contains /projects/ or /repos/)
+      if (gitInfo.url.includes('/projects/') || gitInfo.url.includes('/repos/')) {
+        // Bitbucket Server format
+        const atFragment = line ? `#${line}` : '';
+        return `${gitInfo.url}/${relativePath}?at=refs%2Fheads%2F${gitInfo.branch}${atFragment}`;
+      } else {
+        // Bitbucket Cloud format - uses #lines-N format
+        const bitbucketLine = line ? `#lines-${line}` : '';
+        return `${gitInfo.url}/src/${gitInfo.branch}/${relativePath}${bitbucketLine}`;
+      }
 
     case 'azure':
       // Azure DevOps format: ?path=/file&line=N

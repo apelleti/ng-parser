@@ -28,6 +28,9 @@ export class MarkdownFormatter {
     sections.push(this.formatOverview());
     sections.push('');
 
+    // Add global styles (if any)
+    sections.push(this.formatGlobalStyles());
+
     // Add entities by type
     sections.push(this.formatComponents());
     sections.push(this.formatServices());
@@ -257,6 +260,43 @@ ${modules.map((m) => this.formatModule(m)).join('\n---\n\n')}`;
         parts.push(`\n*...and ${rels.length - 20} more*`);
       }
       parts.push('');
+    });
+
+    return parts.join('\n');
+  }
+
+  private formatGlobalStyles(): string {
+    const globalStyles = this.graph.metadata.globalStyles;
+    if (!globalStyles || globalStyles.length === 0) {
+      return '';
+    }
+
+    const parts: string[] = ['\n## Global Styles\n'];
+
+    globalStyles.forEach((styleFile: any) => {
+      parts.push(`### ${styleFile.filePath}`);
+      if (styleFile.sourceUrl) {
+        parts.push(`**Source**: [${styleFile.filePath}](${styleFile.sourceUrl})`);
+      }
+      parts.push('');
+
+      if (styleFile.uses && styleFile.uses.length > 0) {
+        parts.push('**@use statements:**');
+        styleFile.uses.forEach((use: any) => {
+          parts.push(`- \`${use.statement}\` (line ${use.line})${use.namespace ? ` as ${use.namespace}` : ''}`);
+        });
+        parts.push('');
+      }
+
+      if (styleFile.imports && styleFile.imports.length > 0) {
+        parts.push('**@import statements:**');
+        styleFile.imports.forEach((imp: any) => {
+          parts.push(`- \`${imp.statement}\` (line ${imp.line})`);
+        });
+        parts.push('');
+      }
+
+      parts.push('---');
     });
 
     return parts.join('\n');

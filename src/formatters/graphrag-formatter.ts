@@ -51,6 +51,7 @@ export class GraphRAGFormatter {
         totalRelationships: this.graph.metadata.totalRelationships,
         patterns: this.graph.metadata.patterns,
         timestamp: this.graph.metadata.timestamp,
+        globalStyles: this.graph.metadata.globalStyles,
       },
     };
   }

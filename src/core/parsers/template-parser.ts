@@ -45,7 +45,7 @@ export class TemplateParser {
 
       // Read template content if file exists
       if (templateLocation.exists) {
-        const templatePath = resolveTemplatePath(entity.location.filePath, entity.templateUrl);
+        const templatePath = resolveTemplatePath(entity.location.filePath, entity.templateUrl, rootDir);
         templateContent = readTemplateFile(templatePath);
       }
     }
@@ -54,7 +54,7 @@ export class TemplateParser {
     let templateAnalysis: TemplateAnalysis | undefined;
     if (templateContent) {
       const filePath = entity.templateUrl
-        ? resolveTemplatePath(entity.location.filePath, entity.templateUrl)
+        ? resolveTemplatePath(entity.location.filePath, entity.templateUrl, rootDir)
         : entity.location.filePath;
 
       templateAnalysis = analyzeTemplate(templateContent, filePath);

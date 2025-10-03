@@ -15,6 +15,7 @@ import { GitRemoteParser } from './parsers/git-remote-parser';
 import type { GitRepository } from '../utils/git-helpers';
 import type { ComponentEntity } from '../types';
 import { parseScssFile } from '../utils/style-helpers';
+import { loadAngularCompiler } from '../utils/template-helpers';
 
 export interface AngularProject {
   entities: Map<string, Entity>;
@@ -145,6 +146,10 @@ export class AngularCoreParser {
         console.log(`📦 Git repository detected: ${gitInfo.provider} (${gitInfo.branch})`);
       }
     }
+
+    // Load Angular compiler before parsing templates
+    // This ensures the compiler is available for template analysis
+    await loadAngularCompiler();
 
     // Parse templates and styles for components
     const templateParser = new TemplateParser();

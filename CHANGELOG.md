@@ -5,6 +5,43 @@ All notable changes to ng-parser will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.2] - 2025-10-03
+
+### 🐛 Bug Fixes
+- **Fixed ERR_REQUIRE_ESM error**: Eliminated race condition when loading @angular/compiler
+  - Added explicit `await loadAngularCompiler()` before template parsing
+  - Removed top-level async pre-loading that didn't block execution
+  - Template analysis now always has compiler loaded
+- **All file paths now relative to parsing directory**
+  - Entity locations: `app/components/dashboard.component.ts`
+  - Template paths: `app/components/product-card.component.html`
+  - Style paths: `app/components/product-card.component.scss`
+  - No more absolute paths or `../../../` paths in outputs
+  - Modified `getSourceLocation()` to accept `rootDir` parameter
+  - Updated all path resolution functions in template and style helpers
+
+### ✨ Features
+- **Global styles in all export formats**
+  - Added `globalStyles` to Markdown export with dedicated section
+  - Added `globalStyles` to GraphRAG metadata
+  - Already present in JSON full export
+- **Enhanced Git SSH URL support**
+  - Added support for `ssh://git@host/path/repo.git` format
+  - Added generic `git@host:path/repo.git` fallback for custom Git servers
+  - **Bitbucket Server support** (auto-hosted)
+    - Converts SSH URLs: `ssh://git@bitbucket.company.com:7999/project/repo.git`
+    - Generates correct source URLs: `/projects/PROJECT/repos/repo/browse`
+    - Auto-detects Server vs Cloud by URL pattern
+    - Handles custom SSH ports and `/scm/` paths
+
+### 🔧 Changes
+- `getSourceLocation()` signature: added optional `rootDir` parameter
+- `getDecorators()` signature: added optional `rootDir` parameter
+- `resolveTemplatePath()` signature: added optional `rootDir` parameter
+- `resolveStylePath()` signature: added optional `rootDir` parameter
+- `GraphMetadata` interface: added `globalStyles?: StyleFileMetadata[]`
+- All parsers updated to pass `context.rootDir` to location functions
+
 ## [1.2.1] - 2025-10-03
 
 ### 🐛 Bug Fixes

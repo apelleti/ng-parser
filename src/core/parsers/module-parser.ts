@@ -27,7 +27,7 @@ export class ModuleParser {
   parse(node: ts.Node, context: OldVisitorContext): void {
     if (!ts.isClassDeclaration(node)) return;
 
-    const decorators = getDecorators(node, context.sourceFile);
+    const decorators = getDecorators(node, context.sourceFile, context.rootDir);
     if (!decorators) return;
 
     const moduleDecorator = decorators.find((d) => d.name === 'NgModule');
@@ -45,7 +45,7 @@ export class ModuleParser {
     if (!className) return;
 
     const args = decorator.arguments;
-    const location = getSourceLocation(node, context.sourceFile);
+    const location = getSourceLocation(node, context.sourceFile, context.rootDir);
 
     const entity: ModuleEntity = {
       id: generateEntityId(location.filePath, className, EntityType.Module, context.rootDir),
@@ -53,7 +53,7 @@ export class ModuleParser {
       name: className,
       location,
       documentation: getDocumentation(node),
-      decorators: getDecorators(node, context.sourceFile),
+      decorators: getDecorators(node, context.sourceFile, context.rootDir),
       modifiers: getModifiers(node),
       declarations: Array.isArray(args.declarations) ? args.declarations : undefined,
       imports: Array.isArray(args.imports) ? args.imports : undefined,

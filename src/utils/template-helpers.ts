@@ -11,45 +11,44 @@ import { generateSourceUrl, type GitRepository, makeRelative } from './git-helpe
 // Dynamic import for @angular/compiler to avoid ESM/CommonJS issues
 let angularCompiler: any = null;
 
-async function loadAngularCompiler() {
+/**
+ * Load Angular compiler dynamically
+ * MUST be called and awaited before using analyzeTemplate()
+ */
+export async function loadAngularCompiler() {
   if (!angularCompiler) {
     angularCompiler = await import('@angular/compiler');
   }
   return angularCompiler;
 }
 
-// Pre-load Angular compiler to make it available synchronously
-loadAngularCompiler().catch(err => {
-  console.warn('⚠️  Failed to load @angular/compiler:', err.message);
-});
-
 /**
  * Resolve template file path from component file
+ * @param componentPath - Component file path (can be relative or absolute)
+ * @param templateUrl - Template URL from component decorator
+ * @param rootDir - Optional root directory to resolve relative paths
  */
-export function resolveTemplatePath(componentPath: string, templateUrl: string): string {
-  const componentDir = path.dirname(componentPath);
+export function resolveTemplatePath(componentPath: string, templateUrl: string, rootDir?: string): string {
+  // If componentPath is relative and rootDir is provided, make it absolute first
+  let absoluteComponentPath = componentPath;
+  if (rootDir && !path.isAbsolute(componentPath)) {
+    absoluteComponentPath = path.resolve(rootDir, componentPath);
+  }
+
+  const componentDir = path.dirname(absoluteComponentPath);
   return path.resolve(componentDir, templateUrl);
 }
 
 /**
  * Analyze template content (works for both inline and external)
+ *
+ * NOTE: loadAngularCompiler() MUST be called and awaited before using this function.
+ * This is guaranteed by AngularCoreParser.parseProject() which loads the compiler
+ * before parsing templates.
  */
 export function analyzeTemplate(templateContent: string, filePath?: string): TemplateAnalysis {
   try {
-    // Check if Angular compiler is loaded
-    if (!angularCompiler) {
-      console.warn('⚠️  @angular/compiler not loaded yet, skipping template analysis');
-      return {
-        usedComponents: [],
-        usedDirectives: [],
-        usedPipes: [],
-        bindings: [],
-        templateRefs: [],
-        complexity: 0,
-      };
-    }
-
-    // Parse template with Angular compiler
+    // Parse template with Angular compiler (guaranteed to be loaded)
     const parsed = angularCompiler.parseTemplate(templateContent, filePath || 'inline-template.html', {
       preserveWhitespaces: false,
       interpolationConfig: undefined,
@@ -219,7 +218,7 @@ export function generateTemplateLocation(
   rootDir: string,
   gitInfo?: GitRepository
 ): { filePath: string; sourceUrl?: string; exists: boolean } {
-  const templatePath = resolveTemplatePath(componentFilePath, templateUrl);
+  const templatePath = resolveTemplatePath(componentFilePath, templateUrl, rootDir);
   const exists = fs.existsSync(templatePath);
 
   return {

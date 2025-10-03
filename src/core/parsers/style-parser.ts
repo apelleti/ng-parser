@@ -41,7 +41,7 @@ export class StyleParser {
     const files: StyleFileMetadata[] = [];
 
     for (const styleUrl of entity.styleUrls) {
-      const stylePath = resolveStylePath(entity.location.filePath, styleUrl);
+      const stylePath = resolveStylePath(entity.location.filePath, styleUrl, rootDir);
       const fileMetadata = parseScssFile(stylePath, rootDir, gitInfo);
       files.push(fileMetadata);
     }

@@ -10,9 +10,18 @@ import { generateSourceUrl, type GitRepository, makeRelative } from './git-helpe
 
 /**
  * Resolve style file path from component file
+ * @param componentPath - Component file path (can be relative or absolute)
+ * @param styleUrl - Style URL from component decorator
+ * @param rootDir - Optional root directory to resolve relative paths
  */
-export function resolveStylePath(componentPath: string, styleUrl: string): string {
-  const componentDir = path.dirname(componentPath);
+export function resolveStylePath(componentPath: string, styleUrl: string, rootDir?: string): string {
+  // If componentPath is relative and rootDir is provided, make it absolute first
+  let absoluteComponentPath = componentPath;
+  if (rootDir && !path.isAbsolute(componentPath)) {
+    absoluteComponentPath = path.resolve(rootDir, componentPath);
+  }
+
+  const componentDir = path.dirname(absoluteComponentPath);
   return path.resolve(componentDir, styleUrl);
 }
 
@@ -146,7 +155,7 @@ export function generateStyleLocation(
   rootDir: string,
   gitInfo?: GitRepository
 ): StyleLocation {
-  const stylePath = resolveStylePath(componentFilePath, styleUrl);
+  const stylePath = resolveStylePath(componentFilePath, styleUrl, rootDir);
   const exists = fs.existsSync(stylePath);
 
   return {

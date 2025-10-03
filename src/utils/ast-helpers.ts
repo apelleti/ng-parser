@@ -3,16 +3,24 @@
  */
 
 import * as ts from 'typescript';
+import * as path from 'path';
 import type { SourceLocation, DecoratorMetadata } from '../types';
 
 /**
  * Get source location from a node
+ * If rootDir is provided, filePath will be relative to it
  */
-export function getSourceLocation(node: ts.Node, sourceFile: ts.SourceFile): SourceLocation {
+export function getSourceLocation(node: ts.Node, sourceFile: ts.SourceFile, rootDir?: string): SourceLocation {
   const { line, character } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
 
+  // Make path relative to rootDir if provided
+  let filePath = sourceFile.fileName;
+  if (rootDir) {
+    filePath = path.relative(rootDir, sourceFile.fileName).replace(/\\/g, '/');
+  }
+
   return {
-    filePath: sourceFile.fileName,
+    filePath,
     start: node.getStart(),
     end: node.getEnd(),
     line: line + 1,
@@ -60,7 +68,8 @@ export function isExported(node: ts.Node): boolean {
  */
 export function getDecorators(
   node: ts.Node,
-  sourceFile: ts.SourceFile
+  sourceFile: ts.SourceFile,
+  rootDir?: string
 ): DecoratorMetadata[] | undefined {
   if (!ts.canHaveDecorators(node)) return undefined;
 
@@ -88,7 +97,7 @@ export function getDecorators(
     return {
       name,
       arguments: args,
-      location: getSourceLocation(decorator, sourceFile),
+      location: getSourceLocation(decorator, sourceFile, rootDir),
     };
   });
 }

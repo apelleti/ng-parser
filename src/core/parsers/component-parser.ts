@@ -39,7 +39,7 @@ export class ComponentParser {
   parse(node: ts.Node, context: OldVisitorContext): void {
     if (!ts.isClassDeclaration(node)) return;
 
-    const decorators = getDecorators(node, context.sourceFile);
+    const decorators = getDecorators(node, context.sourceFile, context.rootDir);
     if (!decorators) return;
 
     const componentDecorator = decorators.find((d) => d.name === 'Component');
@@ -57,7 +57,7 @@ export class ComponentParser {
     if (!className) return;
 
     const args = decorator.arguments;
-    const location = getSourceLocation(node, context.sourceFile);
+    const location = getSourceLocation(node, context.sourceFile, context.rootDir);
 
     const entity: ComponentEntity = {
       id: generateEntityId(location.filePath, className, EntityType.Component, context.rootDir),
@@ -65,7 +65,7 @@ export class ComponentParser {
       name: className,
       location,
       documentation: getDocumentation(node),
-      decorators: getDecorators(node, context.sourceFile),
+      decorators: getDecorators(node, context.sourceFile, context.rootDir),
       modifiers: getModifiers(node),
       selector: args.selector,
       template: args.template,
@@ -98,7 +98,7 @@ export class ComponentParser {
     node.members.forEach((member) => {
       if (!ts.isPropertyDeclaration(member)) return;
 
-      const decorators = getDecorators(member, context.sourceFile);
+      const decorators = getDecorators(member, context.sourceFile, context.rootDir);
       const inputDecorator = decorators?.find((d) => d.name === 'Input');
 
       if (inputDecorator) {
@@ -137,7 +137,7 @@ export class ComponentParser {
     node.members.forEach((member) => {
       if (!ts.isPropertyDeclaration(member)) return;
 
-      const decorators = getDecorators(member, context.sourceFile);
+      const decorators = getDecorators(member, context.sourceFile, context.rootDir);
       const outputDecorator = decorators?.find((d) => d.name === 'Output');
 
       if (outputDecorator) {

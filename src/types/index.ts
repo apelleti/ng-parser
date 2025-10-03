@@ -229,6 +229,7 @@ export interface GraphMetadata {
   totalRelationships: number;
   timestamp: string;
   patterns?: PatternDetection[];
+  globalStyles?: StyleFileMetadata[];
 }
 
 /**

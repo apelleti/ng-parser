@@ -5,6 +5,18 @@ All notable changes to ng-parser will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2025-10-03
+
+### 📝 Documentation
+
+- Updated package name to `@ttwtf/ng-parser` in README.md
+- Fixed all import examples to use the new scoped package name
+
+### 🔧 Changes
+
+- Changed package name from `ng-parser` to `@ttwtf/ng-parser`
+- Updated repository URLs to apelleti/ng-parser
+
 ## [1.0.0] - 2025-10-03
 
 ### 🎉 Initial Release
@@ -87,7 +99,7 @@ ng-parser is an advanced Angular parser with RAG/GraphRAG optimized output and e
 ### 📦 Installation
 
 ```bash
-npm install ng-parser
+npm install @ttwtf/ng-parser
 npm install @angular/compiler @angular/compiler-cli @angular/core
 ```
 

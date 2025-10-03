@@ -5,6 +5,42 @@ All notable changes to ng-parser will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-10-03
+
+### ✨ Features
+
+#### Git Integration (GitRemoteParser)
+- Automatic Git repository detection (GitHub, GitLab, Bitbucket, Azure DevOps)
+- Source URLs added to all entities with line-specific links
+- Repository metadata in project output (provider, branch, remote URL)
+- Configurable via `config.git.enabled` option
+
+#### Template Analysis (TemplateParser)
+- Parse inline templates (`template:`) and external templates (`templateUrl:`)
+- Extract used components, directives, and pipes from HTML
+- Analyze bindings (property, event, two-way, interpolation, attribute, class, style)
+- Template complexity scoring based on nesting depth
+- External template locations with Git source URLs
+
+#### Style Analysis (StyleParser)
+- Parse SCSS files for `@import` and `@use` statements
+- Extract import/use paths with line numbers and full statements
+- Resolve SCSS paths with support for partials and index files
+- Style locations for all `styleUrls` with Git source URLs
+- Skip Sass built-ins (e.g., `sass:math`)
+
+### 🐛 Bug Fixes
+- Fixed array validation in decorator argument parsing (component, module, directive, pipe, service parsers)
+- Fixed relationship resolution for non-string targets
+- Added relative paths in entity IDs instead of absolute paths
+- Auto-detection of Angular version from package.json
+
+### 🔧 Changes
+- Added `@angular/compiler` to parse HTML templates
+- Added `simple-git` dependency for Git operations
+- Entity IDs now use paths relative to rootDir
+- Component entities enriched with `templateLocation`, `templateAnalysis`, `styleLocations`, and `styleAnalysis`
+
 ## [1.0.1] - 2025-10-03
 
 ### 📝 Documentation

@@ -63,8 +63,12 @@ export interface ComponentEntity extends Entity {
   selector?: string;
   template?: string;
   templateUrl?: string;
+  templateLocation?: TemplateLocation;
+  templateAnalysis?: TemplateAnalysis;
   styles?: string[];
   styleUrls?: string[];
+  styleLocations?: StyleLocation[];
+  styleAnalysis?: StyleAnalysis;
   inputs?: InputMetadata[];
   outputs?: OutputMetadata[];
   providers?: string[];
@@ -293,4 +297,83 @@ export interface ParseResult {
   getEntities(): Map<string, Entity>;
   getRelationships(): Relationship[];
   getMetadata(): GraphMetadata;
+}
+
+/**
+ * Template location (for external templates)
+ */
+export interface TemplateLocation {
+  filePath: string;     // Relative to rootDir
+  sourceUrl?: string;   // URL to template file in Git
+  exists: boolean;      // File exists on disk
+}
+
+/**
+ * Template analysis result
+ */
+export interface TemplateAnalysis {
+  usedComponents: string[];      // Component selectors found in template
+  usedDirectives: string[];      // Directives used (ngIf, ngFor, etc.)
+  usedPipes: string[];           // Pipes used in template
+  bindings: BindingMetadata[];   // Property/event bindings
+  templateRefs: string[];        // Template references (#ref)
+  complexity?: number;           // Template complexity score
+}
+
+/**
+ * Binding metadata in templates
+ */
+export interface BindingMetadata {
+  type: 'property' | 'event' | 'twoWay' | 'attribute' | 'class' | 'style';
+  name: string;
+  expression?: string;
+  line: number;
+}
+
+/**
+ * Style file location
+ */
+export interface StyleLocation {
+  originalPath: string;   // Original path from component
+  filePath: string;       // Resolved path relative to rootDir
+  sourceUrl?: string;     // URL to style file in Git
+  exists: boolean;        // File exists on disk
+}
+
+/**
+ * Style analysis result
+ */
+export interface StyleAnalysis {
+  files: StyleFileMetadata[];
+}
+
+/**
+ * Style file metadata
+ */
+export interface StyleFileMetadata {
+  filePath: string;                  // Relative to rootDir
+  sourceUrl?: string;                // URL to file in Git
+  imports: ScssImportMetadata[];     // @import statements
+  uses: ScssUseMetadata[];           // @use statements
+}
+
+/**
+ * SCSS @import metadata
+ */
+export interface ScssImportMetadata {
+  path: string;          // Import path: 'theme/colors'
+  statement: string;     // Full statement: '@import "theme/colors"'
+  resolvedPath?: string; // Resolved absolute path if found
+  line: number;          // Line number in file
+}
+
+/**
+ * SCSS @use metadata
+ */
+export interface ScssUseMetadata {
+  path: string;          // Use path: 'sass:math'
+  statement: string;     // Full statement: '@use "sass:math" as m'
+  namespace?: string;    // Namespace: 'm' or '*' or undefined
+  resolvedPath?: string; // Resolved absolute path if found
+  line: number;          // Line number in file
 }

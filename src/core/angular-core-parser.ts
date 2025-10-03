@@ -7,12 +7,13 @@ import * as ts from 'typescript';
 import * as fs from 'fs';
 import * as path from 'path';
 import type { Entity, Relationship, ParserConfig } from '../types';
-import { ComponentParser, ServiceParser, ModuleParser, DirectiveParser, PipeParser } from './parsers';
+import { ComponentParser, ServiceParser, ModuleParser, DirectiveParser, PipeParser, TemplateParser, StyleParser } from './parsers';
 import { VisitorContextImpl as OldVisitorContextImpl } from './visitor-context';
 import { findTypeScriptFiles, findTsConfig, resolvePath } from '../utils/file-helpers';
 import { EntityResolver } from './entity-resolver';
 import { GitRemoteParser } from './parsers/git-remote-parser';
 import type { GitRepository } from '../utils/git-helpers';
+import type { ComponentEntity } from '../types';
 
 export interface AngularProject {
   entities: Map<string, Entity>;
@@ -140,6 +141,34 @@ export class AngularCoreParser {
       if (gitInfo) {
         gitParser.enrichEntities(allEntities);
         console.log(`📦 Git repository detected: ${gitInfo.provider} (${gitInfo.branch})`);
+      }
+    }
+
+    // Parse templates and styles for components
+    const templateParser = new TemplateParser();
+    const styleParser = new StyleParser();
+
+    for (const entity of allEntities.values()) {
+      if (entity.type === 'component') {
+        const component = entity as ComponentEntity;
+
+        // Parse template (inline or external)
+        const { templateLocation, templateAnalysis } = templateParser.parseTemplate(
+          component,
+          path.resolve(rootDir),
+          gitInfo
+        );
+        component.templateLocation = templateLocation;
+        component.templateAnalysis = templateAnalysis;
+
+        // Parse styles
+        const { styleLocations, styleAnalysis } = styleParser.parseStyles(
+          component,
+          path.resolve(rootDir),
+          gitInfo
+        );
+        component.styleLocations = styleLocations;
+        component.styleAnalysis = styleAnalysis;
       }
     }
 

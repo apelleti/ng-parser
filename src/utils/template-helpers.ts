@@ -5,8 +5,8 @@
 
 import * as path from 'path';
 import * as fs from 'fs';
-import type { TemplateAnalysis, BindingMetadata } from '../types';
-import { generateSourceUrl, type GitRepository, makeRelative } from './git-helpers';
+import type { TemplateAnalysis, BindingMetadata } from '../types/index.js';
+import { generateSourceUrl, type GitRepository, makeRelative } from './git-helpers.js';
 
 // Dynamic import for @angular/compiler to avoid ESM/CommonJS issues
 let angularCompiler: any = null;

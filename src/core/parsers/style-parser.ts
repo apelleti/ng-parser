@@ -3,13 +3,13 @@
  * Parses SCSS files for @import and @use statements
  */
 
-import type { ComponentEntity, StyleLocation, StyleAnalysis, StyleFileMetadata } from '../../types';
-import type { GitRepository } from '../../utils/git-helpers';
+import type { ComponentEntity, StyleLocation, StyleAnalysis, StyleFileMetadata } from '../../types/index.js';
+import type { GitRepository } from '../../utils/git-helpers.js';
 import {
   parseScssFile,
   resolveStylePath,
   generateStyleLocations,
-} from '../../utils/style-helpers';
+} from '../../utils/style-helpers.js';
 
 /**
  * Style Parser

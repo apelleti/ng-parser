@@ -3,16 +3,16 @@
  */
 
 import * as ts from 'typescript';
-import type { ParserConfig, ParseResult, KnowledgeGraph } from '../types';
-import { VisitorRegistry } from './visitor-registry';
-import { VisitorContextImpl } from './visitor-context';
-import { findTypeScriptFilesSync, findTsConfig, resolvePath } from '../utils/file-helpers';
-import { ParseResultImpl } from './parse-result';
+import type { ParserConfig, ParseResult, KnowledgeGraph } from '../types/index.js';
+import { VisitorRegistry } from './visitor-registry.js';
+import { VisitorContextImpl } from './visitor-context.js';
+import { findTypeScriptFilesSync, findTsConfig, resolvePath } from '../utils/file-helpers.js';
+import { ParseResultImpl } from './parse-result.js';
 
 // Import extractors
-import { ComponentExtractor } from '../extractors/component-extractor';
-import { ServiceExtractor } from '../extractors/service-extractor';
-import { ModuleExtractor } from '../extractors/module-extractor';
+import { ComponentExtractor } from '../extractors/component-extractor.js';
+import { ServiceExtractor } from '../extractors/service-extractor.js';
+import { ModuleExtractor } from '../extractors/module-extractor.js';
 
 /**
  * Main Angular parser class

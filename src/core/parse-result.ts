@@ -2,10 +2,10 @@
  * Parse result implementation
  */
 
-import type { ParseResult, KnowledgeGraph, ParserConfig } from '../types';
-import { MarkdownFormatter } from '../formatters/markdown-formatter';
-import { GraphRAGFormatter } from '../formatters/graphrag-formatter';
-import { SimpleJsonFormatter } from '../formatters/simple-json-formatter';
+import type { ParseResult, KnowledgeGraph, ParserConfig } from '../types/index.js';
+import { MarkdownFormatter } from '../formatters/markdown-formatter.js';
+import { GraphRAGFormatter } from '../formatters/graphrag-formatter.js';
+import { SimpleJsonFormatter } from '../formatters/simple-json-formatter.js';
 
 /**
  * Implementation of ParseResult

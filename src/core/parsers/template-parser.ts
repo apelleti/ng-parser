@@ -3,14 +3,14 @@
  * Parses Angular HTML templates (inline and external)
  */
 
-import type { ComponentEntity, TemplateLocation, TemplateAnalysis } from '../../types';
-import type { GitRepository } from '../../utils/git-helpers';
+import type { ComponentEntity, TemplateLocation, TemplateAnalysis } from '../../types/index.js';
+import type { GitRepository } from '../../utils/git-helpers.js';
 import {
   analyzeTemplate,
   readTemplateFile,
   resolveTemplatePath,
   generateTemplateLocation,
-} from '../../utils/template-helpers';
+} from '../../utils/template-helpers.js';
 
 /**
  * Template Parser

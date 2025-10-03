@@ -2,7 +2,7 @@
  * Markdown formatter for RAG optimization
  */
 
-import type { KnowledgeGraph, ParserConfig, Entity, ComponentEntity, ServiceEntity, ModuleEntity } from '../types';
+import type { KnowledgeGraph, ParserConfig, Entity, ComponentEntity, ServiceEntity, ModuleEntity } from '../types/index.js';
 
 /**
  * Formats knowledge graph as Markdown optimized for RAG

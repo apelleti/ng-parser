@@ -3,19 +3,19 @@
  */
 
 import * as ts from 'typescript';
-import { DirectiveParser } from '../directive-parser';
-import { EntityType, RelationType } from '../../../types';
+import { DirectiveParser } from '../directive-parser.js';
+import { EntityType, RelationType } from '../../../types/index.js';
 import {
   createProgram,
   findClass,
   createMockContext,
-} from '../../../__tests__/helpers/test-utils';
+} from '../../../__tests__/helpers/test-utils.js';
 import {
   SIMPLE_DIRECTIVE,
   STANDALONE_DIRECTIVE,
   DIRECTIVE_WITH_INPUTS_OUTPUTS,
   STRUCTURAL_DIRECTIVE,
-} from '../../../__tests__/helpers/fixtures';
+} from '../../../__tests__/helpers/fixtures.js';
 
 describe('DirectiveParser', () => {
   let parser: DirectiveParser;

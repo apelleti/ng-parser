@@ -11,8 +11,8 @@ import type {
   OutputMetadata,
   SignalMetadata,
   Relationship,
-} from '../types';
-import { EntityType, RelationType } from '../types';
+} from '../types/index.js';
+import { EntityType, RelationType } from '../types/index.js';
 import {
   getSourceLocation,
   getDocumentation,
@@ -23,7 +23,7 @@ import {
   extractLifecycleHooks,
   isSignalFunction,
   parseExpression,
-} from '../utils/ast-helpers';
+} from '../utils/ast-helpers.js';
 
 /**
  * Extractor for Angular components

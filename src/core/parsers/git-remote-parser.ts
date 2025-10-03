@@ -3,8 +3,8 @@
  * Detects Git repository and enriches source locations with URLs
  */
 
-import type { Entity } from '../../types';
-import { detectGitRepository, generateSourceUrl, type GitRepository } from '../../utils/git-helpers';
+import type { Entity } from '../../types/index.js';
+import { detectGitRepository, generateSourceUrl, type GitRepository } from '../../utils/git-helpers.js';
 
 /**
  * Git Remote Parser

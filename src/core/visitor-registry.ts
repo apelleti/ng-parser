@@ -3,7 +3,7 @@
  */
 
 import * as ts from 'typescript';
-import type { Visitor, VisitorContext } from '../types';
+import type { Visitor, VisitorContext } from '../types/index.js';
 
 /**
  * Registry for managing visitors

@@ -7,8 +7,8 @@ import type {
   ModuleEntity,
   Relationship,
   VisitorContext as OldVisitorContext,
-} from '../../types';
-import { EntityType, RelationType } from '../../types';
+} from '../../types/index.js';
+import { EntityType, RelationType } from '../../types/index.js';
 import {
   getSourceLocation,
   getDocumentation,
@@ -16,7 +16,7 @@ import {
   getDecorators,
   generateEntityId,
   getClassName,
-} from '../../utils/ast-helpers';
+} from '../../utils/ast-helpers.js';
 
 /**
  * Extractor for Angular modules

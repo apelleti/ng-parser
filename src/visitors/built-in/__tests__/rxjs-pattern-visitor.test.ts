@@ -3,8 +3,8 @@
  */
 
 import * as ts from 'typescript';
-import { RxJSPatternVisitor } from '../rxjs-pattern-visitor';
-import { VisitorContextImpl } from '../../base/visitor-context-impl';
+import { RxJSPatternVisitor } from '../rxjs-pattern-visitor.js';
+import { VisitorContextImpl } from '../../base/visitor-context-impl.js';
 
 function createTestProgram(code: string): { sourceFile: ts.SourceFile; program: ts.Program } {
   const fileName = 'test.ts';

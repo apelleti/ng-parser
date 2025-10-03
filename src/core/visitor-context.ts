@@ -3,7 +3,7 @@
  */
 
 import * as ts from 'typescript';
-import type { Entity, Relationship, VisitorContext } from '../types';
+import type { Entity, Relationship, VisitorContext } from '../types/index.js';
 
 /**
  * Implementation of VisitorContext

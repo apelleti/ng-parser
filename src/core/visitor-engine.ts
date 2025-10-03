@@ -3,9 +3,9 @@
  */
 
 import * as ts from 'typescript';
-import type { CustomVisitor } from '../visitors/base/custom-visitor';
-import { VisitorContextImpl } from '../visitors/base/visitor-context-impl';
-import type { AngularProject } from './angular-core-parser';
+import type { CustomVisitor } from '../visitors/base/custom-visitor.js';
+import { VisitorContextImpl } from '../visitors/base/visitor-context-impl.js';
+import type { AngularProject } from './angular-core-parser.js';
 
 export interface VisitorResults {
   results: Map<string, unknown>;

@@ -3,13 +3,13 @@
  */
 
 import * as ts from 'typescript';
-import { ComponentParser } from '../component-parser';
-import { EntityType, RelationType } from '../../../types';
+import { ComponentParser } from '../component-parser.js';
+import { EntityType, RelationType } from '../../../types/index.js';
 import {
   createProgram,
   findClass,
   createMockContext,
-} from '../../../__tests__/helpers/test-utils';
+} from '../../../__tests__/helpers/test-utils.js';
 import {
   SIMPLE_COMPONENT,
   STANDALONE_COMPONENT,
@@ -20,7 +20,7 @@ import {
   COMPONENT_WITH_PROVIDERS,
   MALFORMED_COMPONENT,
   COMPONENT_WITHOUT_DECORATOR,
-} from '../../../__tests__/helpers/fixtures';
+} from '../../../__tests__/helpers/fixtures.js';
 
 describe('ComponentParser', () => {
   let parser: ComponentParser;

@@ -3,7 +3,7 @@
  * Resolves string references to entity IDs
  */
 
-import type { Entity, Relationship } from '../types';
+import type { Entity, Relationship } from '../types/index.js';
 
 /**
  * Resolves entity names to IDs and marks unresolved relationships

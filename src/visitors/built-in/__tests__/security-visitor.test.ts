@@ -3,8 +3,8 @@
  */
 
 import * as ts from 'typescript';
-import { SecurityVisitor } from '../security-visitor';
-import { VisitorContextImpl } from '../../base/visitor-context-impl';
+import { SecurityVisitor } from '../security-visitor.js';
+import { VisitorContextImpl } from '../../base/visitor-context-impl.js';
 
 function createTestProgram(code: string): { sourceFile: ts.SourceFile; program: ts.Program } {
   const fileName = 'test.ts';

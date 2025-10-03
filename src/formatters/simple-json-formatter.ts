@@ -2,7 +2,7 @@
  * Simple JSON formatter (ng-analyzer compatible)
  */
 
-import type { KnowledgeGraph, ParserConfig } from '../types';
+import type { KnowledgeGraph, ParserConfig } from '../types/index.js';
 
 /**
  * Formats knowledge graph as simple JSON

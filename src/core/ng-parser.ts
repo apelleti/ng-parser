@@ -3,13 +3,13 @@
  * Combines core Angular parsing + custom visitors
  */
 
-import type { CustomVisitor } from '../visitors/base/custom-visitor';
-import { AngularCoreParser, type AngularProject } from './angular-core-parser';
-import { VisitorEngine } from './visitor-engine';
-import type { ParserConfig, Entity, Relationship, KnowledgeGraph } from '../types';
-import { MarkdownFormatter } from '../formatters/markdown-formatter';
-import { GraphRAGFormatter } from '../formatters/graphrag-formatter';
-import { SimpleJsonFormatter } from '../formatters/simple-json-formatter';
+import type { CustomVisitor } from '../visitors/base/custom-visitor.js';
+import { AngularCoreParser, type AngularProject } from './angular-core-parser.js';
+import { VisitorEngine } from './visitor-engine.js';
+import type { ParserConfig, Entity, Relationship, KnowledgeGraph } from '../types/index.js';
+import { MarkdownFormatter } from '../formatters/markdown-formatter.js';
+import { GraphRAGFormatter } from '../formatters/graphrag-formatter.js';
+import { SimpleJsonFormatter } from '../formatters/simple-json-formatter.js';
 
 /**
  * Parse result combining core + custom analysis

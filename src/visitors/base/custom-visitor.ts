@@ -3,7 +3,7 @@
  */
 
 import * as ts from 'typescript';
-import type { Entity, Relationship } from '../../types';
+import type { Entity, Relationship } from '../../types/index.js';
 
 /**
  * Warning reported by a visitor

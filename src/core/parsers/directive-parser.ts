@@ -9,8 +9,8 @@ import type {
   OutputMetadata,
   Relationship,
   VisitorContext as OldVisitorContext,
-} from '../../types';
-import { EntityType, RelationType } from '../../types';
+} from '../../types/index.js';
+import { EntityType, RelationType } from '../../types/index.js';
 import {
   getSourceLocation,
   getDocumentation,
@@ -20,7 +20,7 @@ import {
   getClassName,
   isSignalFunction,
   parseExpression,
-} from '../../utils/ast-helpers';
+} from '../../utils/ast-helpers.js';
 
 /**
  * Core parser for Angular @Directive decorators

@@ -2,6 +2,6 @@
  * Example custom visitors
  */
 
-export * from './rxjs-pattern-visitor';
-export * from './security-visitor';
-export * from './performance-visitor';
+export * from './rxjs-pattern-visitor.js';
+export * from './security-visitor.js';
+export * from './performance-visitor.js';

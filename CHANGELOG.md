@@ -5,6 +5,59 @@ All notable changes to ng-parser will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2025-10-03
+
+### ⚠️ BREAKING CHANGES
+
+**Full ESM Migration**: ng-parser is now a pure ES Module package. This resolves the ERR_REQUIRE_ESM error when importing `@angular/compiler`.
+
+**Migration Guide**:
+- **Node.js**: Requires Node.js 18.0.0+ with native ESM support
+- **Import syntax**: Use `import` instead of `require()`
+- **package.json**: If consuming this package, you may need to add `"type": "module"` to your package.json
+- **TypeScript**: Update your tsconfig.json to use `"module": "NodeNext"` or `"ES2022"`
+
+**Example Before**:
+```javascript
+const { NgParser } = require('@ttwtf/ng-parser');
+```
+
+**Example After**:
+```javascript
+import { NgParser } from '@ttwtf/ng-parser';
+```
+
+### 🐛 Bug Fixes
+
+- **CRITICAL: Fixed ERR_REQUIRE_ESM error permanently**
+  - Migrated entire project from CommonJS to ES Modules
+  - `@angular/compiler` now imported as native ESM module
+  - No more `require()` wrapper around dynamic imports
+  - CLI bin script updated with ESM-compatible `__dirname` equivalent
+
+### 🔧 Technical Changes
+
+- **tsconfig.json**:
+  - Changed `"module": "commonjs"` to `"module": "NodeNext"`
+  - Changed `"moduleResolution": "node"` to `"moduleResolution": "NodeNext"`
+  - Added `"isolatedModules": true`
+- **package.json**:
+  - Added `"type": "module"`
+  - Added `"exports"` field for proper ESM entry points
+- **All imports**: Added `.js` extensions to relative imports (TypeScript ESM requirement)
+- **jest.config**: Converted from CommonJS to ESM format (`.mjs`)
+  - Updated to use `ts-jest/presets/default-esm`
+  - Added ESM-specific module name mapper
+- **bin/ng-parser.ts**:
+  - Added `fileURLToPath` and `import.meta.url` for ESM __dirname equivalent
+
+### ✅ Validation
+
+- All 134 unit tests passing
+- CLI tested successfully on sample Angular app
+- Build artifacts are pure ESM with native `export` statements
+- No more CommonJS wrapper code in compiled output
+
 ## [1.2.2] - 2025-10-03
 
 ### 🐛 Bug Fixes

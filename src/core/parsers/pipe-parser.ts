@@ -6,8 +6,8 @@ import * as ts from 'typescript';
 import type {
   PipeEntity,
   VisitorContext as OldVisitorContext,
-} from '../../types';
-import { EntityType } from '../../types';
+} from '../../types/index.js';
+import { EntityType } from '../../types/index.js';
 import {
   getSourceLocation,
   getDocumentation,
@@ -15,7 +15,7 @@ import {
   getDecorators,
   generateEntityId,
   getClassName,
-} from '../../utils/ast-helpers';
+} from '../../utils/ast-helpers.js';
 
 /**
  * Core parser for Angular @Pipe decorators

@@ -6,16 +6,16 @@
 import * as ts from 'typescript';
 import * as fs from 'fs';
 import * as path from 'path';
-import type { Entity, Relationship, ParserConfig, StyleFileMetadata } from '../types';
-import { ComponentParser, ServiceParser, ModuleParser, DirectiveParser, PipeParser, TemplateParser, StyleParser } from './parsers';
-import { VisitorContextImpl as OldVisitorContextImpl } from './visitor-context';
-import { findTypeScriptFiles, findTsConfig, resolvePath } from '../utils/file-helpers';
-import { EntityResolver } from './entity-resolver';
-import { GitRemoteParser } from './parsers/git-remote-parser';
-import type { GitRepository } from '../utils/git-helpers';
-import type { ComponentEntity } from '../types';
-import { parseScssFile } from '../utils/style-helpers';
-import { loadAngularCompiler } from '../utils/template-helpers';
+import type { Entity, Relationship, ParserConfig, StyleFileMetadata } from '../types/index.js';
+import { ComponentParser, ServiceParser, ModuleParser, DirectiveParser, PipeParser, TemplateParser, StyleParser } from './parsers/index.js';
+import { VisitorContextImpl as OldVisitorContextImpl } from './visitor-context.js';
+import { findTypeScriptFiles, findTsConfig, resolvePath } from '../utils/file-helpers.js';
+import { EntityResolver } from './entity-resolver.js';
+import { GitRemoteParser } from './parsers/git-remote-parser.js';
+import type { GitRepository } from '../utils/git-helpers.js';
+import type { ComponentEntity } from '../types/index.js';
+import { parseScssFile } from '../utils/style-helpers.js';
+import { loadAngularCompiler } from '../utils/template-helpers.js';
 
 export interface AngularProject {
   entities: Map<string, Entity>;

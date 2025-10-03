@@ -3,8 +3,8 @@
  */
 
 import * as ts from 'typescript';
-import type { Entity, Relationship } from '../../types';
-import type { VisitorContext, VisitorWarning, VisitorError } from './custom-visitor';
+import type { Entity, Relationship } from '../../types/index.js';
+import type { VisitorContext, VisitorWarning, VisitorError } from './custom-visitor.js';
 
 /**
  * Implementation of VisitorContext provided to custom visitors

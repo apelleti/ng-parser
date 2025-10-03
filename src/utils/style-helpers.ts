@@ -5,8 +5,8 @@
 
 import * as path from 'path';
 import * as fs from 'fs';
-import type { StyleLocation, StyleFileMetadata, ScssImportMetadata, ScssUseMetadata } from '../types';
-import { generateSourceUrl, type GitRepository, makeRelative } from './git-helpers';
+import type { StyleLocation, StyleFileMetadata, ScssImportMetadata, ScssUseMetadata } from '../types/index.js';
+import { generateSourceUrl, type GitRepository, makeRelative } from './git-helpers.js';
 
 /**
  * Resolve style file path from component file

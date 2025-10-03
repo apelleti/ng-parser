@@ -3,17 +3,17 @@
  */
 
 import * as ts from 'typescript';
-import { ServiceParser } from '../service-parser';
-import { EntityType, RelationType } from '../../../types';
+import { ServiceParser } from '../service-parser.js';
+import { EntityType, RelationType } from '../../../types/index.js';
 import {
   createProgram,
   findClass,
   createMockContext,
-} from '../../../__tests__/helpers/test-utils';
+} from '../../../__tests__/helpers/test-utils.js';
 import {
   SIMPLE_SERVICE,
   SERVICE_WITH_DEPENDENCIES,
-} from '../../../__tests__/helpers/fixtures';
+} from '../../../__tests__/helpers/fixtures.js';
 
 describe('ServiceParser', () => {
   let parser: ServiceParser;

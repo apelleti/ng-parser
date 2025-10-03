@@ -7,9 +7,9 @@
  */
 
 import * as ts from 'typescript';
-import { BaseVisitor, type VisitorContext } from '../base';
-import type { Entity, ComponentEntity } from '../../types';
-import { getSourceLocation } from '../../utils/ast-helpers';
+import { BaseVisitor, type VisitorContext } from '../base/index.js';
+import type { Entity, ComponentEntity } from '../../types/index.js';
+import { getSourceLocation } from '../../utils/ast-helpers.js';
 
 export interface PerformancePattern {
   pattern:

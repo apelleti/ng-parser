@@ -4,7 +4,7 @@
 
 import * as ts from 'typescript';
 import * as path from 'path';
-import type { SourceLocation, DecoratorMetadata } from '../types';
+import type { SourceLocation, DecoratorMetadata } from '../types/index.js';
 
 /**
  * Get source location from a node

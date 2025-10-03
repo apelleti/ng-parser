@@ -2,7 +2,7 @@
  * GraphRAG formatter (JSON-LD format)
  */
 
-import type { KnowledgeGraph, ParserConfig, Entity, Relationship } from '../types';
+import type { KnowledgeGraph, ParserConfig, Entity, Relationship } from '../types/index.js';
 
 /**
  * Formats knowledge graph for GraphRAG consumption

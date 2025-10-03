@@ -3,17 +3,17 @@
  */
 
 import * as ts from 'typescript';
-import { ModuleParser } from '../module-parser';
-import { EntityType, RelationType } from '../../../types';
+import { ModuleParser } from '../module-parser.js';
+import { EntityType, RelationType } from '../../../types/index.js';
 import {
   createProgram,
   findClass,
   createMockContext,
-} from '../../../__tests__/helpers/test-utils';
+} from '../../../__tests__/helpers/test-utils.js';
 import {
   SIMPLE_MODULE,
   MODULE_WITH_PROVIDERS,
-} from '../../../__tests__/helpers/fixtures';
+} from '../../../__tests__/helpers/fixtures.js';
 
 describe('ModuleParser', () => {
   let parser: ModuleParser;

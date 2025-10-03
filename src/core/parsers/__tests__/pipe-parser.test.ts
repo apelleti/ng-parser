@@ -3,18 +3,18 @@
  */
 
 import * as ts from 'typescript';
-import { PipeParser } from '../pipe-parser';
-import { EntityType } from '../../../types';
+import { PipeParser } from '../pipe-parser.js';
+import { EntityType } from '../../../types/index.js';
 import {
   createProgram,
   findClass,
   createMockContext,
-} from '../../../__tests__/helpers/test-utils';
+} from '../../../__tests__/helpers/test-utils.js';
 import {
   SIMPLE_PIPE,
   IMPURE_PIPE,
   STANDALONE_PIPE,
-} from '../../../__tests__/helpers/fixtures';
+} from '../../../__tests__/helpers/fixtures.js';
 
 describe('PipeParser', () => {
   let parser: PipeParser;

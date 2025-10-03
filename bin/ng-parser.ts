@@ -7,12 +7,17 @@
 import { Command } from 'commander';
 import * as fs from 'fs';
 import * as path from 'path';
+import { fileURLToPath } from 'url';
 import {
   NgParser,
   RxJSPatternVisitor,
   SecurityVisitor,
   PerformanceVisitor,
-} from '../src';
+} from '../src/index.js';
+
+// ESM equivalent of __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const program = new Command();
 

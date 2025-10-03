@@ -1,0 +1,9 @@
+/**
+ * Core Angular parsers (built-in, non-extensible)
+ */
+
+export { ComponentParser } from './component-parser';
+export { ServiceParser } from './service-parser';
+export { ModuleParser } from './module-parser';
+export { DirectiveParser } from './directive-parser';
+export { PipeParser } from './pipe-parser';

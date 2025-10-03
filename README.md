@@ -30,7 +30,25 @@ npm install @angular/compiler @angular/compiler-cli @angular/core
 
 ## Quick Start
 
-### Basic Usage
+### CLI (Recommended)
+
+```bash
+# Parse an Angular project (core parsing only, fastest)
+ng-parser parse ./src
+
+# Enable specific visitors
+ng-parser parse ./src --visitors rxjs,security
+
+# Export to file
+ng-parser parse ./src -o analysis.json
+
+# Export all formats
+ng-parser parse ./src -f all -o ./output/my-project
+```
+
+See [CLI Documentation](./CLI.md) for complete CLI reference.
+
+### Programmatic API
 
 ```typescript
 import { NgParser } from 'ng-parser';
@@ -355,6 +373,7 @@ const parser = new NgParser({
 
 ## Documentation
 
+- **[CLI Documentation](./CLI.md)** - Command-line interface reference
 - **[Getting Started Guide](./GETTING_STARTED.md)** - Step-by-step tutorial
 - **[Examples](./examples/README.md)** - Complete examples with sample app
 - **[Architecture Guide](./ARCHITECTURE.md)** - Two-layer architecture explained

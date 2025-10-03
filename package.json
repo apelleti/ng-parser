@@ -4,8 +4,12 @@
   "description": "Advanced Angular parser with RAG/GraphRAG optimized output",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "bin": {
+    "ng-parser": "dist/bin/ng-parser.js"
+  },
   "scripts": {
     "build": "tsc",
+    "build:cli": "tsc && chmod +x dist/bin/ng-parser.js",
     "dev": "tsc --watch",
     "test": "jest",
     "lint": "eslint src --ext .ts",
@@ -23,8 +27,9 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "typescript": ">=5.4.0 <5.7.0",
-    "reflect-metadata": "^0.2.2"
+    "commander": "^14.0.1",
+    "reflect-metadata": "^0.2.2",
+    "typescript": ">=5.4.0 <5.7.0"
   },
   "peerDependencies": {
     "@angular/compiler": ">=18.0.0 <21.0.0",
@@ -35,14 +40,14 @@
     "@angular/compiler": "^19.0.0",
     "@angular/compiler-cli": "^19.0.0",
     "@angular/core": "^19.0.0",
+    "@types/jest": "^29.0.0",
     "@types/node": "^22.0.0",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
     "eslint": "^9.0.0",
     "jest": "^29.0.0",
-    "@types/jest": "^29.0.0",
-    "ts-jest": "^29.0.0",
-    "prettier": "^3.0.0"
+    "prettier": "^3.0.0",
+    "ts-jest": "^29.0.0"
   },
   "engines": {
     "node": ">=18.0.0"

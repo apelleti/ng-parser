@@ -1,0 +1,50 @@
+@use '../styles/variables' as vars;
+
+// Dark theme support
+.profile-container[data-theme="dark"] {
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+
+  .profile-header {
+    border-bottom-color: #333;
+  }
+
+  .username {
+    color: #fff;
+  }
+
+  .email,
+  .location {
+    color: #aaa;
+  }
+
+  .stat-label {
+    color: #888;
+  }
+
+  .btn-secondary {
+    border-color: vars.$color-primary;
+    color: vars.$color-primary;
+
+    &:hover {
+      background-color: vars.$color-primary;
+      color: white;
+    }
+  }
+}
+
+// High contrast theme
+.profile-container[data-theme="high-contrast"] {
+  .username {
+    text-decoration: underline;
+    font-weight: vars.$font-weight-bold;
+  }
+
+  .btn {
+    border: 3px solid currentColor;
+  }
+
+  .avatar {
+    border-width: 5px;
+  }
+}

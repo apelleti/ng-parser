@@ -1,0 +1,51 @@
+@use '../styles/variables' as vars;
+
+// Tablet
+@media (max-width: 768px) {
+  .profile-container {
+    padding: vars.$spacing-md;
+  }
+
+  .profile-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .stats {
+    justify-content: center;
+  }
+
+  .actions-section {
+    flex-direction: column;
+
+    .btn {
+      width: 100%;
+    }
+  }
+}
+
+// Mobile
+@media (max-width: 480px) {
+  .profile-container {
+    padding: vars.$spacing-sm;
+  }
+
+  .avatar-wrapper .avatar {
+    width: 80px;
+    height: 80px;
+  }
+
+  .profile-info .username {
+    font-size: vars.$font-size-lg;
+  }
+
+  .stats {
+    gap: vars.$spacing-md;
+
+    .stat-item {
+      .stat-value {
+        font-size: vars.$font-size-md;
+      }
+    }
+  }
+}

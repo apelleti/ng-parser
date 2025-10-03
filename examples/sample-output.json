@@ -1,0 +1,1105 @@
+{
+  "entities": [
+    {
+      "id": "component:examples/sample-angular-app/src/app/components/dashboard.component.ts:DashboardComponent",
+      "type": "component",
+      "name": "DashboardComponent",
+      "location": {
+        "filePath": "/home/antoine/dev/ng-parser/examples/sample-angular-app/src/app/components/dashboard.component.ts",
+        "start": 196,
+        "end": 847,
+        "line": 8,
+        "column": 1,
+        "sourceUrl": "https://github.com/apelleti/ng-parser/blob/main/examples/sample-angular-app/src/app/components/dashboard.component.ts#L8"
+      },
+      "documentation": "Dashboard component\nWARNING: Contains XSS vulnerability for demo",
+      "decorators": [
+        {
+          "name": "Component",
+          "arguments": {
+            "selector": "app-dashboard",
+            "standalone": false,
+            "template": "\n    <div>\n      <h1>Dashboard</h1>\n      <div [id]=\"containerId\"></div>\n    </div>\n  "
+          },
+          "location": {
+            "filePath": "/home/antoine/dev/ng-parser/examples/sample-angular-app/src/app/components/dashboard.component.ts",
+            "start": 196,
+            "end": 425,
+            "line": 8,
+            "column": 1
+          }
+        }
+      ],
+      "modifiers": [
+        "exportkeyword"
+      ],
+      "selector": "app-dashboard",
+      "template": "\n    <div>\n      <h1>Dashboard</h1>\n      <div [id]=\"containerId\"></div>\n    </div>\n  ",
+      "standalone": false,
+      "inputs": [],
+      "outputs": [],
+      "lifecycle": [],
+      "signals": [],
+      "templateAnalysis": {
+        "usedComponents": [],
+        "usedDirectives": [],
+        "usedPipes": [],
+        "bindings": [
+          {
+            "type": "property",
+            "name": "id",
+            "expression": "containerId in /home/antoine/dev/ng-parser/examples/sample-angular-app/src/app/components/dashboard.component.ts@3:17",
+            "line": 3
+          }
+        ],
+        "templateRefs": [],
+        "complexity": 9
+      }
+    },
+    {
+      "id": "pipe:examples/sample-angular-app/src/app/pipes/format-date.pipe.ts:FormatDatePipe",
+      "type": "pipe",
+      "name": "FormatDatePipe",
+      "location": {
+        "filePath": "/home/antoine/dev/ng-parser/examples/sample-angular-app/src/app/pipes/format-date.pipe.ts",
+        "start": 54,
+        "end": 432,
+        "line": 3,
+        "column": 1,
+        "sourceUrl": "https://github.com/apelleti/ng-parser/blob/main/examples/sample-angular-app/src/app/pipes/format-date.pipe.ts#L3"
+      },
+      "decorators": [
+        {
+          "name": "Pipe",
+          "arguments": {
+            "name": "formatDate",
+            "standalone": true,
+            "pure": true
+          },
+          "location": {
+            "filePath": "/home/antoine/dev/ng-parser/examples/sample-angular-app/src/app/pipes/format-date.pipe.ts",
+            "start": 54,
+            "end": 119,
+            "line": 3,
+            "column": 1
+          }
+        }
+      ],
+      "modifiers": [
+        "exportkeyword"
+      ],
+      "pipeName": "formatDate",
+      "pure": true,
+      "standalone": true
+    },
+    {
+      "id": "component:examples/sample-angular-app/src/app/components/product-card.component.ts:ProductCardComponent",
+      "type": "component",
+      "name": "ProductCardComponent",
+      "location": {
+        "filePath": "/home/antoine/dev/ng-parser/examples/sample-angular-app/src/app/components/product-card.component.ts",
+        "start": 270,
+        "end": 737,
+        "line": 9,
+        "column": 1,
+        "sourceUrl": "https://github.com/apelleti/ng-parser/blob/main/examples/sample-angular-app/src/app/components/product-card.component.ts#L9"
+      },
+      "documentation": "Product card component with external template and styles\nDemonstrates template and style parsing",
+      "decorators": [
+        {
+          "name": "Component",
+          "arguments": {
+            "selector": "app-product-card",
+            "standalone": true,
+            "imports": [
+              "CommonModule",
+              "FormatDatePipe"
+            ],
+            "templateUrl": "./product-card.component.html",
+            "styleUrls": [
+              "./product-card.component.scss"
+            ]
+          },
+          "location": {
+            "filePath": "/home/antoine/dev/ng-parser/examples/sample-angular-app/src/app/components/product-card.component.ts",
+            "start": 270,
+            "end": 475,
+            "line": 9,
+            "column": 1
+          }
+        }
+      ],
+      "modifiers": [
+        "exportkeyword"
+      ],
+      "selector": "app-product-card",
+      "templateUrl": "./product-card.component.html",
+      "styleUrls": [
+        "./product-card.component.scss"
+      ],
+      "standalone": true,
+      "imports": [
+        "CommonModule",
+        "FormatDatePipe"
+      ],
+      "inputs": [
+        {
+          "name": "productName",
+          "propertyName": "productName",
+          "type": "string",
+          "required": false,
+          "isSignal": false
+        },
+        {
+          "name": "price",
+          "propertyName": "price",
+          "type": "number",
+          "required": false,
+          "isSignal": false
+        },
+        {
+          "name": "createdAt",
+          "propertyName": "createdAt",
+          "type": "Date",
+          "required": false,
+          "isSignal": false
+        },
+        {
+          "name": "isAvailable",
+          "propertyName": "isAvailable",
+          "type": "boolean",
+          "required": false,
+          "isSignal": false
+        }
+      ],
+      "outputs": [],
+      "lifecycle": [],
+      "signals": [],
+      "templateLocation": {
+        "filePath": "examples/sample-angular-app/src/app/components/product-card.component.html",
+        "sourceUrl": "https://github.com/apelleti/ng-parser/blob/main/examples/sample-angular-app/src/app/components/product-card.component.html",
+        "exists": true
+      },
+      "templateAnalysis": {
+        "usedComponents": [],
+        "usedDirectives": [],
+        "usedPipes": [
+          "formatDate",
+          "number"
+        ],
+        "bindings": [
+          {
+            "type": "property",
+            "name": "available",
+            "expression": "isAvailable in /home/antoine/dev/ng-parser/examples/sample-angular-app/src/app/components/product-card.component.html@0:45",
+            "line": 0
+          },
+          {
+            "type": "property",
+            "name": "unavailable",
+            "expression": "!isAvailable in /home/antoine/dev/ng-parser/examples/sample-angular-app/src/app/components/product-card.component.html@0:79",
+            "line": 0
+          },
+          {
+            "type": "property",
+            "name": "disabled",
+            "expression": "!isAvailable in /home/antoine/dev/ng-parser/examples/sample-angular-app/src/app/components/product-card.component.html@16:16",
+            "line": 16
+          },
+          {
+            "type": "property",
+            "name": "aria-label",
+            "expression": "'Add ' + productName + ' to cart' in /home/antoine/dev/ng-parser/examples/sample-angular-app/src/app/components/product-card.component.html@18:23",
+            "line": 18
+          },
+          {
+            "type": "event",
+            "name": "click",
+            "expression": "onAddToCart() in /home/antoine/dev/ng-parser/examples/sample-angular-app/src/app/components/product-card.component.html@17:13",
+            "line": 17
+          },
+          {
+            "type": "property",
+            "name": "opacity",
+            "expression": "isAvailable ? 1 : 0.5 in /home/antoine/dev/ng-parser/examples/sample-angular-app/src/app/components/product-card.component.html@25:23",
+            "line": 25
+          }
+        ],
+        "templateRefs": [
+          "wishlistBtn"
+        ],
+        "complexity": 75
+      },
+      "styleLocations": [
+        {
+          "originalPath": "./product-card.component.scss",
+          "filePath": "examples/sample-angular-app/src/app/components/product-card.component.scss",
+          "sourceUrl": "https://github.com/apelleti/ng-parser/blob/main/examples/sample-angular-app/src/app/components/product-card.component.scss",
+          "exists": true
+        }
+      ],
+      "styleAnalysis": {
+        "files": [
+          {
+            "filePath": "examples/sample-angular-app/src/app/components/product-card.component.scss",
+            "sourceUrl": "https://github.com/apelleti/ng-parser/blob/main/examples/sample-angular-app/src/app/components/product-card.component.scss",
+            "imports": [
+              {
+                "path": "../styles/mixins",
+                "statement": "@import '../styles/mixins'",
+                "line": 3
+              },
+              {
+                "path": "../styles/animations",
+                "statement": "@import '../styles/animations'",
+                "line": 4
+              }
+            ],
+            "uses": [
+              {
+                "path": "sass:math",
+                "statement": "@use 'sass:math'",
+                "line": 1
+              },
+              {
+                "path": "../styles/variables",
+                "statement": "@use '../styles/variables' as vars",
+                "namespace": "vars",
+                "line": 2
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "component:examples/sample-angular-app/src/app/components/user-list.component.ts:UserListComponent",
+      "type": "component",
+      "name": "UserListComponent",
+      "location": {
+        "filePath": "/home/antoine/dev/ng-parser/examples/sample-angular-app/src/app/components/user-list.component.ts",
+        "start": 297,
+        "end": 1044,
+        "line": 10,
+        "column": 1,
+        "sourceUrl": "https://github.com/apelleti/ng-parser/blob/main/examples/sample-angular-app/src/app/components/user-list.component.ts#L10"
+      },
+      "documentation": "User list component\nWARNING: Intentional memory leak for demo purposes",
+      "decorators": [
+        {
+          "name": "Component",
+          "arguments": {
+            "selector": "app-user-list",
+            "standalone": true,
+            "imports": [
+              "CommonModule"
+            ],
+            "template": "\n    <div>\n      <h2>Users</h2>\n      <div *ngFor=\"let user of users\">\n        {{ user.name }}\n      </div>\n    </div>\n  "
+          },
+          "location": {
+            "filePath": "/home/antoine/dev/ng-parser/examples/sample-angular-app/src/app/components/user-list.component.ts",
+            "start": 297,
+            "end": 524,
+            "line": 10,
+            "column": 1
+          }
+        }
+      ],
+      "modifiers": [
+        "exportkeyword"
+      ],
+      "selector": "app-user-list",
+      "template": "\n    <div>\n      <h2>Users</h2>\n      <div *ngFor=\"let user of users\">\n        {{ user.name }}\n      </div>\n    </div>\n  ",
+      "standalone": true,
+      "imports": [
+        "CommonModule"
+      ],
+      "inputs": [],
+      "outputs": [],
+      "lifecycle": [
+        "ngOnInit",
+        "ngOnDestroy"
+      ],
+      "signals": [],
+      "templateAnalysis": {
+        "usedComponents": [],
+        "usedDirectives": [],
+        "usedPipes": [],
+        "bindings": [],
+        "templateRefs": [],
+        "complexity": 15
+      }
+    },
+    {
+      "id": "directive:examples/sample-angular-app/src/app/directives/highlight.directive.ts:HighlightDirective",
+      "type": "directive",
+      "name": "HighlightDirective",
+      "location": {
+        "filePath": "/home/antoine/dev/ng-parser/examples/sample-angular-app/src/app/directives/highlight.directive.ts",
+        "start": 71,
+        "end": 466,
+        "line": 3,
+        "column": 1,
+        "sourceUrl": "https://github.com/apelleti/ng-parser/blob/main/examples/sample-angular-app/src/app/directives/highlight.directive.ts#L3"
+      },
+      "decorators": [
+        {
+          "name": "Directive",
+          "arguments": {
+            "selector": "[appHighlight]",
+            "standalone": true
+          },
+          "location": {
+            "filePath": "/home/antoine/dev/ng-parser/examples/sample-angular-app/src/app/directives/highlight.directive.ts",
+            "start": 71,
+            "end": 135,
+            "line": 3,
+            "column": 1
+          }
+        }
+      ],
+      "modifiers": [
+        "exportkeyword"
+      ],
+      "selector": "[appHighlight]",
+      "standalone": true,
+      "inputs": [
+        {
+          "name": "appHighlight",
+          "propertyName": "appHighlight",
+          "type": "string",
+          "required": false,
+          "isSignal": false
+        },
+        {
+          "name": "highlightIntensity",
+          "propertyName": "highlightIntensity",
+          "required": false,
+          "isSignal": false
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "id": "component:examples/sample-angular-app/src/app/components/user-profile.component.ts:UserProfileComponent",
+      "type": "component",
+      "name": "UserProfileComponent",
+      "location": {
+        "filePath": "/home/antoine/dev/ng-parser/examples/sample-angular-app/src/app/components/user-profile.component.ts",
+        "start": 271,
+        "end": 1284,
+        "line": 9,
+        "column": 1,
+        "sourceUrl": "https://github.com/apelleti/ng-parser/blob/main/examples/sample-angular-app/src/app/components/user-profile.component.ts#L9"
+      },
+      "documentation": "User profile component\nDemonstrates multiple style files and complex template",
+      "decorators": [
+        {
+          "name": "Component",
+          "arguments": {
+            "selector": "app-user-profile",
+            "standalone": true,
+            "imports": [
+              "CommonModule",
+              "HighlightDirective"
+            ],
+            "templateUrl": "./user-profile.component.html",
+            "styleUrls": [
+              "./user-profile.component.scss",
+              "./user-profile-responsive.scss",
+              "./user-profile-theme.scss"
+            ]
+          },
+          "location": {
+            "filePath": "/home/antoine/dev/ng-parser/examples/sample-angular-app/src/app/components/user-profile.component.ts",
+            "start": 271,
+            "end": 559,
+            "line": 9,
+            "column": 1
+          }
+        }
+      ],
+      "modifiers": [
+        "exportkeyword"
+      ],
+      "selector": "app-user-profile",
+      "templateUrl": "./user-profile.component.html",
+      "styleUrls": [
+        "./user-profile.component.scss",
+        "./user-profile-responsive.scss",
+        "./user-profile-theme.scss"
+      ],
+      "standalone": true,
+      "imports": [
+        "CommonModule",
+        "HighlightDirective"
+      ],
+      "inputs": [
+        {
+          "name": "userId",
+          "propertyName": "userId",
+          "type": "string",
+          "required": false,
+          "isSignal": false
+        },
+        {
+          "name": "username",
+          "propertyName": "username",
+          "type": "string",
+          "required": false,
+          "isSignal": false
+        },
+        {
+          "name": "email",
+          "propertyName": "email",
+          "type": "string",
+          "required": false,
+          "isSignal": false
+        },
+        {
+          "name": "avatarUrl",
+          "propertyName": "avatarUrl",
+          "type": "string",
+          "required": false,
+          "isSignal": false
+        }
+      ],
+      "outputs": [],
+      "lifecycle": [
+        "ngOnInit"
+      ],
+      "signals": [],
+      "templateLocation": {
+        "filePath": "examples/sample-angular-app/src/app/components/user-profile.component.html",
+        "sourceUrl": "https://github.com/apelleti/ng-parser/blob/main/examples/sample-angular-app/src/app/components/user-profile.component.html",
+        "exists": true
+      },
+      "templateAnalysis": {
+        "usedComponents": [],
+        "usedDirectives": [],
+        "usedPipes": [
+          "number"
+        ],
+        "bindings": [
+          {
+            "type": "property",
+            "name": "src",
+            "expression": "avatarUrl in /home/antoine/dev/ng-parser/examples/sample-angular-app/src/app/components/user-profile.component.html@4:15",
+            "line": 4
+          },
+          {
+            "type": "property",
+            "name": "alt",
+            "expression": "username + ' avatar' in /home/antoine/dev/ng-parser/examples/sample-angular-app/src/app/components/user-profile.component.html@5:15",
+            "line": 5
+          },
+          {
+            "type": "event",
+            "name": "error",
+            "expression": "avatarUrl = '/assets/default-avatar.png' in /home/antoine/dev/ng-parser/examples/sample-angular-app/src/app/components/user-profile.component.html@7:17",
+            "line": 7
+          },
+          {
+            "type": "property",
+            "name": "innerHTML",
+            "expression": "profileData.bio in /home/antoine/dev/ng-parser/examples/sample-angular-app/src/app/components/user-profile.component.html@30:22",
+            "line": 30
+          },
+          {
+            "type": "property",
+            "name": "disabled",
+            "expression": "isLoading in /home/antoine/dev/ng-parser/examples/sample-angular-app/src/app/components/user-profile.component.html@41:20",
+            "line": 41
+          },
+          {
+            "type": "event",
+            "name": "click",
+            "expression": "onFollowClick() in /home/antoine/dev/ng-parser/examples/sample-angular-app/src/app/components/user-profile.component.html@40:17",
+            "line": 40
+          },
+          {
+            "type": "event",
+            "name": "click",
+            "expression": "onMessageClick() in /home/antoine/dev/ng-parser/examples/sample-angular-app/src/app/components/user-profile.component.html@46:17",
+            "line": 46
+          }
+        ],
+        "templateRefs": [],
+        "complexity": 244
+      },
+      "styleLocations": [
+        {
+          "originalPath": "./user-profile.component.scss",
+          "filePath": "examples/sample-angular-app/src/app/components/user-profile.component.scss",
+          "sourceUrl": "https://github.com/apelleti/ng-parser/blob/main/examples/sample-angular-app/src/app/components/user-profile.component.scss",
+          "exists": true
+        },
+        {
+          "originalPath": "./user-profile-responsive.scss",
+          "filePath": "examples/sample-angular-app/src/app/components/user-profile-responsive.scss",
+          "sourceUrl": "https://github.com/apelleti/ng-parser/blob/main/examples/sample-angular-app/src/app/components/user-profile-responsive.scss",
+          "exists": true
+        },
+        {
+          "originalPath": "./user-profile-theme.scss",
+          "filePath": "examples/sample-angular-app/src/app/components/user-profile-theme.scss",
+          "sourceUrl": "https://github.com/apelleti/ng-parser/blob/main/examples/sample-angular-app/src/app/components/user-profile-theme.scss",
+          "exists": true
+        }
+      ],
+      "styleAnalysis": {
+        "files": [
+          {
+            "filePath": "examples/sample-angular-app/src/app/components/user-profile.component.scss",
+            "sourceUrl": "https://github.com/apelleti/ng-parser/blob/main/examples/sample-angular-app/src/app/components/user-profile.component.scss",
+            "imports": [
+              {
+                "path": "../styles/variables",
+                "statement": "@import '../styles/variables'",
+                "line": 1
+              },
+              {
+                "path": "../styles/mixins",
+                "statement": "@import '../styles/mixins'",
+                "line": 2
+              }
+            ],
+            "uses": []
+          },
+          {
+            "filePath": "examples/sample-angular-app/src/app/components/user-profile-responsive.scss",
+            "sourceUrl": "https://github.com/apelleti/ng-parser/blob/main/examples/sample-angular-app/src/app/components/user-profile-responsive.scss",
+            "imports": [],
+            "uses": [
+              {
+                "path": "../styles/variables",
+                "statement": "@use '../styles/variables' as vars",
+                "namespace": "vars",
+                "line": 1
+              }
+            ]
+          },
+          {
+            "filePath": "examples/sample-angular-app/src/app/components/user-profile-theme.scss",
+            "sourceUrl": "https://github.com/apelleti/ng-parser/blob/main/examples/sample-angular-app/src/app/components/user-profile-theme.scss",
+            "imports": [],
+            "uses": [
+              {
+                "path": "../styles/variables",
+                "statement": "@use '../styles/variables' as vars",
+                "namespace": "vars",
+                "line": 1
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "module:examples/sample-angular-app/src/app/modules/shared.module.ts:SharedModule",
+      "type": "module",
+      "name": "SharedModule",
+      "location": {
+        "filePath": "/home/antoine/dev/ng-parser/examples/sample-angular-app/src/app/modules/shared.module.ts",
+        "start": 163,
+        "end": 344,
+        "line": 5,
+        "column": 1,
+        "sourceUrl": "https://github.com/apelleti/ng-parser/blob/main/examples/sample-angular-app/src/app/modules/shared.module.ts#L5"
+      },
+      "decorators": [
+        {
+          "name": "NgModule",
+          "arguments": {
+            "declarations": [
+              "DashboardComponent"
+            ],
+            "imports": [
+              "CommonModule"
+            ],
+            "exports": [
+              "DashboardComponent"
+            ],
+            "providers": []
+          },
+          "location": {
+            "filePath": "/home/antoine/dev/ng-parser/examples/sample-angular-app/src/app/modules/shared.module.ts",
+            "start": 163,
+            "end": 315,
+            "line": 5,
+            "column": 1
+          }
+        }
+      ],
+      "modifiers": [
+        "exportkeyword"
+      ],
+      "declarations": [
+        "DashboardComponent"
+      ],
+      "imports": [
+        "CommonModule"
+      ],
+      "exports": [
+        "DashboardComponent"
+      ],
+      "providers": []
+    },
+    {
+      "id": "service:examples/sample-angular-app/src/app/services/auth.service.ts:AuthService",
+      "type": "service",
+      "name": "AuthService",
+      "location": {
+        "filePath": "/home/antoine/dev/ng-parser/examples/sample-angular-app/src/app/services/auth.service.ts",
+        "start": 125,
+        "end": 683,
+        "line": 7,
+        "column": 1,
+        "sourceUrl": "https://github.com/apelleti/ng-parser/blob/main/examples/sample-angular-app/src/app/services/auth.service.ts#L7"
+      },
+      "documentation": "Authentication service\nWARNING: Contains security issues for demo",
+      "decorators": [
+        {
+          "name": "Injectable",
+          "arguments": {
+            "providedIn": "root"
+          },
+          "location": {
+            "filePath": "/home/antoine/dev/ng-parser/examples/sample-angular-app/src/app/services/auth.service.ts",
+            "start": 125,
+            "end": 162,
+            "line": 7,
+            "column": 1
+          }
+        }
+      ],
+      "modifiers": [
+        "exportkeyword"
+      ],
+      "providedIn": "root",
+      "dependencies": []
+    },
+    {
+      "id": "service:examples/sample-angular-app/src/app/services/data.service.ts:DataService",
+      "type": "service",
+      "name": "DataService",
+      "location": {
+        "filePath": "/home/antoine/dev/ng-parser/examples/sample-angular-app/src/app/services/data.service.ts",
+        "start": 177,
+        "end": 471,
+        "line": 6,
+        "column": 1,
+        "sourceUrl": "https://github.com/apelleti/ng-parser/blob/main/examples/sample-angular-app/src/app/services/data.service.ts#L6"
+      },
+      "decorators": [
+        {
+          "name": "Injectable",
+          "arguments": {
+            "providedIn": "any"
+          },
+          "location": {
+            "filePath": "/home/antoine/dev/ng-parser/examples/sample-angular-app/src/app/services/data.service.ts",
+            "start": 177,
+            "end": 213,
+            "line": 6,
+            "column": 1
+          }
+        }
+      ],
+      "modifiers": [
+        "exportkeyword"
+      ],
+      "providedIn": "any",
+      "dependencies": [
+        {
+          "name": "http",
+          "type": "HttpClient"
+        },
+        {
+          "name": "authService",
+          "type": "AuthService"
+        }
+      ]
+    },
+    {
+      "id": "service:examples/sample-angular-app/src/user.service.ts:UserService",
+      "type": "service",
+      "name": "UserService",
+      "location": {
+        "filePath": "/home/antoine/dev/ng-parser/examples/sample-angular-app/src/user.service.ts",
+        "start": 178,
+        "end": 507,
+        "line": 8,
+        "column": 1,
+        "sourceUrl": "https://github.com/apelleti/ng-parser/blob/main/examples/sample-angular-app/src/user.service.ts#L8"
+      },
+      "documentation": "User service for managing user data",
+      "decorators": [
+        {
+          "name": "Injectable",
+          "arguments": {
+            "providedIn": "root"
+          },
+          "location": {
+            "filePath": "/home/antoine/dev/ng-parser/examples/sample-angular-app/src/user.service.ts",
+            "start": 178,
+            "end": 215,
+            "line": 8,
+            "column": 1
+          }
+        }
+      ],
+      "modifiers": [
+        "exportkeyword"
+      ],
+      "providedIn": "root",
+      "dependencies": [
+        {
+          "name": "http",
+          "type": "HttpClient"
+        }
+      ]
+    },
+    {
+      "id": "component:examples/sample-angular-app/src/app.component.ts:AppComponent",
+      "type": "component",
+      "name": "AppComponent",
+      "location": {
+        "filePath": "/home/antoine/dev/ng-parser/examples/sample-angular-app/src/app.component.ts",
+        "start": 273,
+        "end": 958,
+        "line": 9,
+        "column": 1,
+        "sourceUrl": "https://github.com/apelleti/ng-parser/blob/main/examples/sample-angular-app/src/app.component.ts#L9"
+      },
+      "documentation": "Main application component\nDemonstrates standalone component with signals",
+      "decorators": [
+        {
+          "name": "Component",
+          "arguments": {
+            "selector": "app-root",
+            "standalone": true,
+            "imports": [
+              "CommonModule"
+            ],
+            "template": "\n    <h1>{{ title }}</h1>\n    <p>Count: {{ count() }}</p>\n    <p>Double: {{ doubled() }}</p>\n  ",
+            "styles": [
+              "\n    h1 { color: blue; }\n  "
+            ]
+          },
+          "location": {
+            "filePath": "/home/antoine/dev/ng-parser/examples/sample-angular-app/src/app.component.ts",
+            "start": 273,
+            "end": 512,
+            "line": 9,
+            "column": 1
+          }
+        }
+      ],
+      "modifiers": [
+        "exportkeyword"
+      ],
+      "selector": "app-root",
+      "template": "\n    <h1>{{ title }}</h1>\n    <p>Count: {{ count() }}</p>\n    <p>Double: {{ doubled() }}</p>\n  ",
+      "styles": [
+        "\n    h1 { color: blue; }\n  "
+      ],
+      "standalone": true,
+      "imports": [
+        "CommonModule"
+      ],
+      "inputs": [
+        {
+          "name": "title",
+          "propertyName": "title",
+          "required": false,
+          "isSignal": false
+        }
+      ],
+      "outputs": [
+        {
+          "name": "titleChange",
+          "propertyName": "titleChange",
+          "isSignal": false
+        }
+      ],
+      "lifecycle": [
+        "ngOnInit",
+        "ngOnDestroy"
+      ],
+      "signals": [
+        {
+          "name": "count",
+          "signalType": "signal",
+          "initialValue": 0
+        },
+        {
+          "name": "doubled",
+          "signalType": "computed",
+          "initialValue": "() => this.count() * 2"
+        }
+      ],
+      "templateAnalysis": {
+        "usedComponents": [],
+        "usedDirectives": [],
+        "usedPipes": [],
+        "bindings": [],
+        "templateRefs": [],
+        "complexity": 9
+      }
+    },
+    {
+      "id": "module:examples/sample-angular-app/src/app.module.ts:AppModule",
+      "type": "module",
+      "name": "AppModule",
+      "location": {
+        "filePath": "/home/antoine/dev/ng-parser/examples/sample-angular-app/src/app.module.ts",
+        "start": 288,
+        "end": 451,
+        "line": 10,
+        "column": 1,
+        "sourceUrl": "https://github.com/apelleti/ng-parser/blob/main/examples/sample-angular-app/src/app.module.ts#L10"
+      },
+      "documentation": "Root application module",
+      "decorators": [
+        {
+          "name": "NgModule",
+          "arguments": {
+            "declarations": [],
+            "imports": [
+              "BrowserModule",
+              "HttpClientModule"
+            ],
+            "providers": [
+              "UserService"
+            ],
+            "bootstrap": []
+          },
+          "location": {
+            "filePath": "/home/antoine/dev/ng-parser/examples/sample-angular-app/src/app.module.ts",
+            "start": 288,
+            "end": 424,
+            "line": 10,
+            "column": 1
+          }
+        }
+      ],
+      "modifiers": [
+        "exportkeyword"
+      ],
+      "declarations": [],
+      "imports": [
+        "BrowserModule",
+        "HttpClientModule"
+      ],
+      "providers": [
+        "UserService"
+      ],
+      "bootstrap": []
+    }
+  ],
+  "relationships": [
+    {
+      "id": "component:examples/sample-angular-app/src/app/components/product-card.component.ts:ProductCardComponent:imports:unresolved:CommonModule",
+      "type": "imports",
+      "source": "component:examples/sample-angular-app/src/app/components/product-card.component.ts:ProductCardComponent",
+      "target": "unresolved:CommonModule",
+      "metadata": {
+        "standalone": true,
+        "originalName": "CommonModule",
+        "resolved": false
+      }
+    },
+    {
+      "id": "component:examples/sample-angular-app/src/app/components/product-card.component.ts:ProductCardComponent:imports:FormatDatePipe",
+      "type": "imports",
+      "source": "component:examples/sample-angular-app/src/app/components/product-card.component.ts:ProductCardComponent",
+      "target": "pipe:examples/sample-angular-app/src/app/pipes/format-date.pipe.ts:FormatDatePipe",
+      "metadata": {
+        "standalone": true,
+        "originalName": "FormatDatePipe",
+        "resolved": true
+      }
+    },
+    {
+      "id": "component:examples/sample-angular-app/src/app/components/user-list.component.ts:UserListComponent:imports:unresolved:CommonModule",
+      "type": "imports",
+      "source": "component:examples/sample-angular-app/src/app/components/user-list.component.ts:UserListComponent",
+      "target": "unresolved:CommonModule",
+      "metadata": {
+        "standalone": true,
+        "originalName": "CommonModule",
+        "resolved": false
+      }
+    },
+    {
+      "id": "component:examples/sample-angular-app/src/app/components/user-list.component.ts:UserListComponent:injects:UserService",
+      "type": "injects",
+      "source": "component:examples/sample-angular-app/src/app/components/user-list.component.ts:UserListComponent",
+      "target": "service:examples/sample-angular-app/src/user.service.ts:UserService",
+      "metadata": {
+        "originalName": "UserService",
+        "resolved": true
+      }
+    },
+    {
+      "id": "directive:examples/sample-angular-app/src/app/directives/highlight.directive.ts:HighlightDirective:injects:unresolved:ElementRef",
+      "type": "injects",
+      "source": "directive:examples/sample-angular-app/src/app/directives/highlight.directive.ts:HighlightDirective",
+      "target": "unresolved:ElementRef",
+      "metadata": {
+        "originalName": "ElementRef",
+        "resolved": false
+      }
+    },
+    {
+      "id": "component:examples/sample-angular-app/src/app/components/user-profile.component.ts:UserProfileComponent:imports:unresolved:CommonModule",
+      "type": "imports",
+      "source": "component:examples/sample-angular-app/src/app/components/user-profile.component.ts:UserProfileComponent",
+      "target": "unresolved:CommonModule",
+      "metadata": {
+        "standalone": true,
+        "originalName": "CommonModule",
+        "resolved": false
+      }
+    },
+    {
+      "id": "component:examples/sample-angular-app/src/app/components/user-profile.component.ts:UserProfileComponent:imports:HighlightDirective",
+      "type": "imports",
+      "source": "component:examples/sample-angular-app/src/app/components/user-profile.component.ts:UserProfileComponent",
+      "target": "directive:examples/sample-angular-app/src/app/directives/highlight.directive.ts:HighlightDirective",
+      "metadata": {
+        "standalone": true,
+        "originalName": "HighlightDirective",
+        "resolved": true
+      }
+    },
+    {
+      "id": "module:examples/sample-angular-app/src/app/modules/shared.module.ts:SharedModule:declares:DashboardComponent",
+      "type": "declares",
+      "source": "module:examples/sample-angular-app/src/app/modules/shared.module.ts:SharedModule",
+      "target": "component:examples/sample-angular-app/src/app/components/dashboard.component.ts:DashboardComponent",
+      "metadata": {
+        "originalName": "DashboardComponent",
+        "resolved": true
+      }
+    },
+    {
+      "id": "module:examples/sample-angular-app/src/app/modules/shared.module.ts:SharedModule:imports:unresolved:CommonModule",
+      "type": "imports",
+      "source": "module:examples/sample-angular-app/src/app/modules/shared.module.ts:SharedModule",
+      "target": "unresolved:CommonModule",
+      "metadata": {
+        "originalName": "CommonModule",
+        "resolved": false
+      }
+    },
+    {
+      "id": "module:examples/sample-angular-app/src/app/modules/shared.module.ts:SharedModule:exports:DashboardComponent",
+      "type": "exports",
+      "source": "module:examples/sample-angular-app/src/app/modules/shared.module.ts:SharedModule",
+      "target": "component:examples/sample-angular-app/src/app/components/dashboard.component.ts:DashboardComponent",
+      "metadata": {
+        "originalName": "DashboardComponent",
+        "resolved": true
+      }
+    },
+    {
+      "id": "service:examples/sample-angular-app/src/app/services/data.service.ts:DataService:injects:unresolved:HttpClient",
+      "type": "injects",
+      "source": "service:examples/sample-angular-app/src/app/services/data.service.ts:DataService",
+      "target": "unresolved:HttpClient",
+      "metadata": {
+        "originalName": "HttpClient",
+        "resolved": false
+      }
+    },
+    {
+      "id": "service:examples/sample-angular-app/src/app/services/data.service.ts:DataService:injects:AuthService",
+      "type": "injects",
+      "source": "service:examples/sample-angular-app/src/app/services/data.service.ts:DataService",
+      "target": "service:examples/sample-angular-app/src/app/services/auth.service.ts:AuthService",
+      "metadata": {
+        "originalName": "AuthService",
+        "resolved": true
+      }
+    },
+    {
+      "id": "service:examples/sample-angular-app/src/user.service.ts:UserService:injects:unresolved:HttpClient",
+      "type": "injects",
+      "source": "service:examples/sample-angular-app/src/user.service.ts:UserService",
+      "target": "unresolved:HttpClient",
+      "metadata": {
+        "originalName": "HttpClient",
+        "resolved": false
+      }
+    },
+    {
+      "id": "component:examples/sample-angular-app/src/app.component.ts:AppComponent:imports:unresolved:CommonModule",
+      "type": "imports",
+      "source": "component:examples/sample-angular-app/src/app.component.ts:AppComponent",
+      "target": "unresolved:CommonModule",
+      "metadata": {
+        "standalone": true,
+        "originalName": "CommonModule",
+        "resolved": false
+      }
+    },
+    {
+      "id": "component:examples/sample-angular-app/src/app.component.ts:AppComponent:injects:UserService",
+      "type": "injects",
+      "source": "component:examples/sample-angular-app/src/app.component.ts:AppComponent",
+      "target": "service:examples/sample-angular-app/src/user.service.ts:UserService",
+      "metadata": {
+        "originalName": "UserService",
+        "resolved": true
+      }
+    },
+    {
+      "id": "module:examples/sample-angular-app/src/app.module.ts:AppModule:imports:unresolved:BrowserModule",
+      "type": "imports",
+      "source": "module:examples/sample-angular-app/src/app.module.ts:AppModule",
+      "target": "unresolved:BrowserModule",
+      "metadata": {
+        "originalName": "BrowserModule",
+        "resolved": false
+      }
+    },
+    {
+      "id": "module:examples/sample-angular-app/src/app.module.ts:AppModule:imports:unresolved:HttpClientModule",
+      "type": "imports",
+      "source": "module:examples/sample-angular-app/src/app.module.ts:AppModule",
+      "target": "unresolved:HttpClientModule",
+      "metadata": {
+        "originalName": "HttpClientModule",
+        "resolved": false
+      }
+    },
+    {
+      "id": "module:examples/sample-angular-app/src/app.module.ts:AppModule:provides:UserService",
+      "type": "provides",
+      "source": "module:examples/sample-angular-app/src/app.module.ts:AppModule",
+      "target": "service:examples/sample-angular-app/src/user.service.ts:UserService",
+      "metadata": {
+        "originalName": "UserService",
+        "resolved": true
+      }
+    }
+  ],
+  "metadata": {
+    "totalEntities": 12,
+    "totalRelationships": 18,
+    "timestamp": "2025-10-03T14:05:46.342Z",
+    "angularVersion": "19.0.0",
+    "repository": {
+      "provider": "github",
+      "url": "https://github.com/apelleti/ng-parser",
+      "branch": "main",
+      "rootDir": "/home/antoine/dev/ng-parser"
+    }
+  },
+  "customAnalysis": {},
+  "warnings": [],
+  "errors": [],
+  "metrics": {}
+}

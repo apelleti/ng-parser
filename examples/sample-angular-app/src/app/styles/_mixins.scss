@@ -1,0 +1,40 @@
+@use './variables' as vars;
+
+@mixin card-base {
+  background: white;
+  border: vars.$border-width solid #e0e0e0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+@mixin button-primary {
+  background-color: vars.$color-primary;
+  color: white;
+  border: none;
+  border-radius: vars.$border-radius;
+  cursor: pointer;
+  font-weight: vars.$font-weight-semibold;
+  transition: background-color 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background-color: darken(vars.$color-primary, 10%);
+  }
+}
+
+@mixin button-disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+@mixin button-icon {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: vars.$font-size-lg;
+  padding: vars.$spacing-xs;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.2);
+  }
+}

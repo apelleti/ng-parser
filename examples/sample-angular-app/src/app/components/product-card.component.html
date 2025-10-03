@@ -1,0 +1,31 @@
+<div class="product-card" [class.available]="isAvailable" [class.unavailable]="!isAvailable">
+  <h3 class="product-title">{{ productName }}</h3>
+
+  <div class="product-price">
+    <span class="currency">$</span>
+    <span class="amount">{{ price | number:'1.2-2' }}</span>
+  </div>
+
+  <div class="product-meta">
+    <span class="created-date">Created: {{ createdAt | formatDate }}</span>
+    <span class="availability" *ngIf="isAvailable">In Stock</span>
+    <span class="availability" *ngIf="!isAvailable">Out of Stock</span>
+  </div>
+
+  <button
+    class="btn-add-cart"
+    [disabled]="!isAvailable"
+    (click)="onAddToCart()"
+    [attr.aria-label]="'Add ' + productName + ' to cart'">
+    Add to Cart
+  </button>
+
+  <div class="actions">
+    <button
+      class="btn-icon"
+      [style.opacity]="isAvailable ? 1 : 0.5"
+      #wishlistBtn>
+      ♥
+    </button>
+  </div>
+</div>

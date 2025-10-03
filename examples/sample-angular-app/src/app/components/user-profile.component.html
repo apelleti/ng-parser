@@ -1,0 +1,59 @@
+<div class="profile-container" *ngIf="!isLoading; else loading">
+  <div class="profile-header">
+    <div class="avatar-wrapper">
+      <img
+        [src]="avatarUrl"
+        [alt]="username + ' avatar'"
+        class="avatar"
+        (error)="avatarUrl = '/assets/default-avatar.png'">
+    </div>
+
+    <div class="profile-info">
+      <h2 class="username" appHighlight highlightColor="yellow">{{ username }}</h2>
+      <p class="email">{{ email }}</p>
+
+      <div class="stats" *ngIf="profileData">
+        <div class="stat-item">
+          <span class="stat-value">{{ profileData.followers | number }}</span>
+          <span class="stat-label">Followers</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">{{ profileData.following | number }}</span>
+          <span class="stat-label">Following</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="profile-body" *ngIf="profileData">
+    <section class="bio-section">
+      <h3>About</h3>
+      <p [innerHTML]="profileData.bio"></p>
+      <p class="location">
+        <span class="icon">📍</span>
+        {{ profileData.location }}
+      </p>
+    </section>
+
+    <section class="actions-section">
+      <button
+        class="btn btn-primary"
+        (click)="onFollowClick()"
+        [disabled]="isLoading">
+        Follow
+      </button>
+      <button
+        class="btn btn-secondary"
+        (click)="onMessageClick()">
+        Message
+      </button>
+    </section>
+  </div>
+</div>
+
+<ng-template #loading>
+  <div class="loading-spinner">
+    <div class="spinner"></div>
+    <p>Loading profile...</p>
+  </div>
+</ng-template>

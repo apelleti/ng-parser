@@ -1,0 +1,153 @@
+@import '../styles/variables';
+@import '../styles/mixins';
+
+.profile-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: $spacing-lg;
+}
+
+.profile-header {
+  display: flex;
+  gap: $spacing-lg;
+  align-items: center;
+  margin-bottom: $spacing-xl;
+  padding-bottom: $spacing-lg;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.avatar-wrapper {
+  flex-shrink: 0;
+
+  .avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid $color-primary;
+  }
+}
+
+.profile-info {
+  flex-grow: 1;
+
+  .username {
+    margin: 0 0 $spacing-xs 0;
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
+    color: $color-text-primary;
+  }
+
+  .email {
+    margin: 0 0 $spacing-md 0;
+    color: $color-text-secondary;
+    font-size: $font-size-md;
+  }
+}
+
+.stats {
+  display: flex;
+  gap: $spacing-lg;
+
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .stat-value {
+      font-size: $font-size-lg;
+      font-weight: $font-weight-bold;
+      color: $color-primary;
+    }
+
+    .stat-label {
+      font-size: $font-size-sm;
+      color: $color-text-secondary;
+    }
+  }
+}
+
+.profile-body {
+  .bio-section {
+    margin-bottom: $spacing-xl;
+
+    h3 {
+      font-size: $font-size-lg;
+      font-weight: $font-weight-semibold;
+      margin-bottom: $spacing-md;
+    }
+
+    .location {
+      display: flex;
+      align-items: center;
+      gap: $spacing-xs;
+      color: $color-text-secondary;
+      margin-top: $spacing-sm;
+
+      .icon {
+        font-size: $font-size-md;
+      }
+    }
+  }
+
+  .actions-section {
+    display: flex;
+    gap: $spacing-md;
+
+    .btn {
+      padding: $spacing-sm $spacing-lg;
+      border-radius: $border-radius;
+      font-size: $font-size-md;
+      font-weight: $font-weight-semibold;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+
+      &.btn-primary {
+        @include button-primary;
+      }
+
+      &.btn-secondary {
+        background-color: transparent;
+        border: 2px solid $color-primary;
+        color: $color-primary;
+
+        &:hover {
+          background-color: $color-primary;
+          color: white;
+        }
+      }
+
+      &:disabled {
+        @include button-disabled;
+      }
+    }
+  }
+}
+
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-xl;
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid $color-primary;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  p {
+    margin-top: $spacing-md;
+    color: $color-text-secondary;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

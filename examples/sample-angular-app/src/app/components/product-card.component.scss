@@ -1,0 +1,85 @@
+@use 'sass:math';
+@use '../styles/variables' as vars;
+@import '../styles/mixins';
+@import '../styles/animations';
+
+.product-card {
+  @include card-base;
+  border-radius: vars.$border-radius;
+  padding: vars.$spacing-md;
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  &.available {
+    border: 2px solid vars.$color-success;
+  }
+
+  &.unavailable {
+    opacity: 0.6;
+    filter: grayscale(100%);
+  }
+}
+
+.product-title {
+  font-size: vars.$font-size-lg;
+  font-weight: vars.$font-weight-bold;
+  margin-bottom: vars.$spacing-sm;
+  color: vars.$color-text-primary;
+}
+
+.product-price {
+  display: flex;
+  align-items: baseline;
+  margin: vars.$spacing-md 0;
+
+  .currency {
+    font-size: vars.$font-size-sm;
+    color: vars.$color-text-secondary;
+  }
+
+  .amount {
+    font-size: math.div(vars.$font-size-xl * 3, 2);
+    font-weight: vars.$font-weight-bold;
+    color: vars.$color-primary;
+  }
+}
+
+.product-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: vars.$spacing-md;
+  font-size: vars.$font-size-sm;
+
+  .created-date {
+    color: vars.$color-text-secondary;
+  }
+
+  .availability {
+    font-weight: vars.$font-weight-semibold;
+  }
+}
+
+.btn-add-cart {
+  @include button-primary;
+  width: 100%;
+  padding: vars.$spacing-sm vars.$spacing-md;
+
+  &:disabled {
+    @include button-disabled;
+  }
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: vars.$spacing-sm;
+
+  .btn-icon {
+    @include button-icon;
+    color: vars.$color-danger;
+  }
+}

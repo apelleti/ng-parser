@@ -46,13 +46,30 @@ export function resolveTemplatePath(componentPath: string, templateUrl: string, 
 }
 
 /**
+ * Clean expression by removing Angular compiler debug metadata
+ * Example: "containerId in /path/to/file@3:17" -> "containerId"
+ */
+function cleanExpression(expression?: string): string | undefined {
+  if (!expression) return undefined;
+
+  // Remove " in <filepath>@<position>" suffix added by Angular compiler
+  const cleanedExpression = expression.replace(/\s+in\s+[^\s]+@\d+:\d+$/, '');
+
+  return cleanedExpression || undefined;
+}
+
+/**
  * Analyze template content (works for both inline and external)
  *
  * NOTE: loadAngularCompiler() MUST be called and awaited before using this function.
  * This is guaranteed by AngularCoreParser.parseProject() which loads the compiler
  * before parsing templates.
  */
-export function analyzeTemplate(templateContent: string, filePath?: string): TemplateAnalysis {
+export function analyzeTemplate(
+  templateContent: string,
+  filePath?: string,
+  gitInfo?: GitRepository
+): TemplateAnalysis {
   try {
     // Parse template with Angular compiler (guaranteed to be loaded)
     const parsed = angularCompiler.parseTemplate(templateContent, filePath || 'inline-template.html', {
@@ -97,11 +114,15 @@ export function analyzeTemplate(templateContent: string, filePath?: string): Tem
               usedDirectives.add(input.name);
             }
 
+            const lineNumber = input.sourceSpan?.start?.line ?? 0;
+            const sourceUrl = filePath ? generateSourceUrl(filePath, gitInfo, lineNumber) : undefined;
+
             bindings.push({
               type: 'property',
               name: input.name,
-              expression: input.value?.toString(),
-              line: input.sourceSpan?.start?.line ?? 0,
+              expression: cleanExpression(input.value?.toString()),
+              line: lineNumber,
+              sourceUrl,
             });
           });
         }
@@ -109,11 +130,15 @@ export function analyzeTemplate(templateContent: string, filePath?: string): Tem
         // Event bindings
         if (node.outputs) {
           node.outputs.forEach((output: any) => {
+            const lineNumber = output.sourceSpan?.start?.line ?? 0;
+            const sourceUrl = filePath ? generateSourceUrl(filePath, gitInfo, lineNumber) : undefined;
+
             bindings.push({
               type: 'event',
               name: output.name,
-              expression: output.handler?.toString(),
-              line: output.sourceSpan?.start?.line ?? 0,
+              expression: cleanExpression(output.handler?.toString()),
+              line: lineNumber,
+              sourceUrl,
             });
           });
         }

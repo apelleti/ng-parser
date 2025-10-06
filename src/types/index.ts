@@ -295,6 +295,7 @@ export interface ParseResult {
   toJSON(): any;
   toGraphRAG(): any;
   toSimpleJSON(): any;
+  toHTML(): string;
   getGraph(): KnowledgeGraph;
   getEntities(): Map<string, Entity>;
   getRelationships(): Relationship[];
@@ -330,6 +331,7 @@ export interface BindingMetadata {
   name: string;
   expression?: string;
   line: number;
+  sourceUrl?: string;
 }
 
 /**
@@ -367,6 +369,7 @@ export interface ScssImportMetadata {
   statement: string;     // Full statement: '@import "theme/colors"'
   resolvedPath?: string; // Resolved absolute path if found
   line: number;          // Line number in file
+  sourceUrl?: string;    // Git source URL with line number
 }
 
 /**
@@ -378,4 +381,5 @@ export interface ScssUseMetadata {
   namespace?: string;    // Namespace: 'm' or '*' or undefined
   resolvedPath?: string; // Resolved absolute path if found
   line: number;          // Line number in file
+  sourceUrl?: string;    // Git source URL with line number
 }

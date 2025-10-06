@@ -45,7 +45,7 @@ ng-parser parse ./src --visitors rxjs,security
 # Export to file
 ng-parser parse ./src -o analysis.json
 
-# Export all formats
+# Export all formats (JSON, Markdown, GraphRAG, SimpleJSON, HTML)
 ng-parser parse ./src -f all -o ./output/my-project
 ```
 
@@ -111,6 +111,9 @@ const graphRAG = result.toGraphRAG();
 
 // SimpleJSON export (ng-analyzer compatible)
 const simple = result.toSimpleJSON();
+
+// HTML export (interactive D3.js visualization)
+const html = result.toHTML();
 ```
 
 ## Two-Layer Architecture
@@ -491,6 +494,28 @@ ng-analyzer compatible format:
 ```typescript
 const simple = result.toSimpleJSON();
 ```
+
+### HTML Export
+
+Interactive visualization with D3.js:
+
+```typescript
+const html = result.toHTML();
+```
+
+**Features:**
+- 🎨 Interactive D3.js force-directed dependency graph
+- 🔍 Searchable entity explorer
+- 📊 Visitor results dashboards (RxJS, Security, Performance)
+- 🔗 Clickable Git source URLs
+- 📱 Responsive design (mobile-friendly)
+- 💾 Self-contained (works offline, no build required)
+
+**Use cases:**
+- Team onboarding - Visual learning for new developers
+- Architecture presentations - Interactive demos in meetings
+- Code reviews - Shareable offline documentation
+- CI/CD docs - Auto-generated project documentation
 
 ## Examples
 

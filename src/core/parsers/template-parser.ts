@@ -63,7 +63,7 @@ export class TemplateParser {
         ? resolveTemplatePath(absoluteComponentPath, entity.templateUrl, baseDir)
         : absoluteComponentPath;
 
-      templateAnalysis = analyzeTemplate(templateContent, filePath);
+      templateAnalysis = analyzeTemplate(templateContent, filePath, gitInfo);
     }
 
     return {

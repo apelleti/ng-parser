@@ -6,6 +6,8 @@ import type { ParseResult, KnowledgeGraph, ParserConfig } from '../types/index.j
 import { MarkdownFormatter } from '../formatters/markdown-formatter.js';
 import { GraphRAGFormatter } from '../formatters/graphrag-formatter.js';
 import { SimpleJsonFormatter } from '../formatters/simple-json-formatter.js';
+import { HtmlFormatter } from '../formatters/html-formatter.js';
+import { optimizeEntity, removeEmptyDefaults } from '../utils/optimization-helpers.js';
 
 /**
  * Implementation of ParseResult
@@ -25,15 +27,19 @@ export class ParseResultImpl implements ParseResult {
   }
 
   /**
-   * Export as JSON
+   * Export as JSON (optimized - removes empty arrays and redundant fields)
    */
   toJSON(): any {
-    return {
-      entities: Array.from(this.graph.entities.entries()).map(([, entity]) => entity),
+    // Optimize entities by removing empty defaults
+    const optimizedEntities = Array.from(this.graph.entities.entries())
+      .map(([, entity]) => optimizeEntity(entity));
+
+    return removeEmptyDefaults({
+      entities: optimizedEntities,
       relationships: this.graph.relationships,
       hierarchy: this.graph.hierarchy,
       metadata: this.graph.metadata,
-    };
+    });
   }
 
   /**
@@ -49,6 +55,14 @@ export class ParseResultImpl implements ParseResult {
    */
   toSimpleJSON(): any {
     const formatter = new SimpleJsonFormatter(this.graph, this.config);
+    return formatter.format();
+  }
+
+  /**
+   * Export as interactive HTML with D3.js visualization
+   */
+  toHTML(): string {
+    const formatter = new HtmlFormatter(this.graph, this.config);
     return formatter.format();
   }
 

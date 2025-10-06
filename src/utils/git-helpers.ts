@@ -157,9 +157,12 @@ function parseRemoteUrl(remoteUrl: string): { provider: GitRepository['provider'
  */
 export function generateSourceUrl(
   filePath: string,
-  gitInfo: GitRepository,
+  gitInfo: GitRepository | undefined,
   line?: number
 ): string | undefined {
+  if (!gitInfo) {
+    return undefined;
+  }
   if (gitInfo.provider === 'unknown') {
     return undefined;
   }

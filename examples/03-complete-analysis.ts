@@ -191,6 +191,16 @@ async function main() {
     console.log(`   ⚠️  SimpleJSON export: ${e.message}`);
   }
 
+  // Export HTML (interactive visualization with D3.js)
+  try {
+    const html = result.toHTML();
+    fs.writeFileSync(`${outputDir}/ng-parser.html`, html);
+    console.log(`   ✓ HTML (interactive visualization) exported (${html.length} bytes)`);
+    console.log(`     → ${outputDir}/ng-parser.html`);
+  } catch (e: any) {
+    console.log(`   ⚠️  HTML export: ${e.message}`);
+  }
+
   // ========================================
   // 8. SUMMARY
   // ========================================

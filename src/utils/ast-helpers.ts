@@ -5,6 +5,7 @@
 import * as ts from 'typescript';
 import * as path from 'path';
 import type { SourceLocation, DecoratorMetadata } from '../types/index.js';
+import { generateSourceUrl, type GitRepository } from './git-helpers.js';
 
 /**
  * Get source location from a node
@@ -15,7 +16,7 @@ export function getSourceLocation(
   node: ts.Node,
   sourceFile: ts.SourceFile,
   rootDir?: string,
-  gitInfo?: any
+  gitInfo?: GitRepository
 ): SourceLocation {
   const { line, character } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
 
@@ -31,12 +32,18 @@ export function getSourceLocation(
     filePath = path.relative(rootDir, sourceFile.fileName).replace(/\\/g, '/');
   }
 
+  const lineNumber = line + 1;
+
+  // Generate sourceUrl if git info is available
+  const sourceUrl = generateSourceUrl(sourceFile.fileName, gitInfo, lineNumber);
+
   return {
     filePath,
     start: node.getStart(),
     end: node.getEnd(),
-    line: line + 1,
+    line: lineNumber,
     column: character + 1,
+    sourceUrl,
   };
 }
 

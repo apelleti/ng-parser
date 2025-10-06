@@ -110,6 +110,22 @@ Knowledge graph for graph databases (JSON-LD):
 ng-parser parse ./src -f graph -o knowledge-graph.json
 ```
 
+### HTML
+
+Interactive visualization with D3.js dependency graph:
+
+```bash
+ng-parser parse ./src -f html -o analysis.html
+```
+
+**Features:**
+- Interactive D3.js force-directed dependency graph
+- Searchable entity explorer
+- Visitor results dashboards (RxJS, Security, Performance)
+- Clickable Git source URLs
+- Self-contained (works offline)
+- Responsive design
+
 ### All Formats
 
 Export all formats at once with a common prefix:
@@ -123,13 +139,14 @@ ng-parser parse ./src -f all -o ./output/my-project
 - `my-project.simple.json` - Entities only
 - `my-project.rag.md` - RAG-optimized markdown
 - `my-project.graph.json` - Knowledge graph
+- `my-project.html` - Interactive HTML visualization
 
 ## Options
 
 | Option | Description | Default |
 |--------|-------------|---------|
 | `-o, --output <file>` | Output file path | - |
-| `-f, --format <format>` | Output format: `full`, `simple`, `markdown`, `graph`, `all` | `full` |
+| `-f, --format <format>` | Output format: `full`, `simple`, `markdown`, `graph`, `html`, `all` | `full` |
 | `--visitors <list>` | Enable visitors (comma-separated: `rxjs,security,performance`) | none |
 | `--all-visitors` | Enable all built-in visitors | false |
 | `-v, --verbose` | Verbose output | false |
@@ -185,6 +202,24 @@ ng-parser parse ./src -f graph -o graph.json
 ```
 
 Export as JSON-LD knowledge graph for Neo4j, etc.
+
+### 7. Interactive HTML Visualization
+
+```bash
+ng-parser parse ./src --all-visitors -f html -o interactive-docs.html
+```
+
+Generate interactive HTML documentation with:
+- D3.js dependency graph (zoom, pan, search)
+- Visitor dashboards (RxJS, Security, Performance)
+- Searchable entity tables
+- Clickable Git source links
+
+**Perfect for:**
+- Team onboarding (visual learning)
+- Architecture presentations (interactive demos)
+- Code reviews (shareable offline)
+- CI/CD documentation (auto-generated docs)
 
 ## Exit Codes
 

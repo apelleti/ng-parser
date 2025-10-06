@@ -55,8 +55,8 @@ export function parseScssFile(filePath: string, rootDir: string, gitInfo?: GitRe
     console.warn(`⚠️  Failed to read style file ${filePath}:`, (error as Error).message);
   }
 
-  const imports = parseScssImports(content, filePath);
-  const uses = parseScssUses(content, filePath);
+  const imports = parseScssImports(content, filePath, gitInfo);
+  const uses = parseScssUses(content, filePath, gitInfo);
   const location = generateLocationMetadata(filePath, rootDir, gitInfo);
 
   return {
@@ -70,7 +70,7 @@ export function parseScssFile(filePath: string, rootDir: string, gitInfo?: GitRe
 /**
  * Parse @import statements from SCSS content
  */
-export function parseScssImports(content: string, filePath: string): ScssImportMetadata[] {
+export function parseScssImports(content: string, filePath: string, gitInfo?: GitRepository): ScssImportMetadata[] {
   const imports: ScssImportMetadata[] = [];
 
   // Regex to match @import statements
@@ -82,12 +82,14 @@ export function parseScssImports(content: string, filePath: string): ScssImportM
     const importPath = match[2];
     const statement = match[0];
     const line = getLineNumber(content, match.index);
+    const sourceUrl = generateSourceUrl(filePath, gitInfo, line);
 
     imports.push({
       path: importPath,
       statement,
       resolvedPath: tryResolveScssPath(filePath, importPath),
       line,
+      sourceUrl,
     });
   }
 
@@ -97,7 +99,7 @@ export function parseScssImports(content: string, filePath: string): ScssImportM
 /**
  * Parse @use statements from SCSS content
  */
-export function parseScssUses(content: string, filePath: string): ScssUseMetadata[] {
+export function parseScssUses(content: string, filePath: string, gitInfo?: GitRepository): ScssUseMetadata[] {
   const uses: ScssUseMetadata[] = [];
 
   // Regex to match @use statements
@@ -110,6 +112,7 @@ export function parseScssUses(content: string, filePath: string): ScssUseMetadat
     const namespace = match[3];
     const statement = match[0];
     const line = getLineNumber(content, match.index);
+    const sourceUrl = generateSourceUrl(filePath, gitInfo, line);
 
     uses.push({
       path: usePath,
@@ -117,6 +120,7 @@ export function parseScssUses(content: string, filePath: string): ScssUseMetadat
       namespace,
       resolvedPath: tryResolveScssPath(filePath, usePath),
       line,
+      sourceUrl,
     });
   }
 

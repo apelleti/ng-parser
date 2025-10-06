@@ -38,7 +38,7 @@ program
   .option('-o, --output <file>', 'Output file path')
   .option(
     '-f, --format <format>',
-    'Output format: full|simple|markdown|graph|all',
+    'Output format: full|simple|markdown|graph|html|all',
     'full'
   )
   .option('--visitors <visitors>', 'Enable visitors (comma-separated: rxjs,security,performance)')
@@ -185,6 +185,10 @@ program
             JSON.stringify(graph, null, 2)
           );
           console.log(`   ✓ ${outputBase}.graph.json`);
+
+          const html = result.toHTML();
+          fs.writeFileSync(path.join(outputDir, `${outputBase}.html`), html);
+          console.log(`   ✓ ${outputBase}.html`);
         } else {
           // Export single format
           let content: string;
@@ -203,6 +207,10 @@ program
             case 'graph':
               content = JSON.stringify(result.toGraphRAG(), null, 2);
               extension = '.json';
+              break;
+            case 'html':
+              content = result.toHTML();
+              extension = '.html';
               break;
             case 'full':
             default:

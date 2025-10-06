@@ -5,6 +5,20 @@ All notable changes to ng-parser will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.2] - 2025-10-06
+
+### 🔧 Technical Changes
+
+- **Build improvements**: Rebuilt project to ensure all formatters are properly compiled
+- **HTML formatter**: Verified HTML export functionality with `--format all` option
+- All export formats (JSON, SimpleJSON, Markdown, GraphRAG, HTML) working correctly
+
+### ✅ Validation
+
+- ✅ HTML export working in `--format all` mode
+- ✅ All 5 export formats generated successfully
+- ✅ Build artifacts up to date
+
 ## [1.4.1] - 2025-10-06
 
 ### 🐛 Bug Fixes

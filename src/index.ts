@@ -46,6 +46,7 @@ export { ModuleExtractor } from './extractors/module-extractor.js';
 export { MarkdownFormatter } from './formatters/markdown-formatter.js';
 export { GraphRAGFormatter } from './formatters/graphrag-formatter.js';
 export { SimpleJsonFormatter } from './formatters/simple-json-formatter.js';
+export { HtmlFormatter } from './formatters/html-formatter.js';
 
 // === Types ===
 export * from './types/index.js';

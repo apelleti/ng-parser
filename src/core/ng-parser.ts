@@ -10,6 +10,8 @@ import type { ParserConfig, Entity, Relationship, KnowledgeGraph } from '../type
 import { MarkdownFormatter } from '../formatters/markdown-formatter.js';
 import { GraphRAGFormatter } from '../formatters/graphrag-formatter.js';
 import { SimpleJsonFormatter } from '../formatters/simple-json-formatter.js';
+import { HtmlFormatter } from '../formatters/html-formatter.js';
+import { ParseResultImpl } from './parse-result.js';
 
 /**
  * Parse result combining core + custom analysis
@@ -38,6 +40,7 @@ export interface NgParseResult {
   toJSON(): any;
   toGraphRAG(): any;
   toSimpleJSON(): any;
+  toHTML(): string;
 }
 
 /**
@@ -154,15 +157,12 @@ export class NgParser {
         const formatter = new MarkdownFormatter(knowledgeGraph, config);
         return formatter.format();
       },
-      toJSON: () => ({
-        entities: Array.from(angularProject.entities.values()),
-        relationships: angularProject.relationships,
-        metadata: angularProject.metadata,
-        customAnalysis: Object.fromEntries(visitorResults.results),
-        warnings: visitorResults.warnings,
-        errors: visitorResults.errors,
-        metrics: Object.fromEntries(visitorResults.metrics),
-      }),
+      toJSON: () => {
+        const knowledgeGraph = this.toKnowledgeGraph(angularProject, visitorResults);
+        const config = { rootDir: targetDir, ...(this.coreParser['config'] || {}) } as ParserConfig;
+        const parseResult = new ParseResultImpl(knowledgeGraph, config);
+        return parseResult.toJSON();
+      },
       toGraphRAG: () => {
         const knowledgeGraph = this.toKnowledgeGraph(angularProject, visitorResults);
         const config = { rootDir: targetDir, ...(this.coreParser['config'] || {}) } as ParserConfig;
@@ -173,6 +173,12 @@ export class NgParser {
         const knowledgeGraph = this.toKnowledgeGraph(angularProject, visitorResults);
         const config = { rootDir: targetDir, ...(this.coreParser['config'] || {}) } as ParserConfig;
         const formatter = new SimpleJsonFormatter(knowledgeGraph, config);
+        return formatter.format();
+      },
+      toHTML: () => {
+        const knowledgeGraph = this.toKnowledgeGraph(angularProject, visitorResults);
+        const config = { rootDir: targetDir, ...(this.coreParser['config'] || {}) } as ParserConfig;
+        const formatter = new HtmlFormatter(knowledgeGraph, config);
         return formatter.format();
       },
     };

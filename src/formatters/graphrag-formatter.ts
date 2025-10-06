@@ -3,6 +3,8 @@
  */
 
 import type { KnowledgeGraph, ParserConfig, Entity, Relationship } from '../types/index.js';
+import { optimizeInputMetadata, optimizeOutputMetadata, removeEmptyDefaults } from '../utils/optimization-helpers.js';
+import { JSONLD_CONTEXT } from './jsonld-context.js';
 
 /**
  * Formats knowledge graph for GraphRAG consumption
@@ -15,12 +17,8 @@ export class GraphRAGFormatter {
   ) {}
 
   format(): any {
-    return {
-      '@context': {
-        '@vocab': 'https://schema.org/',
-        angular: 'https://angular.io/api/',
-        code: 'https://schema.org/SoftwareSourceCode',
-      },
+    const result = {
+      '@context': JSONLD_CONTEXT,
       '@type': 'SoftwareApplication',
       name: this.graph.metadata.projectName || 'Angular Project',
       applicationCategory: 'WebApplication',
@@ -54,6 +52,9 @@ export class GraphRAGFormatter {
         globalStyles: this.graph.metadata.globalStyles,
       },
     };
+
+    // Remove empty defaults from entire result
+    return removeEmptyDefaults(result);
   }
 
   private formatEntities(): any[] {
@@ -64,7 +65,6 @@ export class GraphRAGFormatter {
         '@id': entity.id,
         '@type': this.mapEntityTypeToSchemaType(entity.type),
         name: entity.name,
-        identifier: entity.id,
         description: entity.documentation,
         codeLocation: {
           '@type': 'Place',
@@ -147,30 +147,45 @@ export class GraphRAGFormatter {
   }
 
   private extractEntityAttributes(entity: Entity): Record<string, any> {
-    const attributes: Record<string, any> = {
-      modifiers: entity.modifiers,
-    };
+    const attributes: Record<string, any> = {};
+
+    // Only include modifiers if present
+    if (entity.modifiers && entity.modifiers.length > 0) {
+      attributes.modifiers = entity.modifiers;
+    }
 
     // Type-specific attributes
     if ('selector' in entity) {
-      attributes.selector = (entity as any).selector;
-      attributes.standalone = (entity as any).standalone;
-      attributes.inputs = (entity as any).inputs;
-      attributes.outputs = (entity as any).outputs;
-      attributes.signals = (entity as any).signals;
-      attributes.lifecycle = (entity as any).lifecycle;
+      const e = entity as any;
+      if (e.selector) attributes.selector = e.selector;
+      if (e.standalone !== undefined) attributes.standalone = e.standalone;
+
+      // Optimize inputs
+      if (e.inputs && e.inputs.length > 0) {
+        attributes.inputs = e.inputs.map(optimizeInputMetadata);
+      }
+
+      // Optimize outputs
+      if (e.outputs && e.outputs.length > 0) {
+        attributes.outputs = e.outputs.map(optimizeOutputMetadata);
+      }
+
+      if (e.signals && e.signals.length > 0) attributes.signals = e.signals;
+      if (e.lifecycle && e.lifecycle.length > 0) attributes.lifecycle = e.lifecycle;
     }
 
     if ('providedIn' in entity) {
-      attributes.providedIn = (entity as any).providedIn;
-      attributes.dependencies = (entity as any).dependencies;
+      const e = entity as any;
+      if (e.providedIn) attributes.providedIn = e.providedIn;
+      if (e.dependencies && e.dependencies.length > 0) attributes.dependencies = e.dependencies;
     }
 
     if ('declarations' in entity) {
-      attributes.declarations = (entity as any).declarations;
-      attributes.imports = (entity as any).imports;
-      attributes.exports = (entity as any).exports;
-      attributes.providers = (entity as any).providers;
+      const e = entity as any;
+      if (e.declarations && e.declarations.length > 0) attributes.declarations = e.declarations;
+      if (e.imports && e.imports.length > 0) attributes.imports = e.imports;
+      if (e.exports && e.exports.length > 0) attributes.exports = e.exports;
+      if (e.providers && e.providers.length > 0) attributes.providers = e.providers;
     }
 
     return attributes;

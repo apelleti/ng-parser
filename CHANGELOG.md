@@ -5,6 +5,28 @@ All notable changes to ng-parser will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.1] - 2025-10-06
+
+### 🐛 Bug Fixes
+
+- **Fixed Jest test suite configuration**
+  - Tests were failing with `SyntaxError: Unexpected token 'export'` in setup.ts
+  - Root cause: TypeScript adding `export {}` to setup file with `isolatedModules: true`
+  - Solution: Added `isolatedModules: false` to ts-jest configuration
+  - All 134 tests now passing successfully
+
+### 🔧 Technical Changes
+
+- **jest.config.mjs**: Added explicit tsconfig override with `isolatedModules: false`
+- Prevents TypeScript from automatically adding `export {}` to non-module files
+- Maintains ESM compatibility while fixing setup file transformation
+
+### ✅ Validation
+
+- ✅ All 8 test suites passing
+- ✅ All 134 tests passing
+- ✅ No test configuration errors
+
 ## [1.4.0] - 2025-10-03
 
 ### 🐛 Bug Fixes

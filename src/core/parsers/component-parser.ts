@@ -25,6 +25,9 @@ import {
   isSignalFunction,
   parseExpression,
 } from '../../utils/ast-helpers.js';
+import { getPrimaryTypeName } from '../../utils/type-helpers.js';
+import { extractPropertyInjectCalls, extractConstructorInjectCalls } from '../../utils/inject-helpers.js';
+import { parseProviders } from '../../utils/provider-helpers.js';
 
 /**
  * Core parser for Angular @Component decorators
@@ -61,6 +64,9 @@ export class ComponentParser {
     const args = decorator.arguments;
     const location = getSourceLocation(node, context.sourceFile, context.rootDir, context.gitInfo);
 
+    // Extract animations references
+    const animations = this.extractAnimations(args, context);
+
     const entity: ComponentEntity = {
       id: generateEntityId(location.filePath, className, EntityType.Component, context.rootDir),
       type: EntityType.Component,
@@ -79,6 +85,7 @@ export class ComponentParser {
       exports: Array.isArray(args.exports) ? args.exports : undefined,
       providers: Array.isArray(args.providers) ? args.providers : undefined,
       viewProviders: Array.isArray(args.viewProviders) ? args.viewProviders : undefined,
+      animations,
       changeDetection: args.changeDetection,
       encapsulation: args.encapsulation,
       inputs: this.extractInputs(node, context),
@@ -206,52 +213,243 @@ export class ComponentParser {
     if (entity.imports) {
       entity.imports.forEach((imp) => {
         if (typeof imp === 'string') {
+          const importPath = this.findImportPathForType(imp, context.sourceFile);
           const relationship: Relationship = {
             id: `${entity.id}:imports:${imp}`,
             type: RelationType.Imports,
             source: entity.id,
             target: imp,
-            metadata: { standalone: true },
+            metadata: {
+              standalone: true,
+              importPath,
+            },
           };
           context.addRelationship(relationship);
         }
       });
     }
 
-    // Extract provider relationships
+    // Extract provider relationships (enhanced for complex providers)
     if (entity.providers) {
-      entity.providers.forEach((provider) => {
-        if (typeof provider === 'string') {
-          const relationship: Relationship = {
-            id: `${entity.id}:provides:${provider}`,
+      const providers = parseProviders(entity.providers, context.sourceFile);
+      providers.forEach((provider) => {
+        // Create relationship to token
+        const tokenImportPath = this.findImportPathForType(provider.token, context.sourceFile);
+        context.addRelationship({
+          id: `${entity.id}:provides:${provider.token}`,
+          type: RelationType.Provides,
+          source: entity.id,
+          target: provider.token,
+          metadata: {
+            importPath: tokenImportPath,
+            providerType: 'token',
+          },
+        });
+
+        // Create relationship to implementation
+        if (provider.implementation && provider.implementation !== provider.token) {
+          const implImportPath = this.findImportPathForType(provider.implementation, context.sourceFile);
+          context.addRelationship({
+            id: `${entity.id}:provides:${provider.implementation}`,
             type: RelationType.Provides,
             source: entity.id,
-            target: provider,
-          };
-          context.addRelationship(relationship);
+            target: provider.implementation,
+            metadata: {
+              importPath: implImportPath,
+              providerType: 'implementation',
+            },
+          });
+        }
+
+        // Create relationship to value reference
+        if (provider.value) {
+          const valueImportPath = this.findImportPathForType(provider.value, context.sourceFile);
+          context.addRelationship({
+            id: `${entity.id}:uses:${provider.value}`,
+            type: RelationType.Uses,
+            source: entity.id,
+            target: provider.value,
+            metadata: {
+              importPath: valueImportPath,
+              providerType: 'value',
+            },
+          });
         }
       });
     }
 
-    // Extract constructor dependencies
+    // Extract viewProviders relationships (enhanced for complex providers)
+    if (entity.viewProviders) {
+      const viewProviders = parseProviders(entity.viewProviders, context.sourceFile);
+      viewProviders.forEach((provider) => {
+        // Create relationship to token
+        const tokenImportPath = this.findImportPathForType(provider.token, context.sourceFile);
+        context.addRelationship({
+          id: `${entity.id}:viewProvides:${provider.token}`,
+          type: RelationType.Provides,
+          source: entity.id,
+          target: provider.token,
+          metadata: {
+            importPath: tokenImportPath,
+            providerType: 'viewProvider-token',
+          },
+        });
+
+        // Create relationship to implementation
+        if (provider.implementation && provider.implementation !== provider.token) {
+          const implImportPath = this.findImportPathForType(provider.implementation, context.sourceFile);
+          context.addRelationship({
+            id: `${entity.id}:viewProvides:${provider.implementation}`,
+            type: RelationType.Provides,
+            source: entity.id,
+            target: provider.implementation,
+            metadata: {
+              importPath: implImportPath,
+              providerType: 'viewProvider-implementation',
+            },
+          });
+        }
+
+        // Create relationship to value reference
+        if (provider.value) {
+          const valueImportPath = this.findImportPathForType(provider.value, context.sourceFile);
+          context.addRelationship({
+            id: `${entity.id}:uses:${provider.value}`,
+            type: RelationType.Uses,
+            source: entity.id,
+            target: provider.value,
+            metadata: {
+              importPath: valueImportPath,
+              providerType: 'viewProvider-value',
+            },
+          });
+        }
+      });
+    }
+
+    // Extract animation references
+    if (entity.animations) {
+      entity.animations.forEach((animation) => {
+        const importPath = this.findImportPathForType(animation, context.sourceFile);
+        context.addRelationship({
+          id: `${entity.id}:uses:${animation}`,
+          type: RelationType.Uses,
+          source: entity.id,
+          target: animation,
+          metadata: {
+            importPath,
+            usage: 'animation',
+          },
+        });
+      });
+    }
+
+    // Extract constructor parameter dependencies
+    // Find the constructor with a body (implementation, not overload signature)
     const constructor = node.members.find(
-      (m) => ts.isConstructorDeclaration(m)
+      (m) => ts.isConstructorDeclaration(m) && m.body
     ) as ts.ConstructorDeclaration;
 
     if (constructor && constructor.parameters) {
       constructor.parameters.forEach((param) => {
         if (param.type) {
-          const typeName = param.type.getText(context.sourceFile);
+          const rawTypeName = param.type.getText(context.sourceFile);
+          // Normalize type name (strip array brackets, extract from generics)
+          const typeName = getPrimaryTypeName(rawTypeName) || rawTypeName;
+          const importPath = this.findImportPathForType(typeName, context.sourceFile);
           const relationship: Relationship = {
             id: `${entity.id}:injects:${typeName}`,
             type: RelationType.Injects,
             source: entity.id,
             target: typeName,
+            metadata: {
+              importPath,
+              originalType: rawTypeName !== typeName ? rawTypeName : undefined,
+            },
           };
           context.addRelationship(relationship);
         }
       });
     }
+
+    // Extract inject() function calls in properties
+    const propertyInjects = extractPropertyInjectCalls(node, context.sourceFile);
+    propertyInjects.forEach((injectCall) => {
+      const typeName = getPrimaryTypeName(injectCall.token) || injectCall.token;
+      const importPath = this.findImportPathForType(typeName, context.sourceFile);
+      const relationship: Relationship = {
+        id: `${entity.id}:injects:${typeName}:${injectCall.propertyName || 'prop'}`,
+        type: RelationType.Injects,
+        source: entity.id,
+        target: typeName,
+        metadata: {
+          importPath,
+          optional: injectCall.optional,
+          self: injectCall.self,
+          skipSelf: injectCall.skipSelf,
+          host: injectCall.host,
+          injectionMethod: 'inject-function',
+          propertyName: injectCall.propertyName,
+        },
+      };
+      context.addRelationship(relationship);
+    });
+
+    // Extract inject() calls in constructor body
+    if (constructor) {
+      const constructorInjects = extractConstructorInjectCalls(constructor, context.sourceFile);
+      constructorInjects.forEach((injectCall) => {
+        const typeName = getPrimaryTypeName(injectCall.token) || injectCall.token;
+        const importPath = this.findImportPathForType(typeName, context.sourceFile);
+        const relationship: Relationship = {
+          id: `${entity.id}:injects:${typeName}:ctor-body`,
+          type: RelationType.Injects,
+          source: entity.id,
+          target: typeName,
+          metadata: {
+            importPath,
+            optional: injectCall.optional,
+            self: injectCall.self,
+            skipSelf: injectCall.skipSelf,
+            host: injectCall.host,
+            injectionMethod: 'inject-function',
+          },
+        };
+        context.addRelationship(relationship);
+      });
+    }
+  }
+
+  /**
+   * Find the import path for a given type name
+   * Searches through import declarations in the source file
+   */
+  private findImportPathForType(typeName: string, sourceFile: ts.SourceFile): string | undefined {
+    for (const statement of sourceFile.statements) {
+      if (ts.isImportDeclaration(statement)) {
+        const moduleSpecifier = statement.moduleSpecifier;
+        if (ts.isStringLiteral(moduleSpecifier)) {
+          const importPath = moduleSpecifier.text;
+
+          // Check named imports
+          const namedBindings = statement.importClause?.namedBindings;
+          if (namedBindings && ts.isNamedImports(namedBindings)) {
+            for (const element of namedBindings.elements) {
+              if (element.name.text === typeName) {
+                return importPath;
+              }
+            }
+          }
+
+          // Check default import
+          const defaultImport = statement.importClause?.name;
+          if (defaultImport && defaultImport.text === typeName) {
+            return importPath;
+          }
+        }
+      }
+    }
+    return undefined;
   }
 
   /**
@@ -266,6 +464,29 @@ export class ComponentParser {
    */
   reset(): void {
     this.results = [];
+  }
+
+  /**
+   * Extract animation references from component metadata
+   */
+  private extractAnimations(args: Record<string, any>, context: OldVisitorContext): string[] | undefined {
+    if (!args.animations) return undefined;
+
+    // animations can be an array of animation triggers or references
+    if (Array.isArray(args.animations)) {
+      const animationRefs: string[] = [];
+
+      for (const anim of args.animations) {
+        // If it's a string reference (like MATERIAL_ANIMATIONS)
+        if (typeof anim === 'string') {
+          animationRefs.push(anim);
+        }
+      }
+
+      return animationRefs.length > 0 ? animationRefs : undefined;
+    }
+
+    return undefined;
   }
 
   /**

@@ -2,7 +2,13 @@
  * Markdown formatter for RAG optimization
  */
 
-import type { KnowledgeGraph, ParserConfig, Entity, ComponentEntity, ServiceEntity, ModuleEntity } from '../types/index.js';
+import type { KnowledgeGraph, ParserConfig, Entity, ComponentEntity, ServiceEntity, ModuleEntity, DetailLevel } from '../types/index.js';
+
+interface FeatureGroup {
+  name: string;
+  path: string;
+  entities: Entity[];
+}
 
 /**
  * Formats knowledge graph as Markdown optimized for RAG
@@ -10,39 +16,245 @@ import type { KnowledgeGraph, ParserConfig, Entity, ComponentEntity, ServiceEnti
  * - Preserves hierarchy
  * - YAML frontmatter for metadata
  * - 15% more token-efficient than JSON
+ * - Supports multiple detail levels for LLM context optimization
  */
 export class MarkdownFormatter {
+  private featureGroups?: Map<string, FeatureGroup>;
+
   constructor(
     private graph: KnowledgeGraph,
-    private config: ParserConfig
+    private config: ParserConfig,
+    private level: DetailLevel = 'complete'
   ) {}
 
   format(): string {
-    const sections: string[] = [];
+    // Route to appropriate formatter based on detail level
+    switch (this.level) {
+      case 'overview':
+        return this.formatOverviewLevel();
+      case 'features':
+        return this.formatFeaturesLevel();
+      case 'detailed':
+        return this.formatDetailedLevel();
+      case 'complete':
+      default:
+        return this.formatCompleteLevel();
+    }
+  }
 
-    // Add YAML frontmatter
+  /**
+   * Overview level: Ultra-compact summary (5-10% of complete)
+   * - Project metadata
+   * - Entity counts by type and feature
+   * - Key architectural patterns
+   */
+  private formatOverviewLevel(): string {
+    const sections: string[] = [];
+    const metadata = this.graph.metadata;
+
     sections.push(this.formatFrontmatter());
     sections.push('');
+    sections.push(`# Angular Project: ${metadata.projectName || 'Unknown'}`);
+    sections.push('');
 
-    // Add overview
+    // Entity counts
+    const entityCounts = this.getEntityCounts();
+    sections.push('## Entity Summary');
+    sections.push('');
+    sections.push(`- **Components**: ${entityCounts.components}`);
+    sections.push(`- **Services**: ${entityCounts.services}`);
+    sections.push(`- **Modules**: ${entityCounts.modules}`);
+    sections.push(`- **Total Relationships**: ${metadata.totalRelationships}`);
+    sections.push('');
+
+    // Feature breakdown
+    const features = this.detectFeatures();
+    if (features.size > 0) {
+      sections.push('## Features');
+      sections.push('');
+      features.forEach((group, name) => {
+        sections.push(`- **${name}**: ${group.entities.length} entities`);
+      });
+      sections.push('');
+    }
+
+    // Architectural patterns
+    if (metadata.patterns && metadata.patterns.length > 0) {
+      sections.push('## Architecture');
+      sections.push('');
+      metadata.patterns.forEach((p) => {
+        sections.push(`- **${p.type}**: ${p.description}`);
+      });
+    }
+
+    return sections.filter(Boolean).join('\n');
+  }
+
+  /**
+   * Features level: Grouped by feature area (20-30% of complete)
+   * - One section per feature
+   * - Compact entity listings with key info only
+   */
+  private formatFeaturesLevel(): string {
+    const sections: string[] = [];
+    const features = this.detectFeatures();
+
+    sections.push(this.formatFrontmatter());
+    sections.push('');
     sections.push(this.formatOverview());
     sections.push('');
 
-    // Add global styles (if any)
-    sections.push(this.formatGlobalStyles());
+    // Group entities by feature
+    features.forEach((group, featureName) => {
+      sections.push(`## Feature: ${featureName}`);
+      sections.push('');
+      sections.push(`**Path**: \`${group.path}\``);
+      sections.push(`**Entities**: ${group.entities.length}`);
+      sections.push('');
 
-    // Add entities by type
+      // Components
+      const components = group.entities.filter(e => e.type === 'component') as ComponentEntity[];
+      if (components.length > 0) {
+        sections.push('### Components');
+        sections.push('');
+        components.forEach(c => {
+          sections.push(`- **${c.name}** (\`${c.selector || 'no selector'}\`)`);
+          if (c.inputs && c.inputs.length > 0) {
+            sections.push(`  - Inputs: ${c.inputs.map(i => i.name).join(', ')}`);
+          }
+          if (c.outputs && c.outputs.length > 0) {
+            sections.push(`  - Outputs: ${c.outputs.map(o => o.name).join(', ')}`);
+          }
+        });
+        sections.push('');
+      }
+
+      // Services
+      const services = group.entities.filter(e => e.type === 'service' || e.type === 'injectable') as ServiceEntity[];
+      if (services.length > 0) {
+        sections.push('### Services');
+        sections.push('');
+        services.forEach(s => {
+          sections.push(`- **${s.name}** (${s.providedIn || 'not provided'})`);
+          if (s.dependencies && s.dependencies.length > 0) {
+            sections.push(`  - Dependencies: ${s.dependencies.map(d => d.name).join(', ')}`);
+          }
+        });
+        sections.push('');
+      }
+
+      sections.push('---');
+      sections.push('');
+    });
+
+    return sections.filter(Boolean).join('\n');
+  }
+
+  /**
+   * Detailed level: Full entity details without relationships (60-70% of complete)
+   */
+  private formatDetailedLevel(): string {
+    const sections: string[] = [];
+
+    sections.push(this.formatFrontmatter());
+    sections.push('');
+    sections.push(this.formatOverview());
+    sections.push('');
+    sections.push(this.formatGlobalStyles());
     sections.push(this.formatComponents());
     sections.push(this.formatServices());
     sections.push(this.formatModules());
-
-    // Add relationships
-    sections.push(this.formatRelationships());
-
-    // Add hierarchy
     sections.push(this.formatHierarchy());
 
     return sections.filter(Boolean).join('\n');
+  }
+
+  /**
+   * Complete level: Everything including relationships (100%)
+   */
+  private formatCompleteLevel(): string {
+    const sections: string[] = [];
+
+    sections.push(this.formatFrontmatter());
+    sections.push('');
+    sections.push(this.formatOverview());
+    sections.push('');
+    sections.push(this.formatGlobalStyles());
+    sections.push(this.formatComponents());
+    sections.push(this.formatServices());
+    sections.push(this.formatModules());
+    sections.push(this.formatRelationships());
+    sections.push(this.formatHierarchy());
+
+    return sections.filter(Boolean).join('\n');
+  }
+
+  /**
+   * Detect features from entity file paths
+   * Groups entities by feature area (auth, admin, products, etc.)
+   */
+  private detectFeatures(): Map<string, FeatureGroup> {
+    if (this.featureGroups) {
+      return this.featureGroups;
+    }
+
+    const features = new Map<string, FeatureGroup>();
+    const entities = Array.from(this.graph.entities.values());
+
+    entities.forEach(entity => {
+      const path = entity.location.filePath;
+
+      // Extract feature from path: src/app/[feature]/...
+      const match = path.match(/\/app\/([^\/]+)\//);
+      if (!match) {
+        // No clear feature, add to "core"
+        const coreName = 'core';
+        if (!features.has(coreName)) {
+          features.set(coreName, { name: coreName, path: 'src/app', entities: [] });
+        }
+        features.get(coreName)!.entities.push(entity);
+        return;
+      }
+
+      const featureName = match[1];
+
+      // Skip common Angular folders
+      if (['shared', 'core', 'common', 'utils', 'helpers'].includes(featureName)) {
+        const sharedName = 'shared';
+        if (!features.has(sharedName)) {
+          features.set(sharedName, { name: sharedName, path: `src/app/${featureName}`, entities: [] });
+        }
+        features.get(sharedName)!.entities.push(entity);
+        return;
+      }
+
+      // Add to feature group
+      if (!features.has(featureName)) {
+        features.set(featureName, {
+          name: featureName,
+          path: `src/app/${featureName}`,
+          entities: []
+        });
+      }
+      features.get(featureName)!.entities.push(entity);
+    });
+
+    this.featureGroups = features;
+    return features;
+  }
+
+  /**
+   * Get entity counts by type
+   */
+  private getEntityCounts() {
+    const entities = Array.from(this.graph.entities.values());
+    return {
+      components: entities.filter(e => e.type === 'component').length,
+      services: entities.filter(e => e.type === 'service' || e.type === 'injectable').length,
+      modules: entities.filter(e => e.type === 'module').length,
+      directives: entities.filter(e => e.type === 'directive').length,
+      pipes: entities.filter(e => e.type === 'pipe').length,
+    };
   }
 
   private formatFrontmatter(): string {
@@ -53,6 +265,7 @@ angular_version: ${metadata.angularVersion || 'unknown'}
 total_entities: ${metadata.totalEntities}
 total_relationships: ${metadata.totalRelationships}
 generated: ${metadata.timestamp}
+detail_level: ${this.level}
 ---`;
   }
 
@@ -142,6 +355,14 @@ ${components.map((c) => this.formatComponent(c)).join('\n---\n\n')}`;
       parts.push(`\n**Change Detection**: ${component.changeDetection}`);
     }
 
+    // Add architecture context (only for detailed/complete levels)
+    if (this.level === 'detailed' || this.level === 'complete') {
+      const archContext = this.buildArchitectureContext(component);
+      if (archContext) {
+        parts.push(archContext);
+      }
+    }
+
     return parts.join('\n');
   }
 
@@ -184,6 +405,14 @@ ${services.map((s) => this.formatService(s)).join('\n---\n\n')}`;
         const flagsStr = flags.length > 0 ? ` [${flags.join(', ')}]` : '';
         parts.push(`- \`${dep.name}\`: ${dep.type}${flagsStr}`);
       });
+    }
+
+    // Add architecture context (only for detailed/complete levels)
+    if (this.level === 'detailed' || this.level === 'complete') {
+      const archContext = this.buildArchitectureContext(service);
+      if (archContext) {
+        parts.push(archContext);
+      }
     }
 
     return parts.join('\n');
@@ -331,5 +560,129 @@ ${this.formatHierarchyNode(this.graph.hierarchy, 0)}`;
     }
 
     return parts.join('\n');
+  }
+
+  /**
+   * Build architecture context showing relationships and data flow
+   */
+  private buildArchitectureContext(entity: Entity): string {
+    const parts: string[] = [];
+    const entityId = entity.id || entity.name;
+
+    // Find relationships involving this entity
+    const usesRels = this.graph.relationships.filter(r => r.source === entityId);
+    const usedByRels = this.graph.relationships.filter(r => r.target === entityId);
+
+    if (usesRels.length === 0 && usedByRels.length === 0) {
+      return ''; // No relationships to show
+    }
+
+    parts.push('\n**Architecture**:\n');
+
+    // What this entity uses/depends on
+    if (usesRels.length > 0) {
+      const byType = new Map<string, string[]>();
+      usesRels.forEach(rel => {
+        if (!byType.has(rel.type)) {
+          byType.set(rel.type, []);
+        }
+        byType.get(rel.type)!.push(rel.target);
+      });
+
+      byType.forEach((targets, relType) => {
+        const typeLabel = this.formatRelationshipType(relType);
+        parts.push(`- ${typeLabel}: ${targets.map(t => `\`${t}\``).join(', ')}`);
+      });
+    }
+
+    // What uses/depends on this entity (reverse relationships)
+    if (usedByRels.length > 0) {
+      const byType = new Map<string, string[]>();
+      usedByRels.forEach(rel => {
+        if (!byType.has(rel.type)) {
+          byType.set(rel.type, []);
+        }
+        byType.get(rel.type)!.push(rel.source);
+      });
+
+      byType.forEach((sources, relType) => {
+        const typeLabel = this.formatRelationshipType(relType, true);
+        parts.push(`- ${typeLabel}: ${sources.map(s => `\`${s}\``).join(', ')}`);
+      });
+    }
+
+    // Add data flow description for services
+    if (entity.type === 'service' || entity.type === 'injectable') {
+      const dataFlow = this.describeDataFlow(entity as ServiceEntity, usesRels, usedByRels);
+      if (dataFlow) {
+        parts.push(`\n**Data Flow**: ${dataFlow}`);
+      }
+    }
+
+    return parts.join('\n');
+  }
+
+  /**
+   * Format relationship type into readable label
+   */
+  private formatRelationshipType(type: string, reverse: boolean = false): string {
+    const labels: Record<string, { forward: string; backward: string }> = {
+      'uses': { forward: 'Uses', backward: 'Used by' },
+      'injects': { forward: 'Injects', backward: 'Injected by' },
+      'imports': { forward: 'Imports', backward: 'Imported by' },
+      'exports': { forward: 'Exports', backward: 'Exported by' },
+      'declares': { forward: 'Declares', backward: 'Declared in' },
+      'provides': { forward: 'Provides', backward: 'Provided by' },
+      'extends': { forward: 'Extends', backward: 'Extended by' },
+      'implements': { forward: 'Implements', backward: 'Implemented by' },
+      'calls': { forward: 'Calls', backward: 'Called by' },
+    };
+
+    const label = labels[type];
+    if (!label) {
+      return reverse ? `Referenced by (${type})` : `References (${type})`;
+    }
+
+    return reverse ? label.backward : label.forward;
+  }
+
+  /**
+   * Describe data flow for a service
+   */
+  private describeDataFlow(service: ServiceEntity, usesRels: any[], usedByRels: any[]): string {
+    const parts: string[] = [];
+
+    // Identify HTTP dependencies
+    const hasHttpClient = service.dependencies?.some(d =>
+      d.type === 'HttpClient' || d.name === 'http' || d.name === 'httpClient'
+    );
+
+    // Identify what components use this service
+    const consumers = usedByRels
+      .filter(rel => rel.type === 'injects')
+      .map(rel => {
+        const entity = this.graph.entities.get(rel.source);
+        return entity?.type === 'component' ? rel.source : null;
+      })
+      .filter(Boolean);
+
+    // Build data flow description
+    if (consumers.length > 0) {
+      parts.push(`Components (${consumers.join(', ')})`);
+    }
+
+    if (hasHttpClient) {
+      parts.push('→ HTTP requests');
+      parts.push('→ Backend API');
+    } else if (service.dependencies && service.dependencies.length > 0) {
+      const depNames = service.dependencies.map(d => d.name).join(', ');
+      parts.push(`→ Uses ${depNames}`);
+    }
+
+    if (parts.length > 0) {
+      parts.push('→ Returns data/state');
+    }
+
+    return parts.length > 0 ? parts.join(' ') : '';
   }
 }

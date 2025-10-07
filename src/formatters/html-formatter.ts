@@ -303,6 +303,18 @@ export class HtmlFormatter {
       color: #475569;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      user-select: none;
+    }
+
+    th[style*="cursor: pointer"]:hover {
+      background: #e2e8f0;
+      color: #667eea;
+    }
+
+    th span {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      margin-left: 0.25rem;
     }
 
     td {
@@ -558,6 +570,64 @@ export class HtmlFormatter {
       `).join('')}
     </div>
     ` : ''}
+
+    ${this.graph.metadata.dependencies ? `
+    <div class="card">
+      <h2>📦 Dependencies</h2>
+      <div style="margin-bottom: 1rem;">
+        <strong>Total external imports detected:</strong> ${this.graph.metadata.dependencies.totalExternal}
+      </div>
+
+      ${Object.keys(this.graph.metadata.dependencies.dependencies).length > 0 ? `
+      <div style="margin-bottom: 1rem;">
+        <h3>Runtime Dependencies (${Object.keys(this.graph.metadata.dependencies.dependencies).length})</h3>
+        <ul style="margin: 0.5rem 0; padding-left: 1.5rem; max-height: 200px; overflow-y: auto;">
+          ${Object.entries(this.graph.metadata.dependencies.dependencies)
+            .map(([pkg, ver]: [string, any]) => `<li><code>${this.escapeHtml(pkg)}</code>: ${this.escapeHtml(String(ver))}</li>`)
+            .join('')}
+        </ul>
+      </div>
+      ` : ''}
+
+      ${Object.keys(this.graph.metadata.dependencies.devDependencies).length > 0 ? `
+      <div style="margin-bottom: 1rem;">
+        <h3>Dev Dependencies (${Object.keys(this.graph.metadata.dependencies.devDependencies).length})</h3>
+        <details>
+          <summary style="cursor: pointer;">Show dev dependencies</summary>
+          <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+            ${Object.entries(this.graph.metadata.dependencies.devDependencies)
+              .map(([pkg, ver]: [string, any]) => `<li><code>${this.escapeHtml(pkg)}</code>: ${this.escapeHtml(String(ver))}</li>`)
+              .join('')}
+          </ul>
+        </details>
+      </div>
+      ` : ''}
+    </div>
+    ` : ''}
+
+    ${this.graph.metadata.typescript ? `
+    <div class="card">
+      <h2>⚙️ TypeScript Configuration</h2>
+      <ul style="list-style: none; padding: 0;">
+        ${this.graph.metadata.typescript.target ? `<li><strong>Target:</strong> ${this.graph.metadata.typescript.target}</li>` : ''}
+        ${this.graph.metadata.typescript.module ? `<li><strong>Module:</strong> ${this.graph.metadata.typescript.module}</li>` : ''}
+        ${this.graph.metadata.typescript.strict !== undefined ? `<li><strong>Strict mode:</strong> ${this.graph.metadata.typescript.strict ? '✅' : '❌'}</li>` : ''}
+        ${this.graph.metadata.typescript.experimentalDecorators !== undefined ? `<li><strong>Decorators:</strong> ${this.graph.metadata.typescript.experimentalDecorators ? '✅' : '❌'}</li>` : ''}
+        ${this.graph.metadata.typescript.paths ? `<li><strong>Path aliases:</strong> ${Object.keys(this.graph.metadata.typescript.paths).length} configured</li>` : ''}
+      </ul>
+
+      ${this.graph.metadata.typescript.paths && Object.keys(this.graph.metadata.typescript.paths).length > 0 ? `
+      <details style="margin-top: 1rem;">
+        <summary style="cursor: pointer;">Show path mappings</summary>
+        <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+          ${Object.entries(this.graph.metadata.typescript.paths)
+            .map(([alias, paths]: [string, any]) => `<li><code>${this.escapeHtml(alias)}</code> → <code>${this.escapeHtml(Array.isArray(paths) ? paths.join(', ') : String(paths))}</code></li>`)
+            .join('')}
+        </ul>
+      </details>
+      ` : ''}
+    </div>
+    ` : ''}
   </div>`;
   }
 
@@ -566,16 +636,46 @@ export class HtmlFormatter {
   <div id="graph" class="section">
     <div class="card">
       <h2>🔗 Dependency Graph</h2>
+      <div style="background: #f8fafc; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+        <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin-bottom: 0.75rem;">
+          <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem;">
+            <input type="checkbox" id="toggle-component" checked onchange="toggleEntityType('component')">
+            <span style="color: #3b82f6;">●</span> Components
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem;">
+            <input type="checkbox" id="toggle-service" checked onchange="toggleEntityType('service')">
+            <span style="color: #10b981;">●</span> Services
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem;">
+            <input type="checkbox" id="toggle-module" checked onchange="toggleEntityType('module')">
+            <span style="color: #f59e0b;">●</span> Modules
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem;">
+            <input type="checkbox" id="toggle-directive" checked onchange="toggleEntityType('directive')">
+            <span style="color: #8b5cf6;">●</span> Directives
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem;">
+            <input type="checkbox" id="toggle-pipe" checked onchange="toggleEntityType('pipe')">
+            <span style="color: #ec4899;">●</span> Pipes
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem;">
+            <input type="checkbox" id="toggle-external" checked onchange="toggleEntityType('external')">
+            <span style="color: #94a3b8;">●</span> External
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem;">
+            <input type="checkbox" id="toggle-unresolved" onchange="toggleEntityType('unresolved')">
+            <span style="color: #ef4444;">●</span> Unresolved
+          </label>
+        </div>
+        <div style="display: flex; gap: 0.5rem; align-items: center; font-size: 0.875rem;">
+          <span id="visible-count" style="font-weight: 600; color: #667eea;">0</span> /
+          <span id="total-count">0</span> nodes visible
+          <button onclick="showAllNodes()" style="margin-left: auto; padding: 0.375rem 0.75rem; font-size: 0.875rem;">Show All</button>
+          <button onclick="showTopNodes()" style="padding: 0.375rem 0.75rem; font-size: 0.875rem;">Top 100</button>
+        </div>
+      </div>
       <div class="graph-controls">
         <input type="text" id="graph-search" class="search-box" placeholder="Search entities..." />
-        <select id="graph-filter">
-          <option value="all">All Types</option>
-          <option value="component">Components</option>
-          <option value="service">Services</option>
-          <option value="module">Modules</option>
-          <option value="directive">Directives</option>
-          <option value="pipe">Pipes</option>
-        </select>
         <button onclick="resetGraph()">Reset View</button>
         <button onclick="togglePathFinder()" id="path-finder-btn">🔍 Path Finder</button>
       </div>
@@ -620,8 +720,24 @@ export class HtmlFormatter {
           <span>Pipe</span>
         </div>
         <div class="legend-item">
+          <div class="legend-color" style="background: #f97316;"></div>
+          <span>Constant/Token</span>
+        </div>
+        <div class="legend-item">
           <div class="legend-color" style="background: #6b7280;"></div>
           <span>Other</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #94a3b8; opacity: 0.7; border: 1px dashed #cbd5e1;"></div>
+          <span>External Package</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #ef4444; opacity: 0.6; border: 1px dotted #f87171;"></div>
+          <span>Unresolved</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #06b6d4; opacity: 0.8; border: 1px dashed #22d3ee;"></div>
+          <span>Internal File</span>
         </div>
       </div>
     </div>
@@ -634,15 +750,37 @@ export class HtmlFormatter {
     return `
   <div id="entities" class="section">
     <div class="card">
-      <h2>📋 Entities (${entities.length})</h2>
-      <input type="text" id="entity-search" class="search-box" placeholder="Search entities..." />
+      <h2>📋 Entities (<span id="entities-count">${entities.length}</span>)</h2>
+      <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+        <input type="text" id="entity-search" class="search-box" placeholder="Search entities..." style="flex: 1; min-width: 250px; margin: 0;" />
+        <select id="entity-type-filter" style="padding: 0.75rem 1rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.875rem; min-width: 150px;">
+          <option value="all">All Types</option>
+          <option value="component">Components</option>
+          <option value="service">Services</option>
+          <option value="module">Modules</option>
+          <option value="directive">Directives</option>
+          <option value="pipe">Pipes</option>
+          <option value="constant">Constants</option>
+        </select>
+        <select id="entity-standalone-filter" style="padding: 0.75rem 1rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.875rem; min-width: 150px;">
+          <option value="all">All Status</option>
+          <option value="standalone">Standalone Only</option>
+          <option value="non-standalone">Non-Standalone</option>
+        </select>
+      </div>
       <div class="virtual-scroll-container" id="virtual-scroll-container">
         <table id="entities-table">
           <thead>
             <tr>
-              <th>Type</th>
-              <th>Name</th>
-              <th>File</th>
+              <th style="cursor: pointer;" onclick="sortEntitiesBy('type')">
+                Type <span id="sort-type-indicator">↕</span>
+              </th>
+              <th style="cursor: pointer;" onclick="sortEntitiesBy('name')">
+                Name <span id="sort-name-indicator">↕</span>
+              </th>
+              <th style="cursor: pointer;" onclick="sortEntitiesBy('file')">
+                File <span id="sort-file-indicator">↕</span>
+              </th>
               <th>Details</th>
             </tr>
           </thead>
@@ -1042,11 +1180,13 @@ export class HtmlFormatter {
       type: entity.type,
       name: entity.name,
       location: entity.location,
+      standalone: (entity as any).standalone || false,
       index: index,
       entity: entity
     })))};
 
     let filteredEntities = [...allEntities];
+    let currentSort = { field: 'name', direction: 'asc' };
     const ROW_HEIGHT = 50;
     const BUFFER_SIZE = 5;
     let visibleStart = 0;
@@ -1113,20 +1253,110 @@ export class HtmlFormatter {
       spacer.style.height = \`\${totalHeight}px\`;
     }
 
-    function filterEntities(query) {
-      const lowerQuery = query.toLowerCase();
-      filteredEntities = allEntities.filter(e =>
-        e.name.toLowerCase().includes(lowerQuery) ||
-        e.type.toLowerCase().includes(lowerQuery)
-      );
+    // Sorting function
+    function sortEntitiesBy(field) {
+      // Toggle direction if clicking same field
+      if (currentSort.field === field) {
+        currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+      } else {
+        currentSort.field = field;
+        currentSort.direction = 'asc';
+      }
+
+      // Update indicators
+      document.getElementById('sort-type-indicator').textContent = '↕';
+      document.getElementById('sort-name-indicator').textContent = '↕';
+      document.getElementById('sort-file-indicator').textContent = '↕';
+
+      const indicator = document.getElementById(\`sort-\${field}-indicator\`);
+      if (indicator) {
+        indicator.textContent = currentSort.direction === 'asc' ? '↑' : '↓';
+      }
+
+      // Sort filtered entities
+      filteredEntities.sort((a, b) => {
+        let valA, valB;
+
+        if (field === 'type') {
+          valA = a.type;
+          valB = b.type;
+        } else if (field === 'name') {
+          valA = a.name.toLowerCase();
+          valB = b.name.toLowerCase();
+        } else if (field === 'file') {
+          valA = a.location.filePath;
+          valB = b.location.filePath;
+        }
+
+        if (currentSort.direction === 'asc') {
+          return valA < valB ? -1 : valA > valB ? 1 : 0;
+        } else {
+          return valA > valB ? -1 : valA < valB ? 1 : 0;
+        }
+      });
+
+      updateVirtualScroll();
+    }
+
+    // Filtering function
+    function filterEntities() {
+      const searchQuery = document.getElementById('entity-search').value.toLowerCase();
+      const typeFilter = document.getElementById('entity-type-filter').value;
+      const standaloneFilter = document.getElementById('entity-standalone-filter').value;
+
+      filteredEntities = allEntities.filter(e => {
+        // Search filter
+        const matchesSearch = !searchQuery ||
+          e.name.toLowerCase().includes(searchQuery) ||
+          e.type.toLowerCase().includes(searchQuery) ||
+          e.location.filePath.toLowerCase().includes(searchQuery);
+
+        // Type filter
+        const matchesType = typeFilter === 'all' || e.type === typeFilter;
+
+        // Standalone filter
+        let matchesStandalone = true;
+        if (standaloneFilter === 'standalone') {
+          matchesStandalone = e.standalone === true;
+        } else if (standaloneFilter === 'non-standalone') {
+          matchesStandalone = !e.standalone;
+        }
+
+        return matchesSearch && matchesType && matchesStandalone;
+      });
+
+      // Apply current sort
+      if (currentSort.field) {
+        sortEntitiesBy(currentSort.field);
+      }
+
+      // Update count
+      document.getElementById('entities-count').textContent = filteredEntities.length;
+
       updateVirtualScroll();
     }
 
     // Entity search with virtual scroll
     const entitySearch = document.getElementById('entity-search');
     if (entitySearch) {
-      entitySearch.addEventListener('input', (e) => {
-        filterEntities(e.target.value);
+      entitySearch.addEventListener('input', () => {
+        filterEntities();
+      });
+    }
+
+    // Entity type filter
+    const entityTypeFilter = document.getElementById('entity-type-filter');
+    if (entityTypeFilter) {
+      entityTypeFilter.addEventListener('change', () => {
+        filterEntities();
+      });
+    }
+
+    // Entity standalone filter
+    const entityStandaloneFilter = document.getElementById('entity-standalone-filter');
+    if (entityStandaloneFilter) {
+      entityStandaloneFilter.addEventListener('change', () => {
+        filterEntities();
       });
     }
 
@@ -1153,24 +1383,137 @@ export class HtmlFormatter {
     // D3.js Graph
     let simulation;
     let graphNodes, graphLinks, graphLabels;
+    let allGraphData = graphData; // Store original data
+    let filteredGraphData = { nodes: [], links: [] };
+    let visibleTypes = new Set(['component', 'service', 'module', 'directive', 'pipe', 'external']);
+    let showingTopOnly = true; // Start with top 100
     window.graphInitialized = false;
 
     function getNodeColor(type) {
       const colors = {
-        component: '#3b82f6',
-        service: '#10b981',
-        module: '#f59e0b',
-        directive: '#8b5cf6',
-        pipe: '#ec4899'
+        component: '#3b82f6',      // Blue
+        service: '#10b981',        // Green
+        module: '#f59e0b',         // Amber
+        directive: '#8b5cf6',      // Purple
+        pipe: '#ec4899',           // Pink
+        constant: '#f97316',       // Orange (InjectionTokens, constants)
+        external: '#94a3b8',       // Gray (external packages)
+        unresolved: '#ef4444',     // Red (unresolved dependencies)
+        'internal-file': '#06b6d4' // Cyan (internal files, not entities)
       };
       return colors[type] || '#6b7280';
     }
 
-    function initGraph() {
+    // Calculate node connectivity (degree)
+    function calculateNodeDegrees() {
+      const degrees = new Map();
+      allGraphData.nodes.forEach(n => degrees.set(n.id, 0));
+
+      allGraphData.links.forEach(link => {
+        const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+        const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+        degrees.set(sourceId, (degrees.get(sourceId) || 0) + 1);
+        degrees.set(targetId, (degrees.get(targetId) || 0) + 1);
+      });
+
+      return degrees;
+    }
+
+    // Filter graph data based on top N and visible types
+    function filterGraphData(topN = null) {
+      const degrees = calculateNodeDegrees();
+
+      // Sort nodes by degree (connectivity)
+      let sortedNodes = [...allGraphData.nodes].sort((a, b) => {
+        return (degrees.get(b.id) || 0) - (degrees.get(a.id) || 0);
+      });
+
+      // Apply top N filter if specified
+      let nodesToShow = sortedNodes;
+      if (topN) {
+        nodesToShow = sortedNodes.slice(0, topN);
+      }
+
+      // Apply type filter
+      nodesToShow = nodesToShow.filter(n => visibleTypes.has(n.type));
+
+      const visibleNodeIds = new Set(nodesToShow.map(n => n.id));
+
+      // Filter links to only include those between visible nodes
+      const visibleLinks = allGraphData.links.filter(link => {
+        const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+        const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+        return visibleNodeIds.has(sourceId) && visibleNodeIds.has(targetId);
+      });
+
+      filteredGraphData = {
+        nodes: nodesToShow,
+        links: visibleLinks
+      };
+
+      updateNodeCount();
+      return filteredGraphData;
+    }
+
+    // Update visible/total node count
+    function updateNodeCount() {
+      document.getElementById('visible-count').textContent = filteredGraphData.nodes.length;
+      document.getElementById('total-count').textContent = allGraphData.nodes.length;
+    }
+
+    // Toggle entity type visibility
+    function toggleEntityType(type) {
+      const checkbox = document.getElementById('toggle-' + type);
+      if (checkbox.checked) {
+        visibleTypes.add(type);
+      } else {
+        visibleTypes.delete(type);
+      }
+
+      filterGraphData(showingTopOnly ? 100 : null);
+      redrawGraph();
+    }
+
+    // Show all nodes
+    function showAllNodes() {
+      showingTopOnly = false;
+      filterGraphData(null);
+      redrawGraph();
+    }
+
+    // Show top 100 nodes
+    function showTopNodes() {
+      showingTopOnly = true;
+      filterGraphData(100);
+      redrawGraph();
+    }
+
+    // Redraw graph with filtered data
+    function redrawGraph() {
+      if (!window.graphInitialized) return;
+
       const container = document.getElementById('graph-container');
       const width = container.clientWidth;
       const height = container.clientHeight;
 
+      // Clear and reinitialize
+      d3.select('#graph-container').selectAll('*').remove();
+      initGraphWithData(width, height, filteredGraphData);
+    }
+
+    function initGraph() {
+      // Apply initial filter (top 100)
+      filterGraphData(100);
+
+      const container = document.getElementById('graph-container');
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+
+      initGraphWithData(width, height, filteredGraphData);
+      window.graphInitialized = true;
+    }
+
+    function initGraphWithData(width, height, data) {
       // Clear existing
       d3.select('#graph-container').selectAll('*').remove();
 
@@ -1190,36 +1533,78 @@ export class HtmlFormatter {
 
       svg.call(zoom);
 
-      // Simulation
-      simulation = d3.forceSimulation(graphData.nodes)
-        .force('link', d3.forceLink(graphData.links).id(d => d.id).distance(100))
-        .force('charge', d3.forceManyBody().strength(-300))
+      // Optimized simulation parameters for better layout
+      simulation = d3.forceSimulation(data.nodes)
+        .force('link', d3.forceLink(data.links).id(d => d.id).distance(80))
+        .force('charge', d3.forceManyBody().strength(-400))
         .force('center', d3.forceCenter(width / 2, height / 2))
-        .force('collision', d3.forceCollide().radius(30));
+        .force('collision', d3.forceCollide().radius(35))
+        .force('x', d3.forceX(width / 2).strength(0.05))
+        .force('y', d3.forceY(height / 2).strength(0.05))
+        .alphaDecay(0.02)
+        .velocityDecay(0.3);
 
       // Links
       const link = g.append('g')
         .attr('class', 'graph-links')
         .selectAll('line')
-        .data(graphData.links)
+        .data(data.links)
         .join('line')
         .attr('class', 'graph-link')
-        .attr('stroke', '#cbd5e1')
-        .attr('stroke-opacity', 0.6)
-        .attr('stroke-width', 1);
+        .attr('stroke', d => {
+          // Color links based on classification
+          if (d.classification === 'external') return '#94a3b8';
+          if (d.classification === 'unresolved') return '#ef4444';
+          if (d.classification === 'internal-file') return '#06b6d4';
+          return '#cbd5e1'; // Default for internal
+        })
+        .attr('stroke-opacity', d => {
+          // Lower opacity for unresolved
+          if (d.classification === 'unresolved') return 0.4;
+          return 0.6;
+        })
+        .attr('stroke-width', 1)
+        .attr('stroke-dasharray', d => {
+          // Dotted for unresolved, dashed for internal-file
+          if (d.classification === 'unresolved') return '2,3';
+          if (d.classification === 'internal-file') return '5,5';
+          return null;
+        });
 
       // Nodes
       const node = g.append('g')
         .attr('class', 'graph-nodes')
         .selectAll('circle')
-        .data(graphData.nodes)
+        .data(data.nodes)
         .join('circle')
         .attr('class', 'graph-node')
         .attr('data-node-id', d => d.id)
-        .attr('r', 8)
+        .attr('r', d => {
+          // Sizing: unresolved/external smaller, internal-file medium, entities normal
+          if (d.type === 'unresolved' || d.isExternal) return 5;
+          if (d.type === 'internal-file') return 6;
+          return 8;
+        })
         .attr('fill', d => getNodeColor(d.type))
         .attr('stroke', '#fff')
-        .attr('stroke-width', 2)
+        .attr('stroke-width', d => {
+          if (d.type === 'unresolved' || d.isExternal) return 1;
+          if (d.type === 'internal-file') return 1.5;
+          return 2;
+        })
+        .attr('stroke-dasharray', d => {
+          // Dashed border for external, dotted for unresolved
+          if (d.isExternal) return '3,3';
+          if (d.type === 'unresolved') return '2,2';
+          if (d.type === 'internal-file') return '4,2';
+          return null;
+        })
+        .attr('opacity', d => {
+          if (d.type === 'unresolved') return 0.6;
+          if (d.isExternal) return 0.7;
+          if (d.type === 'internal-file') return 0.8;
+          return 1;
+        })
         .call(d3.drag()
           .on('start', dragstarted)
           .on('drag', dragged)
@@ -1229,7 +1614,7 @@ export class HtmlFormatter {
       const label = g.append('g')
         .attr('class', 'graph-labels')
         .selectAll('text')
-        .data(graphData.nodes)
+        .data(data.nodes)
         .join('text')
         .attr('class', 'graph-label')
         .attr('data-node-id', d => d.id)
@@ -1241,7 +1626,17 @@ export class HtmlFormatter {
 
       // Tooltips
       node.append('title')
-        .text(d => \`\${d.name} (\${d.type})\`);
+        .text(d => {
+          if (d.isExternal) {
+            return \`\${d.name}\\n\${d.packageName}\${d.version ? ' ' + d.version : ''}\\n(external dependency)\`;
+          } else if (d.type === 'unresolved') {
+            return \`\${d.name}\\n(unresolved dependency)\`;
+          } else if (d.type === 'internal-file') {
+            return \`\${d.name}\\n\${d.filePath || ''}\\n(internal file - not parsed entity)\`;
+          } else {
+            return \`\${d.name} (\${d.type})\`;
+          }
+        });
 
       // Tick
       simulation.on('tick', () => {
@@ -1288,20 +1683,6 @@ export class HtmlFormatter {
           );
           label.attr('opacity', d =>
             d.name.toLowerCase().includes(query) ? 1 : 0.2
-          );
-        });
-      }
-
-      // Graph filter
-      const graphFilter = document.getElementById('graph-filter');
-      if (graphFilter) {
-        graphFilter.addEventListener('change', (e) => {
-          const filterType = e.target.value;
-          node.attr('opacity', d =>
-            filterType === 'all' || d.type === filterType ? 1 : 0.2
-          );
-          label.attr('opacity', d =>
-            filterType === 'all' || d.type === filterType ? 1 : 0.2
           );
         });
       }
@@ -1499,7 +1880,6 @@ export class HtmlFormatter {
         simulation.alpha(1).restart();
       }
       document.getElementById('graph-search').value = '';
-      document.getElementById('graph-filter').value = 'all';
       d3.selectAll('circle').attr('opacity', 1);
       d3.selectAll('text').attr('opacity', 1);
     }
@@ -1698,27 +2078,139 @@ export class HtmlFormatter {
   private prepareGraphData(): { nodes: any[], links: any[] } {
     const nodes: any[] = [];
     const links: any[] = [];
+    const externalNodes = new Map<string, any>();
+    const unresolvedNodes = new Map<string, any>();
+    const internalFileNodes = new Map<string, any>();
 
-    // Prepare nodes
+    // 1. Add project entities
     for (const entity of this.graph.entities.values()) {
       nodes.push({
         id: entity.id,
         name: entity.name,
         type: entity.type,
+        isExternal: false,
       });
     }
 
-    // Prepare links (filter out unresolved entities)
     const validIds = new Set(nodes.map(n => n.id));
+
+    // 2. Process relationships and create virtual nodes
     for (const rel of this.graph.relationships) {
+      // Internal relationship (both source and target are project entities)
       if (validIds.has(rel.source) && validIds.has(rel.target)) {
         links.push({
           source: rel.source,
           target: rel.target,
           type: rel.type,
+          classification: 'internal',
+        });
+        continue;
+      }
+
+      // External relationship (classification = 'external')
+      if (rel.metadata?.classification === 'external' && validIds.has(rel.source)) {
+        const externalId = rel.target; // "external:@angular/core:ElementRef"
+
+        // Create virtual node if not already created
+        if (!externalNodes.has(externalId)) {
+          externalNodes.set(externalId, {
+            id: externalId,
+            name: rel.metadata.originalName || 'Unknown',  // "ElementRef"
+            type: 'external',
+            packageName: rel.metadata.packageName, // "@angular/core"
+            version: rel.metadata.version,         // "^19.0.0"
+            isExternal: true,
+          });
+        }
+
+        // Add the relationship
+        links.push({
+          source: rel.source,
+          target: externalId,
+          type: rel.type,
+          classification: 'external',
+        });
+        continue;
+      }
+
+      // Unresolved relationship (classification = 'unresolved' OR metadata.unresolved = true)
+      if ((rel.metadata?.classification === 'unresolved' || rel.metadata?.unresolved === true) && validIds.has(rel.source)) {
+        const unresolvedId = rel.target; // "unresolved:UnknownType" or just selector name
+
+        // Create virtual node if not already created
+        if (!unresolvedNodes.has(unresolvedId)) {
+          unresolvedNodes.set(unresolvedId, {
+            id: unresolvedId,
+            name: rel.metadata.originalName || rel.target.replace('unresolved:', ''),
+            type: 'unresolved',
+            isExternal: false,
+          });
+        }
+
+        // Add the relationship
+        links.push({
+          source: rel.source,
+          target: unresolvedId,
+          type: rel.type,
+          classification: 'unresolved',
+        });
+        continue;
+      }
+
+      // Internal-file relationship (classification = 'internal' but not resolved to entity)
+      if (rel.metadata?.classification === 'internal' && rel.target.startsWith('internal-file:') && validIds.has(rel.source)) {
+        const internalFileId = rel.target; // "internal-file:./path:Type"
+
+        // Create virtual node if not already created
+        if (!internalFileNodes.has(internalFileId)) {
+          internalFileNodes.set(internalFileId, {
+            id: internalFileId,
+            name: rel.metadata.originalName || 'Internal File',
+            type: 'internal-file',
+            filePath: rel.metadata.resolvedPath,
+            isExternal: false,
+          });
+        }
+
+        // Add the relationship
+        links.push({
+          source: rel.source,
+          target: internalFileId,
+          type: rel.type,
+          classification: 'internal-file',
+        });
+        continue;
+      }
+
+      // Fallback: relationship with valid source but unhandled target
+      // (e.g., malformed providers, edge cases)
+      if (validIds.has(rel.source)) {
+        const fallbackId = rel.target;
+
+        // Create virtual node if not already created
+        if (!unresolvedNodes.has(fallbackId)) {
+          unresolvedNodes.set(fallbackId, {
+            id: fallbackId,
+            name: rel.metadata?.originalName || String(fallbackId).substring(0, 50),
+            type: 'unresolved',
+            isExternal: false,
+          });
+        }
+
+        // Add the relationship
+        links.push({
+          source: rel.source,
+          target: fallbackId,
+          type: rel.type,
+          classification: 'unresolved',
         });
       }
     }
+
+    // 3. Add virtual nodes to graph
+    nodes.push(...Array.from(externalNodes.values()));
+    nodes.push(...Array.from(unresolvedNodes.values()));
+    nodes.push(...Array.from(internalFileNodes.values()));
 
     return { nodes, links };
   }

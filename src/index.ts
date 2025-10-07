@@ -47,6 +47,7 @@ export { MarkdownFormatter } from './formatters/markdown-formatter.js';
 export { GraphRAGFormatter } from './formatters/graphrag-formatter.js';
 export { SimpleJsonFormatter } from './formatters/simple-json-formatter.js';
 export { HtmlFormatter } from './formatters/html-formatter.js';
+export { SemanticChunker, type SemanticChunk, type ChunkManifest, type ChunkMetadata } from './formatters/semantic-chunker.js';
 
 // === Types ===
 export * from './types/index.js';

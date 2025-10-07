@@ -5,6 +5,131 @@ All notable changes to ng-parser will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2025-10-07
+
+### ✨ Features
+
+#### Advanced Dependency Classification
+- **Internal vs External dependency detection**: Automatically classifies all dependencies
+  - `classification: 'internal'` - Project code (resolved entities)
+  - `classification: 'external'` - npm packages (with package name and version)
+  - `classification: 'unresolved'` - Unknown dependencies
+- **Import resolution**: Uses TypeScript compiler + package.json to resolve imports
+- **Package metadata**: External dependencies include package name and version from package.json
+- **Statistics**: Console output shows external packages and unresolved dependency counts
+
+#### Enhanced Template Analysis
+- **Template relationship creation**: Creates explicit relationships for template usage
+  - Components used in templates (`RelationType.UsesInTemplate`)
+  - Directives used in templates
+  - Pipes used in templates
+- **Angular built-in detection**: Identifies Angular framework elements
+  - Structural elements: `ng-content`, `ng-container`, `ng-template`
+  - Built-in pipes: `async`, `json`, `date`, `currency`, etc.
+  - Classified as external with `packageName: '@angular/core'` or `'@angular/common'`
+- **Selector resolution**: Resolves component/directive selectors to entity IDs
+- **Smart deduplication**: Prevents duplicate template relationships
+
+#### Constant/Enum Support
+- **ConstantParser**: New parser for extracting constants and enums
+  - Parses `export const`, `export enum`
+  - Captures initializer expressions
+  - Supports type annotations
+  - Integrated into core parsing pipeline
+
+#### Enhanced Entity Resolution
+- **Context-based disambiguation**: Resolves entities with duplicate names using:
+  - Import path matching
+  - Source file location proximity
+  - Path overlap calculation
+- **Monorepo support**: Handles multiple entities with the same name in different apps
+- **Import-based classification**: Uses import paths to determine if dependency is internal or external
+
+#### TypeScript Configuration
+- **tsconfig.json loading**: Extracts TypeScript compiler settings
+  - Target version
+  - Module system
+  - Strict mode flags
+- **Project metadata**: Includes TypeScript config in metadata output
+
+#### Dependency Metadata
+- **package.json integration**: Loads and analyzes project dependencies
+  - Project name and version
+  - Dependencies vs devDependencies classification
+  - Peer dependencies tracking
+- **Dependency statistics**: Counts external packages used in relationships
+
+### 🔧 Technical Changes
+
+#### New Utilities
+- **angular-builtin-registry.ts**: Registry of Angular framework elements
+  - `isAngularStructuralElement()`: Detects ng-content, ng-container, ng-template
+  - `isAngularBuiltinPipe()`: Detects async, json, date, etc.
+- **import-resolver.ts**: TypeScript-based import resolution
+  - Resolves imports to file paths
+  - Detects node_modules vs internal imports
+  - Package name extraction
+- **inject-helpers.ts**: Enhanced DI analysis with type extraction
+- **input-attribute-registry.ts**: Input attribute tracking for components
+- **package-helpers.ts**: package.json parsing and dependency analysis
+  - `loadPackageJson()`: Load and parse package.json
+  - `getDependencyInfo()`: Extract dependency metadata
+  - `extractPackageName()`: Parse npm package names
+  - `getDependencyVersion()`: Get version for specific package
+- **provider-helpers.ts**: Enhanced provider analysis
+- **selector-resolver.ts**: Component/directive selector resolution
+  - Build index of selectors to entity IDs
+  - Support for CSS selector matching
+- **tsconfig-helpers.ts**: TypeScript configuration loading
+  - `loadTsConfig()`: Parse tsconfig.json
+  - Extract compiler options
+- **type-helpers.ts**: TypeScript type extraction utilities
+
+#### Core Parser Changes
+- **EntityResolver**: Now requires `ts.Program`, `rootDir`, and `PackageInfo`
+  - Context-based entity resolution
+  - Import-based dependency classification
+  - Ambiguity disambiguation
+- **AngularCoreParser**:
+  - Loads package.json and tsconfig.json at parse start
+  - Passes source file map to entity resolver
+  - Creates template relationships with selector resolution
+  - Global relationship deduplication
+  - Adds dependency and TypeScript metadata to project output
+- **All entity parsers**: Updated to capture import paths in relationship metadata
+
+#### Type System Enhancements
+- **DependencyInfo**: New interface for dependency statistics
+  - Total dependencies
+  - External packages count
+  - Package names list
+- **TypeScriptConfig**: New interface for TypeScript settings
+  - Target, module, strict flags
+- **Relationship metadata**: Extended with classification fields
+  - `classification`: 'internal' | 'external' | 'unresolved'
+  - `packageName`: For external dependencies
+  - `version`: Package version
+  - `resolvedPath`: Resolved file path
+
+### 🐛 Bug Fixes
+- **Fixed self-referencing providers**: Components providing themselves (e.g., MatFormField) are now correctly preserved
+- **Fixed duplicate relationships**: Global deduplication removes duplicates from entity parsers
+- **Fixed unclassified relationships**: All relationships now have classification metadata
+- **Fixed missing entity validation**: Validates that "internal" targets actually exist
+
+### 📊 Output Improvements
+- **Console statistics**: Enhanced logging with dependency classification counts
+- **Metadata enrichment**: Project metadata includes dependencies and TypeScript config
+- **Relationship quality**: All relationships properly classified and deduplicated
+
+### ✅ Validation
+- Template relationships correctly created for all component template usage
+- Angular built-ins properly detected and classified as external
+- Selector resolution working for components and directives
+- Import-based classification working for all dependency types
+- No duplicate relationships in final output
+- TypeScript and package.json metadata correctly loaded
+
 ## [1.4.2] - 2025-10-06
 
 ### 🔧 Technical Changes

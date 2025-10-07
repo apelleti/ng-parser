@@ -2,11 +2,12 @@
  * Parse result implementation
  */
 
-import type { ParseResult, KnowledgeGraph, ParserConfig } from '../types/index.js';
+import type { ParseResult, KnowledgeGraph, ParserConfig, DetailLevel } from '../types/index.js';
 import { MarkdownFormatter } from '../formatters/markdown-formatter.js';
 import { GraphRAGFormatter } from '../formatters/graphrag-formatter.js';
 import { SimpleJsonFormatter } from '../formatters/simple-json-formatter.js';
 import { HtmlFormatter } from '../formatters/html-formatter.js';
+import { SemanticChunker, type SemanticChunk, type ChunkManifest } from '../formatters/semantic-chunker.js';
 import { optimizeEntity, removeEmptyDefaults } from '../utils/optimization-helpers.js';
 
 /**
@@ -20,9 +21,10 @@ export class ParseResultImpl implements ParseResult {
 
   /**
    * Export as Markdown (optimized for RAG)
+   * @param level Detail level: 'overview' | 'features' | 'detailed' | 'complete'
    */
-  toMarkdown(): string {
-    const formatter = new MarkdownFormatter(this.graph, this.config);
+  toMarkdown(level: DetailLevel = 'complete'): string {
+    const formatter = new MarkdownFormatter(this.graph, this.config, level);
     return formatter.format();
   }
 
@@ -64,6 +66,15 @@ export class ParseResultImpl implements ParseResult {
   toHTML(): string {
     const formatter = new HtmlFormatter(this.graph, this.config);
     return formatter.format();
+  }
+
+  /**
+   * Export as semantic chunks (for large projects)
+   * @param level Detail level for chunks
+   */
+  async toMarkdownChunked(level: DetailLevel = 'detailed'): Promise<{ chunks: SemanticChunk[]; manifest: ChunkManifest }> {
+    const chunker = new SemanticChunker(this.graph, this.config);
+    return chunker.chunk(level);
   }
 
   /**

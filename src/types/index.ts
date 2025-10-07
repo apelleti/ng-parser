@@ -73,6 +73,7 @@ export interface ComponentEntity extends Entity {
   outputs?: OutputMetadata[];
   providers?: string[];
   viewProviders?: string[];
+  animations?: string[];
   standalone?: boolean;
   imports?: string[];
   exports?: string[];
@@ -123,6 +124,16 @@ export interface PipeEntity extends Entity {
   pipeName: string;
   pure?: boolean;
   standalone?: boolean;
+}
+
+/**
+ * Constant entity (InjectionToken, exported constants, providers)
+ */
+export interface ConstantEntity extends Entity {
+  type: EntityType.Constant;
+  constantType?: 'InjectionToken' | 'const' | 'function';
+  value?: string;
+  tokenType?: string; // For InjectionToken<Type>
 }
 
 /**
@@ -196,6 +207,7 @@ export enum RelationType {
   Uses = 'uses',
   Routes = 'routes',
   LazyLoads = 'lazy_loads',
+  UsesInTemplate = 'usesInTemplate',
 }
 
 /**
@@ -220,6 +232,29 @@ export interface HierarchyNode {
 }
 
 /**
+ * Dependency information from package.json
+ */
+export interface DependencyInfo {
+  dependencies: Record<string, string>;      // Runtime dependencies with versions
+  devDependencies: Record<string, string>;   // Dev dependencies with versions
+  peerDependencies: Record<string, string>;  // Peer dependencies with versions
+  totalExternal: number;                     // Total number of external imports detected
+}
+
+/**
+ * TypeScript configuration from tsconfig.json
+ */
+export interface TypeScriptConfig {
+  target?: string;                           // ECMAScript target version (e.g., "ES2022")
+  module?: string;                           // Module system (e.g., "NodeNext")
+  strict?: boolean;                          // Strict type-checking enabled
+  experimentalDecorators?: boolean;          // Decorator support (required for Angular)
+  emitDecoratorMetadata?: boolean;           // Emit metadata for decorators
+  paths?: Record<string, string[]>;          // Path mapping for imports (e.g., "@app/*": ["src/app/*"])
+  baseUrl?: string;                          // Base directory for module resolution
+}
+
+/**
  * Graph metadata
  */
 export interface GraphMetadata {
@@ -230,6 +265,8 @@ export interface GraphMetadata {
   timestamp: string;
   patterns?: PatternDetection[];
   globalStyles?: StyleFileMetadata[];
+  dependencies?: DependencyInfo;             // Dependency versions and stats
+  typescript?: TypeScriptConfig;             // TypeScript configuration
 }
 
 /**
@@ -287,11 +324,17 @@ export interface VisitorContext {
 }
 
 /**
+ * Detail level for markdown output
+ */
+export type DetailLevel = 'overview' | 'features' | 'detailed' | 'complete';
+
+/**
  * Parse result
  */
 export interface ParseResult {
   graph: KnowledgeGraph;
-  toMarkdown(): string;
+  toMarkdown(level?: DetailLevel): string;
+  toMarkdownChunked(level?: DetailLevel): Promise<{ chunks: any[]; manifest: any }>;
   toJSON(): any;
   toGraphRAG(): any;
   toSimpleJSON(): any;

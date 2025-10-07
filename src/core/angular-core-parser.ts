@@ -7,15 +7,20 @@ import * as ts from 'typescript';
 import * as fs from 'fs';
 import * as path from 'path';
 import type { Entity, Relationship, ParserConfig, StyleFileMetadata } from '../types/index.js';
-import { ComponentParser, ServiceParser, ModuleParser, DirectiveParser, PipeParser, TemplateParser, StyleParser } from './parsers/index.js';
+import { RelationType } from '../types/index.js';
+import { ComponentParser, ServiceParser, ModuleParser, DirectiveParser, PipeParser, ConstantParser, TemplateParser, StyleParser } from './parsers/index.js';
 import { VisitorContextImpl as OldVisitorContextImpl } from './visitor-context.js';
 import { findTypeScriptFiles, findTsConfig, resolvePath } from '../utils/file-helpers.js';
 import { EntityResolver } from './entity-resolver.js';
 import { GitRemoteParser } from './parsers/git-remote-parser.js';
+import { SelectorResolver } from '../utils/selector-resolver.js';
 import type { GitRepository } from '../utils/git-helpers.js';
 import type { ComponentEntity } from '../types/index.js';
 import { parseScssFile } from '../utils/style-helpers.js';
 import { loadAngularCompiler } from '../utils/template-helpers.js';
+import { loadPackageJson, getDependencyInfo } from '../utils/package-helpers.js';
+import { loadTsConfig } from '../utils/tsconfig-helpers.js';
+import { isAngularStructuralElement, isAngularBuiltinPipe } from '../utils/angular-builtin-registry.js';
 
 export interface AngularProject {
   entities: Map<string, Entity>;
@@ -27,6 +32,8 @@ export interface AngularProject {
     angularVersion?: string;
     repository?: GitRepository;
     globalStyles?: StyleFileMetadata[];
+    dependencies?: import('../types/index.js').DependencyInfo;
+    typescript?: import('../types/index.js').TypeScriptConfig;
   };
 }
 
@@ -40,6 +47,7 @@ export class AngularCoreParser {
   private moduleParser: ModuleParser;
   private directiveParser: DirectiveParser;
   private pipeParser: PipeParser;
+  private constantParser: ConstantParser;
   private program?: ts.Program;
 
   constructor(private config: Partial<ParserConfig> = {}) {
@@ -48,6 +56,7 @@ export class AngularCoreParser {
     this.moduleParser = new ModuleParser();
     this.directiveParser = new DirectiveParser();
     this.pipeParser = new PipeParser();
+    this.constantParser = new ConstantParser();
   }
 
   /**
@@ -92,10 +101,24 @@ export class AngularCoreParser {
     this.moduleParser.reset();
     this.directiveParser.reset();
     this.pipeParser.reset();
+    this.constantParser.reset();
+
+    // Load package.json for dependency classification
+    const packageInfo = loadPackageJson(rootDir);
+    if (packageInfo) {
+      console.log(`📦 Loaded package.json: ${packageInfo.name || 'unknown'}`);
+    }
+
+    // Load tsconfig.json for TypeScript configuration
+    const tsConfig = loadTsConfig(rootDir);
+    if (tsConfig) {
+      console.log(`⚙️  Loaded tsconfig.json (target: ${tsConfig.target || 'unknown'})`);
+    }
 
     // Collect entities and relationships
     const allEntities = new Map<string, Entity>();
     const allRelationships: Relationship[] = [];
+    const sourceFileMap = new Map<string, ts.SourceFile>();
 
     // Process each source file
     for (const sourceFile of this.program.getSourceFiles()) {
@@ -135,13 +158,23 @@ export class AngularCoreParser {
           }
         }
         allEntities.set(id, entity);
+        // Map entity to source file for import resolution
+        sourceFileMap.set(id, sourceFile);
       });
       allRelationships.push(...context.relationships);
     }
 
-    // Resolve entity IDs in relationships
-    const resolver = new EntityResolver(allEntities);
-    const resolvedRelationships = resolver.resolveRelationships(allRelationships);
+    // Resolve entity IDs and classify dependencies (internal vs external)
+    const resolver = new EntityResolver(
+      allEntities,
+      this.program,
+      path.resolve(rootDir),
+      packageInfo
+    );
+    const resolvedRelationships = resolver.resolveRelationships(
+      allRelationships,
+      sourceFileMap
+    );
 
     // Log resolution statistics
     const stats = resolver.getStats(resolvedRelationships);
@@ -162,6 +195,10 @@ export class AngularCoreParser {
     // This ensures the compiler is available for template analysis
     await loadAngularCompiler();
 
+    // Build selector index for resolving template selectors to entities
+    const selectorResolver = new SelectorResolver();
+    selectorResolver.buildIndex(allEntities);
+
     // Parse templates and styles for components
     const templateParser = new TemplateParser();
     const styleParser = new StyleParser();
@@ -178,6 +215,193 @@ export class AngularCoreParser {
         );
         component.templateLocation = templateLocation;
         component.templateAnalysis = templateAnalysis;
+
+        // Create relationships based on template analysis
+        if (templateAnalysis) {
+          // Track created relationships to avoid duplicates
+          const createdRelationships = new Set<string>();
+
+          // Components used in template
+          templateAnalysis.usedComponents.forEach((selector) => {
+            // Resolve selector to entity IDs
+            const entityIds = selectorResolver.resolve(selector);
+
+            if (entityIds.length > 0) {
+              // Create relationships to resolved entities
+              entityIds.forEach(entityId => {
+                const relKey = `${component.id}::${entityId}::usesInTemplate`;
+                if (!createdRelationships.has(relKey)) {
+                  createdRelationships.add(relKey);
+                  resolvedRelationships.push({
+                    id: `${component.id}:usesInTemplate:${entityId}`,
+                    type: RelationType.UsesInTemplate,
+                    source: component.id,
+                    target: entityId,
+                    metadata: {
+                      templateUsage: 'component',
+                      selector,
+                      classification: 'internal',
+                      resolved: true,
+                    },
+                  });
+                }
+              });
+            } else {
+              // Check if it's an Angular built-in structural element
+              if (isAngularStructuralElement(selector)) {
+                // Angular built-in (ng-content, ng-container, ng-template)
+                const relKey = `${component.id}::${selector}::usesInTemplate`;
+                if (!createdRelationships.has(relKey)) {
+                  createdRelationships.add(relKey);
+                  resolvedRelationships.push({
+                    id: `${component.id}:usesInTemplate:angular-builtin:${selector}`,
+                    type: RelationType.UsesInTemplate,
+                    source: component.id,
+                    target: `angular-builtin:${selector}`,
+                    metadata: {
+                      templateUsage: 'component',
+                      selector,
+                      classification: 'external',
+                      packageName: '@angular/core',
+                      resolved: true,
+                    },
+                  });
+                }
+              } else {
+                // Keep unresolved selector for visibility
+                const relKey = `${component.id}::${selector}::usesInTemplate`;
+                if (!createdRelationships.has(relKey)) {
+                  createdRelationships.add(relKey);
+                  resolvedRelationships.push({
+                    id: `${component.id}:usesInTemplate:${selector}`,
+                    type: RelationType.UsesInTemplate,
+                    source: component.id,
+                    target: selector,
+                    metadata: {
+                      templateUsage: 'component',
+                      selector,
+                      unresolved: true,
+                      classification: 'unresolved',
+                      resolved: false,
+                    },
+                  });
+                }
+              }
+            }
+          });
+
+          // Directives used in template
+          templateAnalysis.usedDirectives.forEach((selector) => {
+            // Resolve selector to entity IDs
+            const entityIds = selectorResolver.resolve(selector);
+
+            if (entityIds.length > 0) {
+              // Create relationships to resolved entities
+              entityIds.forEach(entityId => {
+                const relKey = `${component.id}::${entityId}::usesInTemplate`;
+                if (!createdRelationships.has(relKey)) {
+                  createdRelationships.add(relKey);
+                  resolvedRelationships.push({
+                    id: `${component.id}:usesInTemplate:${entityId}`,
+                    type: RelationType.UsesInTemplate,
+                    source: component.id,
+                    target: entityId,
+                    metadata: {
+                      templateUsage: 'directive',
+                      selector,
+                      classification: 'internal',
+                      resolved: true,
+                    },
+                  });
+                }
+              });
+            } else {
+              // Check if it's an Angular built-in structural element
+              if (isAngularStructuralElement(selector)) {
+                // Angular built-in (ng-content, ng-container, ng-template)
+                const relKey = `${component.id}::${selector}::usesInTemplate`;
+                if (!createdRelationships.has(relKey)) {
+                  createdRelationships.add(relKey);
+                  resolvedRelationships.push({
+                    id: `${component.id}:usesInTemplate:angular-builtin:${selector}`,
+                    type: RelationType.UsesInTemplate,
+                    source: component.id,
+                    target: `angular-builtin:${selector}`,
+                    metadata: {
+                      templateUsage: 'directive',
+                      selector,
+                      classification: 'external',
+                      packageName: '@angular/core',
+                      resolved: true,
+                    },
+                  });
+                }
+              } else {
+                // Keep unresolved selector for visibility
+                const relKey = `${component.id}::${selector}::usesInTemplate`;
+                if (!createdRelationships.has(relKey)) {
+                  createdRelationships.add(relKey);
+                  resolvedRelationships.push({
+                    id: `${component.id}:usesInTemplate:${selector}`,
+                    type: RelationType.UsesInTemplate,
+                    source: component.id,
+                    target: selector,
+                    metadata: {
+                      templateUsage: 'directive',
+                      selector,
+                      unresolved: true,
+                      classification: 'unresolved',
+                      resolved: false,
+                    },
+                  });
+                }
+              }
+            }
+          });
+
+          // Pipes used in template
+          templateAnalysis.usedPipes.forEach((pipe) => {
+            const relKey = `${component.id}::${pipe}::usesInTemplate`;
+            if (!createdRelationships.has(relKey)) {
+              createdRelationships.add(relKey);
+
+              // Check if it's an Angular built-in pipe
+              if (isAngularBuiltinPipe(pipe)) {
+                // Angular built-in pipe (async, json, date, etc.)
+                resolvedRelationships.push({
+                  id: `${component.id}:usesInTemplate:angular-builtin:${pipe}`,
+                  type: RelationType.UsesInTemplate,
+                  source: component.id,
+                  target: `angular-builtin:pipe:${pipe}`,
+                  metadata: {
+                    templateUsage: 'pipe',
+                    classification: 'external',
+                    packageName: '@angular/common',
+                    resolved: true,
+                  },
+                });
+              } else {
+                // Check if pipe exists as an entity
+                const pipeExists = Array.from(allEntities.values()).some(
+                  e => e.type === 'pipe' && (e as any).pipeName === pipe
+                );
+
+                resolvedRelationships.push({
+                  id: `${component.id}:usesInTemplate:${pipe}`,
+                  type: RelationType.UsesInTemplate,
+                  source: component.id,
+                  target: pipe,
+                  metadata: {
+                    templateUsage: 'pipe',
+                    unresolved: !pipeExists,
+                    classification: pipeExists ? 'internal' : 'unresolved',
+                    resolved: pipeExists,
+                  },
+                });
+              }
+            }
+          });
+        }
 
         // Parse styles
         const { styleLocations, styleAnalysis } = styleParser.parseStyles(
@@ -196,16 +420,60 @@ export class AngularCoreParser {
       console.log(`📦 Found ${globalStyles.length} global style file(s)`);
     }
 
+    // Count external dependencies in relationships
+    const externalCount = resolvedRelationships.filter(
+      r => r.metadata?.classification === 'external'
+    ).length;
+
+    // Global deduplication: remove any remaining duplicate relationships
+    // Note: This handles duplicates from entity parsers (provides, injects, imports)
+    // Template relationships are already deduplicated during creation
+    const uniqueRelationships: Relationship[] = [];
+    const seenRelationships = new Set<string>();
+
+    for (const rel of resolvedRelationships) {
+      const relKey = `${rel.source}::${rel.target}::${rel.type}`;
+      if (!seenRelationships.has(relKey)) {
+        seenRelationships.add(relKey);
+
+        // Ensure all relationships have a classification
+        // Some complex expressions (arrow functions, object literals) may not have been classified
+        if (!rel.metadata || !rel.metadata.classification) {
+          uniqueRelationships.push({
+            ...rel,
+            metadata: {
+              ...rel.metadata,
+              classification: 'unresolved',
+              resolved: false,
+            },
+          });
+        } else {
+          uniqueRelationships.push(rel);
+        }
+      }
+    }
+
+    const duplicatesRemoved = resolvedRelationships.length - uniqueRelationships.length;
+    if (duplicatesRemoved > 0) {
+      console.log(`🔧 Removed ${duplicatesRemoved} duplicate relationship(s)`);
+    }
+
+    // Note on self-references:
+    // Some relationships may have source === target (e.g., MatFormField provides MatFormField).
+    // This is legitimate Angular pattern for self-providing components and should not be filtered.
+
     return {
       entities: allEntities,
-      relationships: resolvedRelationships,
+      relationships: uniqueRelationships,
       metadata: {
         totalEntities: allEntities.size,
-        totalRelationships: resolvedRelationships.length,
+        totalRelationships: uniqueRelationships.length,
         timestamp: new Date().toISOString(),
         angularVersion: this.detectAngularVersion(rootDir),
         repository: gitInfo,
         globalStyles: globalStyles.length > 0 ? globalStyles : undefined,
+        dependencies: getDependencyInfo(packageInfo, externalCount),
+        typescript: tsConfig || undefined,
       },
     };
   }
@@ -257,6 +525,7 @@ export class AngularCoreParser {
     this.moduleParser.parse(node, context);
     this.directiveParser.parse(node, context);
     this.pipeParser.parse(node, context);
+    this.constantParser.parse(node, context);
 
     // Traverse children
     ts.forEachChild(node, (child) => {

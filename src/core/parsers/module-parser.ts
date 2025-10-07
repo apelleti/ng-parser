@@ -17,6 +17,7 @@ import {
   generateEntityId,
   getClassName,
 } from '../../utils/ast-helpers.js';
+import { parseProviders } from '../../utils/provider-helpers.js';
 
 /**
  * Extractor for Angular modules
@@ -73,11 +74,15 @@ export class ModuleParser {
     // Extract declaration relationships
     entity.declarations?.forEach((declaration) => {
       if (typeof declaration === 'string') {
+        const importPath = this.findImportPathForType(declaration, context.sourceFile);
         const relationship: Relationship = {
           id: `${entity.id}:declares:${declaration}`,
           type: RelationType.Declares,
           source: entity.id,
           target: declaration,
+          metadata: {
+            importPath,
+          },
         };
         context.addRelationship(relationship);
       }
@@ -86,11 +91,15 @@ export class ModuleParser {
     // Extract import relationships
     entity.imports?.forEach((imp) => {
       if (typeof imp === 'string') {
+        const importPath = this.findImportPathForType(imp, context.sourceFile);
         const relationship: Relationship = {
           id: `${entity.id}:imports:${imp}`,
           type: RelationType.Imports,
           source: entity.id,
           target: imp,
+          metadata: {
+            importPath,
+          },
         };
         context.addRelationship(relationship);
       }
@@ -99,28 +108,98 @@ export class ModuleParser {
     // Extract export relationships
     entity.exports?.forEach((exp) => {
       if (typeof exp === 'string') {
+        const importPath = this.findImportPathForType(exp, context.sourceFile);
         const relationship: Relationship = {
           id: `${entity.id}:exports:${exp}`,
           type: RelationType.Exports,
           source: entity.id,
           target: exp,
+          metadata: {
+            importPath,
+          },
         };
         context.addRelationship(relationship);
       }
     });
 
-    // Extract provider relationships
-    entity.providers?.forEach((provider) => {
-      if (typeof provider === 'string') {
-        const relationship: Relationship = {
-          id: `${entity.id}:provides:${provider}`,
+    // Extract provider relationships (enhanced for complex providers)
+    const providers = parseProviders(entity.providers, context.sourceFile);
+    providers.forEach((provider) => {
+      // Create relationship to token
+      const tokenImportPath = this.findImportPathForType(provider.token, context.sourceFile);
+      context.addRelationship({
+        id: `${entity.id}:provides:${provider.token}`,
+        type: RelationType.Provides,
+        source: entity.id,
+        target: provider.token,
+        metadata: {
+          importPath: tokenImportPath,
+          providerType: 'token',
+        },
+      });
+
+      // Create relationship to implementation (useClass, useFactory, useExisting)
+      if (provider.implementation && provider.implementation !== provider.token) {
+        const implImportPath = this.findImportPathForType(provider.implementation, context.sourceFile);
+        context.addRelationship({
+          id: `${entity.id}:provides:${provider.implementation}`,
           type: RelationType.Provides,
           source: entity.id,
-          target: provider,
-        };
-        context.addRelationship(relationship);
+          target: provider.implementation,
+          metadata: {
+            importPath: implImportPath,
+            providerType: 'implementation',
+          },
+        });
+      }
+
+      // Create relationship to value reference
+      if (provider.value) {
+        const valueImportPath = this.findImportPathForType(provider.value, context.sourceFile);
+        context.addRelationship({
+          id: `${entity.id}:uses:${provider.value}`,
+          type: RelationType.Uses,
+          source: entity.id,
+          target: provider.value,
+          metadata: {
+            importPath: valueImportPath,
+            providerType: 'value',
+          },
+        });
       }
     });
+  }
+
+  /**
+   * Find the import path for a given type name
+   * Searches through import declarations in the source file
+   */
+  private findImportPathForType(typeName: string, sourceFile: ts.SourceFile): string | undefined {
+    for (const statement of sourceFile.statements) {
+      if (ts.isImportDeclaration(statement)) {
+        const moduleSpecifier = statement.moduleSpecifier;
+        if (ts.isStringLiteral(moduleSpecifier)) {
+          const importPath = moduleSpecifier.text;
+
+          // Check named imports
+          const namedBindings = statement.importClause?.namedBindings;
+          if (namedBindings && ts.isNamedImports(namedBindings)) {
+            for (const element of namedBindings.elements) {
+              if (element.name.text === typeName) {
+                return importPath;
+              }
+            }
+          }
+
+          // Check default import
+          const defaultImport = statement.importClause?.name;
+          if (defaultImport && defaultImport.text === typeName) {
+            return importPath;
+          }
+        }
+      }
+    }
+    return undefined;
   }
 
   getResults(): ModuleEntity[] {

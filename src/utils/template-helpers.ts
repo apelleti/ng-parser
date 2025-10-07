@@ -13,6 +13,7 @@ import {
   getBaseDir,
   generateLocationMetadata,
 } from './git-helpers.js';
+import { inputAttributeRegistry } from './input-attribute-registry.js';
 
 // Dynamic import for @angular/compiler to avoid ESM/CommonJS issues
 let angularCompiler: any = null;
@@ -87,6 +88,19 @@ export function analyzeTemplate(
     const bindings: BindingMetadata[] = [];
     const templateRefs: string[] = [];
 
+    // HTML standard attributes to ignore (not Angular directives)
+    const htmlStandardAttrs = new Set([
+      'id', 'class', 'style', 'title', 'lang', 'dir', 'hidden',
+      'tabindex', 'accesskey', 'contenteditable', 'draggable', 'spellcheck',
+      'role', 'aria-label', 'aria-labelledby', 'aria-describedby', 'aria-hidden',
+      'aria-expanded', 'aria-selected', 'aria-checked', 'aria-disabled',
+      'href', 'src', 'alt', 'width', 'height', 'type', 'value', 'name',
+      'placeholder', 'disabled', 'readonly', 'required', 'checked', 'selected',
+      'multiple', 'min', 'max', 'step', 'pattern', 'autocomplete', 'autofocus',
+      'for', 'action', 'method', 'target', 'rel', 'download',
+      'colspan', 'rowspan', 'headers', 'scope',
+    ]);
+
     // Visit all nodes in the template AST
     function visitNode(node: any): void {
       // Element nodes (components and directives)
@@ -96,21 +110,38 @@ export function analyzeTemplate(
           usedComponents.add(node.name);
         }
 
-        // Structural directives
+        // Structural directives (*ngIf, *ngFor, etc.)
         if (node.attributes) {
           node.attributes.forEach((attr: any) => {
             if (attr.name?.startsWith('*')) {
               const directiveName = attr.name.substring(1);
               usedDirectives.add(directiveName);
             }
+            // Regular attributes that might be Angular directives
+            // Filter out standard HTML attributes, CSS classes (contain --), and @Input attributes
+            else if (attr.name &&
+                     !attr.name.includes(':') &&
+                     !attr.name.startsWith('(') &&
+                     !attr.name.startsWith('[') &&
+                     !attr.name.includes('--') && // CSS classes like mdc-text-field--disabled
+                     !htmlStandardAttrs.has(attr.name.toLowerCase()) &&
+                     !attr.name.startsWith('aria-') &&
+                     !attr.name.startsWith('data-') &&
+                     !inputAttributeRegistry.isInputAttribute(attr.name)) { // Filter @Input attributes
+              usedDirectives.add(attr.name);
+            }
           });
         }
 
-        // Attribute directives
+        // Attribute directives from property bindings
         if (node.inputs) {
           node.inputs.forEach((input: any) => {
-            // Detect directives like [ngClass], [ngStyle]
-            if (input.name.startsWith('ng')) {
+            // Filter out standard property bindings (class.*, style.*, attr.*) and @Input attributes
+            if (!input.name.startsWith('class.') &&
+                !input.name.startsWith('style.') &&
+                !input.name.startsWith('attr.') &&
+                !htmlStandardAttrs.has(input.name.toLowerCase()) &&
+                !inputAttributeRegistry.isInputAttribute(input.name)) { // Filter @Input attributes
               usedDirectives.add(input.name);
             }
 

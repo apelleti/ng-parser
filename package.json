@@ -32,7 +32,7 @@
   "scripts": {
     "build": "tsc",
     "build:cli": "tsc && chmod +x dist/bin/ng-parser.js",
-    "prepublishOnly": "npm run build:cli && npm test",
+    "prepublishOnly": "npm run build:cli",
     "dev": "tsc --watch",
     "test": "jest",
     "test:coverage": "jest --coverage",

@@ -7,8 +7,6 @@ import type { CustomVisitor } from '../visitors/base/custom-visitor.js';
 import { AngularCoreParser, type AngularProject } from './angular-core-parser.js';
 import { VisitorEngine } from './visitor-engine.js';
 import type { ParserConfig, Entity, Relationship, KnowledgeGraph } from '../types/index.js';
-import { MarkdownFormatter } from '../formatters/markdown-formatter.js';
-import { GraphRAGFormatter } from '../formatters/graphrag-formatter.js';
 import { SimpleJsonFormatter } from '../formatters/simple-json-formatter.js';
 import { HtmlFormatter } from '../formatters/html-formatter.js';
 import { ParseResultImpl } from './parse-result.js';
@@ -36,10 +34,7 @@ export interface NgParseResult {
   metrics: Map<string, number | string>;
 
   // Output formatters
-  toMarkdown(level?: import('../types/index.js').DetailLevel): string;
-  toMarkdownChunked(level?: import('../types/index.js').DetailLevel): Promise<{ chunks: any[]; manifest: any }>;
   toJSON(): any;
-  toGraphRAG(): any;
   toSimpleJSON(): any;
   toHTML(): string;
 }
@@ -152,23 +147,11 @@ export class NgParser {
       metrics: visitorResults.metrics,
 
       // Formatters
-      toMarkdown: (level?: import('../types/index.js').DetailLevel) => {
-        const knowledgeGraph = this.toKnowledgeGraph(angularProject, visitorResults);
-        const config = { rootDir: targetDir, ...(this.coreParser['config'] || {}) } as ParserConfig;
-        const formatter = new MarkdownFormatter(knowledgeGraph, config, level);
-        return formatter.format();
-      },
       toJSON: () => {
         const knowledgeGraph = this.toKnowledgeGraph(angularProject, visitorResults);
         const config = { rootDir: targetDir, ...(this.coreParser['config'] || {}) } as ParserConfig;
         const parseResult = new ParseResultImpl(knowledgeGraph, config);
         return parseResult.toJSON();
-      },
-      toGraphRAG: () => {
-        const knowledgeGraph = this.toKnowledgeGraph(angularProject, visitorResults);
-        const config = { rootDir: targetDir, ...(this.coreParser['config'] || {}) } as ParserConfig;
-        const formatter = new GraphRAGFormatter(knowledgeGraph, config);
-        return formatter.format();
       },
       toSimpleJSON: () => {
         const knowledgeGraph = this.toKnowledgeGraph(angularProject, visitorResults);
@@ -181,12 +164,6 @@ export class NgParser {
         const config = { rootDir: targetDir, ...(this.coreParser['config'] || {}) } as ParserConfig;
         const formatter = new HtmlFormatter(knowledgeGraph, config);
         return formatter.format();
-      },
-      toMarkdownChunked: async (level?: import('../types/index.js').DetailLevel) => {
-        const knowledgeGraph = this.toKnowledgeGraph(angularProject, visitorResults);
-        const config = { rootDir: targetDir, ...(this.coreParser['config'] || {}) } as ParserConfig;
-        const parseResult = new ParseResultImpl(knowledgeGraph, config);
-        return parseResult.toMarkdownChunked(level);
       },
     };
 

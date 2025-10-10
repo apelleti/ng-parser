@@ -186,51 +186,6 @@ const json = result.toJSON();
 fs.writeFileSync('analysis.json', JSON.stringify(json, null, 2));
 ```
 
-#### toMarkdown()
-
-Exports the result as RAG-optimized Markdown.
-
-```typescript
-toMarkdown(): string
-```
-
-**Returns:** Markdown string with YAML frontmatter
-
-**Features:**
-- YAML frontmatter for metadata
-- Hierarchical structure
-- Semantic chunking
-- 15% more token-efficient than JSON
-
-**Example:**
-
-```typescript
-const markdown = result.toMarkdown();
-fs.writeFileSync('analysis.md', markdown);
-```
-
-#### toGraphRAG()
-
-Exports the result as a knowledge graph (JSON-LD).
-
-```typescript
-toGraphRAG(): object
-```
-
-**Returns:** JSON-LD knowledge graph
-
-**Format:**
-- Entities as nodes
-- Relationships as edges
-- Schema.org vocabulary
-
-**Example:**
-
-```typescript
-const graph = result.toGraphRAG();
-fs.writeFileSync('graph.json', JSON.stringify(graph, null, 2));
-```
-
 #### toSimpleJSON()
 
 Exports a simplified JSON format (ng-analyzer compatible).
@@ -597,7 +552,7 @@ Represents a relationship between entities.
 
 ```typescript
 interface Relationship {
-  type: 'imports' | 'injects' | 'declares' | 'exports' | 'provides';
+  type: 'imports' | 'exports' | 'declares' | 'provides' | 'injects' | 'uses' | 'usesInTemplate';
   from: string;  // Entity ID
   to: string;    // Entity ID
 }
@@ -673,24 +628,6 @@ interface VisitorError {
 
 Formatters are used internally by `NgParseResult` methods but can also be used directly.
 
-### MarkdownFormatter
-
-```typescript
-import { MarkdownFormatter } from 'ng-parser';
-
-const formatter = new MarkdownFormatter();
-const markdown = formatter.format(result);
-```
-
-### GraphRAGFormatter
-
-```typescript
-import { GraphRAGFormatter } from 'ng-parser';
-
-const formatter = new GraphRAGFormatter();
-const graph = formatter.format(result);
-```
-
 ### SimpleJsonFormatter
 
 ```typescript
@@ -698,6 +635,15 @@ import { SimpleJsonFormatter } from 'ng-parser';
 
 const formatter = new SimpleJsonFormatter();
 const json = formatter.format(result);
+```
+
+### HtmlFormatter
+
+```typescript
+import { HtmlFormatter } from 'ng-parser';
+
+const formatter = new HtmlFormatter();
+const html = formatter.format(result);
 ```
 
 ---

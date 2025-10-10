@@ -2,12 +2,9 @@
  * Parse result implementation
  */
 
-import type { ParseResult, KnowledgeGraph, ParserConfig, DetailLevel } from '../types/index.js';
-import { MarkdownFormatter } from '../formatters/markdown-formatter.js';
-import { GraphRAGFormatter } from '../formatters/graphrag-formatter.js';
+import type { ParseResult, KnowledgeGraph, ParserConfig } from '../types/index.js';
 import { SimpleJsonFormatter } from '../formatters/simple-json-formatter.js';
 import { HtmlFormatter } from '../formatters/html-formatter.js';
-import { SemanticChunker, type SemanticChunk, type ChunkManifest } from '../formatters/semantic-chunker.js';
 import { optimizeEntity, removeEmptyDefaults } from '../utils/optimization-helpers.js';
 
 /**
@@ -18,15 +15,6 @@ export class ParseResultImpl implements ParseResult {
     public graph: KnowledgeGraph,
     private config: ParserConfig
   ) {}
-
-  /**
-   * Export as Markdown (optimized for RAG)
-   * @param level Detail level: 'overview' | 'features' | 'detailed' | 'complete'
-   */
-  toMarkdown(level: DetailLevel = 'complete'): string {
-    const formatter = new MarkdownFormatter(this.graph, this.config, level);
-    return formatter.format();
-  }
 
   /**
    * Export as JSON (optimized - removes empty arrays and redundant fields)
@@ -45,14 +33,6 @@ export class ParseResultImpl implements ParseResult {
   }
 
   /**
-   * Export as GraphRAG format
-   */
-  toGraphRAG(): any {
-    const formatter = new GraphRAGFormatter(this.graph, this.config);
-    return formatter.format();
-  }
-
-  /**
    * Export as simple JSON (ng-analyzer style)
    */
   toSimpleJSON(): any {
@@ -66,15 +46,6 @@ export class ParseResultImpl implements ParseResult {
   toHTML(): string {
     const formatter = new HtmlFormatter(this.graph, this.config);
     return formatter.format();
-  }
-
-  /**
-   * Export as semantic chunks (for large projects)
-   * @param level Detail level for chunks
-   */
-  async toMarkdownChunked(level: DetailLevel = 'detailed'): Promise<{ chunks: SemanticChunk[]; manifest: ChunkManifest }> {
-    const chunker = new SemanticChunker(this.graph, this.config);
-    return chunker.chunk(level);
   }
 
   /**

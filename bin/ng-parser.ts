@@ -38,7 +38,7 @@ program
   .option('-o, --output <file>', 'Output file path')
   .option(
     '-f, --format <format>',
-    'Output format: full|simple|markdown|graph|html|all',
+    'Output format: full|simple|html|all',
     'full'
   )
   .option('--visitors <visitors>', 'Enable visitors (comma-separated: rxjs,security,performance)')
@@ -175,17 +175,6 @@ program
           );
           console.log(`   ✓ ${outputBase}.simple.json`);
 
-          const markdown = result.toMarkdown();
-          fs.writeFileSync(path.join(outputDir, `${outputBase}.rag.md`), markdown);
-          console.log(`   ✓ ${outputBase}.rag.md`);
-
-          const graph = result.toGraphRAG();
-          fs.writeFileSync(
-            path.join(outputDir, `${outputBase}.graph.json`),
-            JSON.stringify(graph, null, 2)
-          );
-          console.log(`   ✓ ${outputBase}.graph.json`);
-
           const html = result.toHTML();
           fs.writeFileSync(path.join(outputDir, `${outputBase}.html`), html);
           console.log(`   ✓ ${outputBase}.html`);
@@ -197,15 +186,6 @@ program
           switch (format) {
             case 'simple':
               content = JSON.stringify(result.toSimpleJSON(), null, 2);
-              extension = '.json';
-              break;
-            case 'markdown':
-            case 'rag':
-              content = result.toMarkdown();
-              extension = '.md';
-              break;
-            case 'graph':
-              content = JSON.stringify(result.toGraphRAG(), null, 2);
               extension = '.json';
               break;
             case 'html':

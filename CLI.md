@@ -94,22 +94,6 @@ Entities only (ng-analyzer compatible):
 ng-parser parse ./src -f simple -o entities.json
 ```
 
-### Markdown (RAG)
-
-RAG-optimized markdown with YAML frontmatter:
-
-```bash
-ng-parser parse ./src -f markdown -o docs.md
-```
-
-### GraphRAG
-
-Knowledge graph for graph databases (JSON-LD):
-
-```bash
-ng-parser parse ./src -f graph -o knowledge-graph.json
-```
-
 ### HTML
 
 Interactive visualization with D3.js dependency graph:
@@ -137,8 +121,6 @@ ng-parser parse ./src -f all -o ./output/my-project
 **Creates:**
 - `my-project.full.json` - Complete data
 - `my-project.simple.json` - Entities only
-- `my-project.rag.md` - RAG-optimized markdown
-- `my-project.graph.json` - Knowledge graph
 - `my-project.html` - Interactive HTML visualization
 
 ## Options
@@ -146,7 +128,7 @@ ng-parser parse ./src -f all -o ./output/my-project
 | Option | Description | Default |
 |--------|-------------|---------|
 | `-o, --output <file>` | Output file path | - |
-| `-f, --format <format>` | Output format: `full`, `simple`, `markdown`, `graph`, `html`, `all` | `full` |
+| `-f, --format <format>` | Output format: `full`, `simple`, `html`, `all` | `full` |
 | `--visitors <list>` | Enable visitors (comma-separated: `rxjs,security,performance`) | none |
 | `--all-visitors` | Enable all built-in visitors | false |
 | `-v, --verbose` | Verbose output | false |
@@ -187,23 +169,7 @@ ng-parser parse ./src --all-visitors -f all -o ./reports/analysis
 
 Full parse with all visitors, all export formats.
 
-### 5. RAG Pipeline
-
-```bash
-ng-parser parse ./src -f markdown -o architecture.md
-```
-
-Generate RAG-optimized docs for LLM consumption.
-
-### 6. Knowledge Graph
-
-```bash
-ng-parser parse ./src -f graph -o graph.json
-```
-
-Export as JSON-LD knowledge graph for Neo4j, etc.
-
-### 7. Interactive HTML Visualization
+### 5. Interactive HTML Visualization
 
 ```bash
 ng-parser parse ./src --all-visitors -f html -o interactive-docs.html
@@ -241,8 +207,8 @@ Generate interactive HTML documentation with:
 #!/bin/bash
 # Generate architecture docs on every commit
 
-ng-parser parse ./src -f markdown -o docs/architecture.md
-git add docs/architecture.md
+ng-parser parse ./src -f html -o docs/architecture.html
+git add docs/architecture.html
 ```
 
 ### Pre-commit Hook
@@ -264,8 +230,7 @@ ng-parser parse ./src -f all -o ./docs/angular-analysis
 # Creates:
 #   angular-analysis.full.json
 #   angular-analysis.simple.json
-#   angular-analysis.rag.md
-#   angular-analysis.graph.json
+#   angular-analysis.html
 ```
 
 ## Verbose Mode

@@ -5,6 +5,82 @@ All notable changes to ng-parser will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2025-10-10
+
+### ⚠️ BREAKING CHANGES
+
+**Removed Formatters**:
+- Removed `MarkdownFormatter` and `GraphRAGFormatter`
+- Removed `toMarkdown()` and `toGraphRAG()` methods from `NgParseResult`
+- Removed `toMarkdownChunked()` method
+- Removed `SemanticChunker` class
+
+**Remaining Export Formats:**
+- `toJSON()` - Complete optimized JSON export (recommended for LLMs)
+- `toSimpleJSON()` - Simplified JSON format (ng-analyzer compatible)
+- `toHTML()` - Interactive HTML visualization with D3.js
+
+**CLI Changes:**
+- Format options updated: `full`, `simple`, `html`, `all` (removed `markdown`, `graph`, `rag`)
+- All format export no longer includes `.rag.md` and `.graph.json` files
+
+**Removed Relationship Types**:
+- Removed `Extends` - Class inheritance (never used)
+- Removed `Implements` - Interface implementation (never used)
+- Removed `Routes` - Routing relationships (never used)
+- Removed `LazyLoads` - Lazy loading (never used)
+
+**Remaining Relationship Types (7):**
+- `Imports` - Module/component imports
+- `Exports` - Module exports
+- `Declares` - Module declarations
+- `Provides` - Dependency injection providers
+- `Injects` - Dependency injection consumption
+- `Uses` - Provider values and animations
+- `UsesInTemplate` - Template dependencies (components, directives, pipes)
+
+### 🎯 Improvements
+
+**Simplified API:**
+- Reduced export formats from 5 to 3 (focus on JSON and HTML)
+- Streamlined `RelationType` enum from 11 to 7 types
+- Removed ~1,500 lines of unused code
+- Clearer, more focused API for users
+
+**Enhanced JSON Export:**
+- `toJSON()` now the primary format for LLM consumption
+- Includes all optimizations (removes empty arrays, default values)
+- Complete data structure with entities, relationships, metadata
+
+**Better Documentation:**
+- Updated all documentation to reflect simplified API
+- Removed references to unused formatters
+- Clearer export format guidance
+
+### 🔧 Technical Changes
+
+- Removed `src/formatters/markdown-formatter.ts` (~600 lines)
+- Removed `src/formatters/graphrag-formatter.ts` (~300 lines)
+- Removed `src/formatters/semantic-chunker.ts` (~412 lines)
+- Removed corresponding test files
+- Updated `src/types/index.ts` to remove unused `RelationType` values
+- Updated `bin/ng-parser.ts` CLI to reflect new format options
+
+### 📚 Documentation Updates
+
+- Updated `README.md` - Simplified export formats section
+- Updated `CLI.md` - Removed markdown/graphrag format documentation
+- Updated `API_REFERENCE.md` - Removed formatter references
+- Updated `GETTING_STARTED.md` - Updated export format table
+- All examples updated to use remaining formats
+
+### ✅ Validation
+
+- ✅ Build successful with TypeScript compilation
+- ✅ 173/174 tests passing (1 pre-existing failure)
+- ✅ CLI works with new format options
+- ✅ All remaining formatters functional
+
 ## [1.5.0] - 2025-10-07
 
 ### ✨ Features

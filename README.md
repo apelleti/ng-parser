@@ -1,6 +1,6 @@
 # ng-parser
 
-Advanced Angular parser with RAG/GraphRAG optimized output and extensible visitor architecture.
+Advanced Angular parser with RAG-optimized output and extensible visitor architecture.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -13,7 +13,7 @@ Advanced Angular parser with RAG/GraphRAG optimized output and extensible visito
 - 🎨 **Template & Style Analysis** - Parse HTML templates and SCSS files with full dependency tracking
 - 🌐 **Git Integration** - Automatic source URLs for GitHub, GitLab, Bitbucket, Azure DevOps
 - 🎯 **Global Styles** - Auto-detect and parse global SCSS files (styles.scss, theme.scss, etc.)
-- 🤖 **RAG Optimized** - Markdown & JSON-LD outputs for LLM consumption
+- 🤖 **RAG Optimized** - JSON outputs optimized for LLM consumption
 - ⚡ **Maintainable** - Built on official @angular/compiler-cli
 - 🔌 **Extensible** - Create custom visitors for your analysis needs
 - 🛡️ **Built-in Visitors** - RxJS patterns, Security, Performance analysis
@@ -45,7 +45,7 @@ ng-parser parse ./src --visitors rxjs,security
 # Export to file
 ng-parser parse ./src -o analysis.json
 
-# Export all formats (JSON, Markdown, GraphRAG, SimpleJSON, HTML)
+# Export all formats (JSON, SimpleJSON, HTML)
 ng-parser parse ./src -f all -o ./output/my-project
 ```
 
@@ -100,14 +100,8 @@ console.log(`By pattern:`, securityResults.byPattern);
 ### Export to Multiple Formats
 
 ```typescript
-// JSON export (complete data)
+// JSON export (complete data, optimized)
 const json = result.toJSON();
-
-// Markdown export (RAG-optimized)
-const markdown = result.toMarkdown();
-
-// GraphRAG export (JSON-LD knowledge graph)
-const graphRAG = result.toGraphRAG();
 
 // SimpleJSON export (ng-analyzer compatible)
 const simple = result.toSimpleJSON();
@@ -467,25 +461,10 @@ const json = result.toJSON();
 
 **Contains:** All entities, relationships, metadata, custom analysis, warnings, errors, metrics
 
-### Markdown Export
-
-RAG/LLM-optimized documentation:
-
-```typescript
-const markdown = result.toMarkdown();
-```
-
-**Features:** YAML frontmatter, hierarchical structure, semantic chunking, 15% more token-efficient than JSON
-
-### GraphRAG Export
-
-Knowledge graph for graph databases:
-
-```typescript
-const graphRAG = result.toGraphRAG();
-```
-
-**Format:** JSON-LD with schema.org vocabulary, entities as nodes, relationships as edges
+**Optimizations:**
+- Removes empty arrays and default values
+- Optimized entity structure
+- Ready for LLM consumption
 
 ### SimpleJSON Export
 
@@ -494,6 +473,11 @@ ng-analyzer compatible format:
 ```typescript
 const simple = result.toSimpleJSON();
 ```
+
+**Features:**
+- Simplified structure for basic analysis
+- Compatible with legacy ng-analyzer tools
+- Lightweight output
 
 ### HTML Export
 

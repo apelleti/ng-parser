@@ -202,11 +202,7 @@ export enum RelationType {
   Declares = 'declares',
   Provides = 'provides',
   Injects = 'injects',
-  Extends = 'extends',
-  Implements = 'implements',
   Uses = 'uses',
-  Routes = 'routes',
-  LazyLoads = 'lazy_loads',
   UsesInTemplate = 'usesInTemplate',
 }
 
@@ -333,10 +329,7 @@ export type DetailLevel = 'overview' | 'features' | 'detailed' | 'complete';
  */
 export interface ParseResult {
   graph: KnowledgeGraph;
-  toMarkdown(level?: DetailLevel): string;
-  toMarkdownChunked(level?: DetailLevel): Promise<{ chunks: any[]; manifest: any }>;
   toJSON(): any;
-  toGraphRAG(): any;
   toSimpleJSON(): any;
   toHTML(): string;
   getGraph(): KnowledgeGraph;

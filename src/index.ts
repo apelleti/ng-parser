@@ -35,19 +35,9 @@ export {
   type PerformanceResults,
 } from './visitors/built-in/index.js';
 
-// === Legacy API (for backward compatibility) ===
-export { AngularParser } from './core/angular-parser.js';
-export { VisitorRegistry } from './core/visitor-registry.js';
-export { ComponentExtractor } from './extractors/component-extractor.js';
-export { ServiceExtractor } from './extractors/service-extractor.js';
-export { ModuleExtractor } from './extractors/module-extractor.js';
-
 // === Formatters ===
-export { MarkdownFormatter } from './formatters/markdown-formatter.js';
-export { GraphRAGFormatter } from './formatters/graphrag-formatter.js';
 export { SimpleJsonFormatter } from './formatters/simple-json-formatter.js';
 export { HtmlFormatter } from './formatters/html-formatter.js';
-export { SemanticChunker, type SemanticChunk, type ChunkManifest, type ChunkMetadata } from './formatters/semantic-chunker.js';
 
 // === Types ===
 export * from './types/index.js';

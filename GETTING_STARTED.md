@@ -80,8 +80,8 @@ for (const entity of result.entities.values()) {
 
 // Export to different formats
 const json = result.toJSON();
-const markdown = result.toMarkdown();
-const graph = result.toGraphRAG();
+const simple = result.toSimpleJSON();
+const html = result.toHTML();
 ```
 
 ## Common Use Cases
@@ -89,8 +89,8 @@ const graph = result.toGraphRAG();
 ### 1. Generate Documentation
 
 ```bash
-# RAG-optimized markdown for LLMs
-ng-parser parse ./src -f markdown -o architecture.md
+# Interactive HTML visualization
+ng-parser parse ./src -f html -o architecture.html
 ```
 
 ### 2. Extract Security Patterns
@@ -114,23 +114,15 @@ ng-parser parse ./src --visitors rxjs -o rxjs-report.json
 ng-parser parse ./src --all-visitors -f all -o ./reports/analysis
 ```
 
-### 5. Knowledge Graph Export
-
-```bash
-# Export as JSON-LD for graph databases
-ng-parser parse ./src -f graph -o knowledge-graph.json
-```
-
 ## Export Formats
 
 ng-parser supports multiple output formats:
 
 | Format | CLI Flag | Description | Use Case |
 |--------|----------|-------------|----------|
-| **Full JSON** | `-f full` (default) | Complete data | Tools, analysis |
+| **Full JSON** | `-f full` (default) | Complete data with optimizations | Tools, analysis, LLM consumption |
 | **SimpleJSON** | `-f simple` | Entities only | Lightweight reports |
-| **Markdown** | `-f markdown` | RAG-optimized | LLM consumption |
-| **GraphRAG** | `-f graph` | JSON-LD knowledge graph | Graph databases |
+| **HTML** | `-f html` | Interactive visualization | Documentation, presentations |
 | **All** | `-f all` | All formats at once | Complete export |
 
 ## Visitors (Pattern Extraction)
